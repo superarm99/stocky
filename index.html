@@ -2,7 +2,7 @@
 <html lang="th" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Stocky - 3D Inventory</title>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -70,6 +70,11 @@
             /* Font Size Scale */
             font-size: var(--font-scale, 14px);
             transition: background 0.3s, color 0.3s;
+            /* Use dvh for mobile browser compatibility */
+            height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
         }
 
         /* Font scale utility */
@@ -77,8 +82,8 @@
         body[data-font="normal"] { --font-scale: 14px; }
         body[data-font="large"]  { --font-scale: 16px; }
 
-        #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; outline: none; }
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; }
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 1; outline: none; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100dvh; z-index: 10; pointer-events: none; display: flex; }
         .pointer-events-auto { pointer-events: auto; }
 
         .overflow-y-auto { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
@@ -92,9 +97,11 @@
             background: var(--sidebar-bg);
             border-right-color: var(--border);
             transition: transform 0.3s ease-in-out, background 0.3s;
+            height: 100dvh;
+            padding-bottom: env(safe-area-inset-bottom);
         }
         @media (max-width: 768px) {
-            #sidebar { position: fixed; height: 100%; transform: translateX(-100%); }
+            #sidebar { position: fixed; height: 100dvh; transform: translateX(-100%); }
             #sidebar.open { transform: translateX(0); }
             #overlay.open { display: block; }
         }
@@ -103,6 +110,15 @@
         #main-modal {
             background: var(--modal-bg);
             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
+            /* Better mobile spacing */
+            top: max(8px, env(safe-area-inset-top));
+            bottom: max(8px, env(safe-area-inset-bottom));
+            left: max(8px, env(safe-area-inset-left));
+            right: max(8px, env(safe-area-inset-right));
+            max-height: calc(100dvh - 16px);
+        }
+        @media (min-width: 768px) {
+            #main-modal { top: 16px; bottom: 16px; left: 16px; right: 16px; max-height: calc(100vh - 32px); }
         }
         .modal-hidden { opacity: 0; pointer-events: none; transform: scale(0.95); }
         .modal-show { opacity: 1; pointer-events: auto; transform: scale(1); }
@@ -123,6 +139,10 @@
             color: var(--text);
             transition: background 0.3s, border-color 0.3s, color 0.3s;
         }
+        /* Fix iOS Zoom on input */
+        @media screen and (max-width: 768px) {
+            input, select, textarea { font-size: 16px !important; }
+        }
         .input-style:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); }
 
         /* ===== LOADER ===== */
@@ -131,28 +151,30 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ===== TOAST ===== */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        #toast-container { position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
         .toast { background: var(--card-bg); border-left: 4px solid #10b981; padding: 10px 16px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; animation: slideIn 0.3s ease forwards, fadeOut 0.3s ease 2.7s forwards; font-size: 0.85rem; }
         .toast.error { border-left-color: #ef4444; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 
         /* ===== AUTOCOMPLETE ===== */
-        .autocomplete-list { position: absolute; z-index: 50; background: var(--card-bg); border: 1px solid var(--border); border-radius: 0.5rem; max-height: 150px; overflow-y: auto; width: 100%; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15); display: none; }
-        .autocomplete-item { padding: 7px 10px; cursor: pointer; transition: background 0.2s; font-size: 0.875rem; }
+        .autocomplete-list { position: absolute; z-index: 50; background: var(--card-bg); border: 1px solid var(--border); border-radius: 0.5rem; max-height: 200px; overflow-y: auto; width: 100%; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); display: none; margin-top: 4px; }
+        .autocomplete-item { padding: 10px 12px; cursor: pointer; transition: background 0.2s; font-size: 0.875rem; border-bottom: 1px solid var(--border); }
+        .autocomplete-item:last-child { border-bottom: none; }
         .autocomplete-item:hover { background: var(--hover-bg); }
 
         /* ===== LIST / GRID VIEW ===== */
         .grid-view-btn.active { background: #e0e7ff; color: #4f46e5; border-color: #c7d2fe; }
         html.dark .grid-view-btn.active { background: #3730a3; color: #a5b4fc; }
-        .items-list-view > div { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 14px; }
+        .items-list-view > div { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 16px; }
         .items-list-view .item-details { display: flex; flex-direction: row; align-items: center; gap: 12px; flex-wrap: wrap; }
         @media (max-width: 640px) {
-            .items-list-view > div { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .items-list-view > div { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .items-list-view > div > div:last-child { width: 100%; justify-content: space-between; }
         }
 
         /* ===== CREDIT WATERMARK — shows only on home ===== */
-        #credit-watermark { transition: opacity 0.4s; }
+        #credit-watermark { transition: opacity 0.4s; bottom: max(12px, env(safe-area-inset-bottom)); left: max(12px, env(safe-area-inset-left)); }
 
         /* ===== LOW STOCK BADGE ===== */
         .low-stock-badge { display: inline-flex; align-items: center; gap: 4px; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; animation: pulse 2s infinite; }
@@ -165,19 +187,19 @@
         .easter-text { position: relative; z-index: 2; }
         .easter-text h1 { font-size: clamp(1.5rem, 5vw, 3rem); font-weight: 800; letter-spacing: 0.1em; color: #e2e8f0; margin-bottom: 0.5rem; text-shadow: 0 0 30px rgba(148,210,255,0.5); }
         .easter-text p { font-size: clamp(0.8rem, 2vw, 1.1rem); color: #94a3b8; margin-bottom: 2rem; }
-        #btn-back-earth { padding: 10px 28px; background: #10b981; color: white; border: none; border-radius: 30px; font-size: 0.9rem; font-weight: 700; cursor: pointer; z-index: 2; position: relative; transition: background 0.2s; }
-        #btn-back-earth:hover { background: #059669; }
+        #btn-back-earth { padding: 12px 32px; background: #10b981; color: white; border: none; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; z-index: 2; position: relative; transition: background 0.2s; box-shadow: 0 4px 15px rgba(16,185,129,0.4); }
+        #btn-back-earth:hover { background: #059669; transform: translateY(-2px); }
 
         /* ===== PASSWORD MODAL ===== */
-        #pwd-modal { position: fixed; inset: 0; z-index: 9980; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; pointer-events: auto; }
+        #pwd-modal { position: fixed; inset: 0; z-index: 9980; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; pointer-events: auto; padding: 16px;}
         #pwd-modal.show { display: flex; }
-        #pwd-box { background: var(--modal-bg); border-radius: 1.5rem; padding: 2rem; width: min(380px, 92vw); box-shadow: 0 25px 50px rgba(0,0,0,0.25); border: 1px solid var(--border); }
+        #pwd-box { background: var(--modal-bg); border-radius: 1.5rem; padding: 2rem; width: 100%; max-width: 380px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); border: 1px solid var(--border); }
 
         /* Print */
         #print-area { display: none; }
         @media print {
             #canvas-container, #ui-layer, #toast-container, .fixed, #item-modal, #main-overlay, #main-modal, #confirm-modal, #easter-egg, #pwd-modal { display: none !important; }
-            body { background: white !important; overflow: visible !important; font-size: 12px; }
+            body { background: white !important; overflow: visible !important; font-size: 12px; height: auto; }
             #print-area { display: block !important; padding: 20px; color: black; }
             table { width: 100%; border-collapse: collapse; margin-top: 16px; }
             th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; font-size: 12px; }
@@ -208,6 +230,12 @@
             color: var(--text) !important;
         }
         html.dark #sidebar { background: rgba(15,23,42,0.98); border-right-color: #334155; }
+        
+        /* Floating action buttons */
+        .floating-actions {
+            bottom: max(20px, env(safe-area-inset-bottom));
+            right: max(20px, env(safe-area-inset-right));
+        }
     </style>
 </head>
 <body data-font="normal">
@@ -229,7 +257,7 @@
         <canvas id="moon-canvas"></canvas>
         <div class="easter-text">
             <h1>🌙 ยินดีต้อนรับสู่ดวงจันทร์</h1>
-            <p>คุณ zoom ออกมาไกลเกินไปแล้ว... มีคลังสินค้าบนดวงจันทร์ด้วยนะ!</p>
+            <p>คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... มีคลังสินค้าบนดวงจันทร์ด้วยนะ!</p>
             <button id="btn-back-earth">🚀 กลับโลก</button>
         </div>
     </div>
@@ -238,7 +266,7 @@
     <div id="pwd-modal">
         <div id="pwd-box">
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
                 <div>
@@ -249,8 +277,8 @@
             <input type="password" id="pwd-input" placeholder="รหัสผ่าน" class="w-full px-4 py-3 border rounded-xl text-sm mb-3 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onkeydown="if(event.key==='Enter') checkPassword()">
             <div id="pwd-error" class="text-red-500 text-xs mb-3 hidden">รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่หรือติดต่อนักพัฒนา</div>
             <div class="flex gap-3">
-                <button onclick="closePwdModal()" class="flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:var(--hover-bg);color:var(--text)">ยกเลิก</button>
-                <button onclick="checkPassword()" class="flex-1 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors">ยืนยัน</button>
+                <button onclick="closePwdModal()" class="flex-1 py-3 rounded-xl text-sm font-medium" style="background:var(--hover-bg);color:var(--text)">ยกเลิก</button>
+                <button onclick="checkPassword()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors">ยืนยัน</button>
             </div>
             <p class="text-xs mt-4 text-center" style="color:var(--text-muted)">หากลืมรหัสผ่าน กรุณาติดต่อ <a href="mailto:velken_arm_@hotmail.com" class="text-primary hover:underline">นักพัฒนา</a></p>
         </div>
@@ -259,182 +287,188 @@
     <div id="canvas-container"></div>
 
     <div id="ui-layer">
-        <div id="overlay" class="fixed inset-0 bg-black/20 hidden pointer-events-auto z-40 md:hidden" onclick="toggleSidebar()"></div>
+        <div id="overlay" class="fixed inset-0 bg-black/40 hidden pointer-events-auto z-40 md:hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar()"></div>
 
         <aside id="sidebar" class="w-64 backdrop-blur-md border-r shadow-xl flex flex-col pointer-events-auto z-50 h-full" style="background:var(--sidebar-bg);border-color:var(--border)">
-            <div class="p-4 flex flex-col items-center justify-center border-b relative" style="border-color:var(--border)">
+            <div class="p-4 flex flex-col items-center justify-center border-b relative mt-[env(safe-area-inset-top)]" style="border-color:var(--border)">
                 <svg class="w-10 h-10 text-primary mb-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 22V8a2 2 0 012-2h12a2 2 0 012 2v14"></path><path d="M12 22V12"></path><path d="M4 12h16"></path><path d="M4 17h16"></path>
                     <polygon points="12 2 20 6 20 10 12 14 4 10 4 6 12 2"></polygon><polyline points="4 6 12 10 20 6"></polyline>
                 </svg>
                 <h1 class="text-lg font-black tracking-[0.2em]" style="color:var(--text)">STOCKY</h1>
-                <button onclick="toggleSidebar()" class="md:hidden absolute top-3 right-3 p-1.5 rounded-lg hover:bg-gray-100 transition-colors" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button onclick="toggleSidebar()" class="md:hidden absolute top-3 right-3 p-2 rounded-lg hover:bg-gray-100 transition-colors" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
 
-            <nav class="flex-1 overflow-y-auto p-3 space-y-1">
-                <button onclick="openTab('home')" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all bg-indigo-50 text-indigo-600" data-tab="home" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <nav class="flex-1 overflow-y-auto p-3 space-y-1 pb-10">
+                <button onclick="openTab('home')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all bg-indigo-50 text-indigo-600" data-tab="home" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuOverview">ภาพรวมคลังสินค้า</span>
                 </button>
-                <hr class="my-1.5" style="border-color:var(--border)">
-                <button onclick="openTab('search')" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-green-50 hover:text-primary transition-all" data-tab="search" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <hr class="my-2" style="border-color:var(--border)">
+                <button onclick="openTab('search')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-green-50 hover:text-primary transition-all" data-tab="search" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuSearch">เช็คสต็อก / ค้นหา</span>
                 </button>
-                <button onclick="openTab('in')" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-green-50 hover:text-primary transition-all" data-tab="in" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
+                <button onclick="openTab('in')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-green-50 hover:text-primary transition-all" data-tab="in" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuIn">รับสินค้าเข้า</span>
                 </button>
-                <button onclick="openTab('out')" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-orange-50 hover:text-orange-500 transition-all" data-tab="out" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                <button onclick="openTab('out')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-orange-50 hover:text-orange-500 transition-all" data-tab="out" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuOut">เบิกสินค้าออก</span>
                 </button>
-                <button onclick="openTab('reports')" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-purple-50 hover:text-purple-600 transition-all" data-tab="reports" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <button onclick="openTab('reports')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-purple-50 hover:text-purple-600 transition-all" data-tab="reports" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuReports">รายงาน</span>
                 </button>
-                <button onclick="openTab('logs')" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all" data-tab="logs" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <button onclick="openTab('logs')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all" data-tab="logs" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuLogs">ประวัติการทำงาน</span>
                 </button>
-                <hr class="my-1.5" style="border-color:var(--border)">
-                <button onclick="openTab('help')" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-yellow-50 hover:text-yellow-600 transition-all" data-tab="help" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <hr class="my-2" style="border-color:var(--border)">
+                <button onclick="openTab('help')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-yellow-50 hover:text-yellow-600 transition-all" data-tab="help" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuHelp">วิธีการใช้งาน</span>
                 </button>
-                <button onclick="openTab('settings')" class="tab-btn w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-all" data-tab="settings" style="color:var(--text-muted)">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <button onclick="openTab('settings')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-all" data-tab="settings" style="color:var(--text-muted)">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuSettings">การตั้งค่า</span>
                 </button>
             </nav>
         </aside>
 
-        <main class="flex-1 relative">
-            <div class="md:hidden absolute top-3 left-3 z-30 pointer-events-auto">
-                <button onclick="toggleSidebar()" class="p-2.5 rounded-full shadow-lg" style="background:var(--card-bg);color:var(--text)">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        <main class="flex-1 relative h-full">
+            <div class="md:hidden absolute z-30 pointer-events-auto" style="top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left));">
+                <button onclick="toggleSidebar()" class="p-3 rounded-xl shadow-lg border" style="background:var(--card-bg);color:var(--text);border-color:var(--border)">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
             </div>
 
             <!-- Reset Camera & Config -->
-            <div class="absolute bottom-5 right-5 md:right-6 z-20 flex items-center justify-end group pointer-events-none">
-                <button onclick="openConfigWithPassword()" title="จัดการผังคลังสินค้า" class="pointer-events-auto p-2.5 rounded-full shadow-lg transition-all duration-300 opacity-0 translate-x-8 group-hover:opacity-100 group-hover:translate-x-0 mr-2.5 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            <div class="absolute z-20 flex items-center justify-end group pointer-events-none floating-actions">
+                <button onclick="openConfigWithPassword()" title="จัดการผังคลังสินค้า" class="pointer-events-auto p-3 rounded-xl shadow-lg transition-all duration-300 opacity-0 translate-x-8 group-hover:opacity-100 group-hover:translate-x-0 mr-3 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </button>
-                <button onclick="resetCamera()" title="กลับมุมมองเริ่มต้น" class="pointer-events-auto p-3.5 rounded-full shadow-lg transition-all relative z-10 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <button onclick="resetCamera()" title="กลับมุมมองเริ่มต้น" class="pointer-events-auto p-4 rounded-xl shadow-xl transition-all relative z-10 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 </button>
             </div>
 
             <!-- Modal Overlay -->
             <div id="main-overlay" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] modal-hidden" onclick="openTab('home')"></div>
 
-            <div id="main-modal" class="absolute inset-1 md:inset-3 z-[60] rounded-2xl flex flex-col modal-hidden pointer-events-none overflow-hidden shadow-2xl" style="background:var(--modal-bg);top:env(safe-area-inset-top, 4px)">
+            <div id="main-modal" class="absolute z-[60] rounded-2xl flex flex-col modal-hidden pointer-events-none overflow-hidden shadow-2xl border" style="background:var(--modal-bg); border-color:var(--border)">
                 <!-- Modal Header -->
                 <div class="flex justify-end p-2 border-b shrink-0 pointer-events-auto" style="border-color:var(--border);background:var(--modal-bg)">
-                    <button onclick="openTab('home')" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button onclick="openTab('home')" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-xl transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
 
-                <div id="action-panel" class="p-3 md:p-5 flex-1 w-full pointer-events-auto flex flex-col overflow-hidden" style="background:var(--modal-bg)">
+                <div id="action-panel" class="p-4 md:p-6 flex-1 w-full pointer-events-auto flex flex-col overflow-hidden relative" style="background:var(--modal-bg)">
 
                     <!-- Tab: Search -->
                     <div id="tab-search" class="tab-content hidden flex-col h-full w-full">
                         <div class="flex justify-between items-center mb-4 shrink-0">
-                            <h2 class="text-lg font-bold flex items-center gap-2" style="color:var(--text)">
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <h2 class="text-xl font-bold flex items-center gap-2" style="color:var(--text)">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 <span data-i18n="searchTitle">สต็อกทั้งหมด / ค้นหา</span>
                             </h2>
-                            <div class="flex p-1 rounded-lg" style="background:var(--hover-bg)">
-                                <button onclick="setViewMode('search','list')" id="view-search-list" class="grid-view-btn p-1.5 rounded-md active transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                            <div class="flex p-1.5 rounded-xl" style="background:var(--hover-bg)">
+                                <button onclick="setViewMode('search','list')" id="view-search-list" class="grid-view-btn p-2 rounded-lg active transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                                 </button>
-                                <button onclick="setViewMode('search','grid')" id="view-search-grid" class="grid-view-btn p-1.5 rounded-md transition-colors" style="color:var(--text-muted)">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                <button onclick="setViewMode('search','grid')" id="view-search-grid" class="grid-view-btn p-2 rounded-lg transition-colors" style="color:var(--text-muted)">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                 </button>
                             </div>
                         </div>
-                        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อสินค้า..." class="w-full max-w-sm px-3 py-2.5 border rounded-xl mb-4 text-sm shrink-0 shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="handleSearch()">
-                        <div id="search-results" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 content-start items-list-view"></div>
+                        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อสินค้า..." class="w-full md:max-w-md px-4 py-3 border rounded-xl mb-4 text-base md:text-sm shrink-0 shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="handleSearch()">
+                        <div id="search-results" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start items-list-view"></div>
                     </div>
 
                     <!-- Tab: In -->
-                    <div id="tab-in" class="tab-content hidden relative max-w-3xl mx-auto w-full overflow-y-auto">
-                        <h2 class="text-lg font-bold text-primary mb-4 flex items-center gap-2 shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
+                    <div id="tab-in" class="tab-content hidden relative max-w-3xl mx-auto w-full overflow-y-auto pr-2">
+                        <h2 class="text-xl font-bold text-primary mb-5 flex items-center gap-2 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
                             <span data-i18n="inTitle">รับสินค้าเข้า</span>
                         </h2>
-                        <form id="form-in" onsubmit="handleStockIn(event)" class="space-y-4 pb-6">
+                        <form id="form-in" onsubmit="handleStockIn(event)" class="space-y-5 pb-24">
                             <div class="relative">
-                                <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="inItemName">ชื่อสินค้า</label>
-                                <input type="text" id="in-name" required class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" autocomplete="off" oninput="showAutocomplete('in-name','in-autocomplete')">
+                                <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="inItemName">ชื่อสินค้า</label>
+                                <input type="text" id="in-name" required class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" autocomplete="off" oninput="showAutocomplete('in-name','in-autocomplete')">
                                 <div id="in-autocomplete" class="autocomplete-list"></div>
                             </div>
-                            <div class="p-4 rounded-xl border" style="background:var(--hover-bg);border-color:var(--border)">
-                                <label class="block font-bold text-sm mb-3" style="color:var(--text)" data-i18n="inSize">ขนาดแพ็กเกจรวมต่อการนำเข้า (cm)</label>
-                                <div class="grid grid-cols-3 gap-3">
-                                    <div><label class="block text-xs mb-1" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="in-w" min="1" required class="w-full px-3 py-2 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                    <div><label class="block text-xs mb-1" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="in-d" min="1" required class="w-full px-3 py-2 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                    <div><label class="block text-xs mb-1" style="color:var(--text-muted)" data-i18n="height">สูง</label><input type="number" id="in-h" min="1" required class="w-full px-3 py-2 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                            <div class="p-5 rounded-2xl border" style="background:var(--hover-bg);border-color:var(--border)">
+                                <label class="block font-bold text-sm mb-4" style="color:var(--text)" data-i18n="inSize">ขนาดแพ็กเกจรวมต่อการนำเข้า (cm)</label>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="in-w" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="in-d" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="height">สูง</label><input type="number" id="in-h" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                    <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="inQty">จำนวนรวมทั้งหมด (ชิ้น)</label>
-                                    <input type="number" id="in-qty" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                    <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="inQty">จำนวนรวมทั้งหมด (ชิ้น)</label>
+                                    <input type="number" id="in-qty" min="1" required class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                 </div>
                                 <div>
-                                    <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="inSelectSlot">เลือกช่องเก็บ</label>
-                                    <select id="in-location" required class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                    <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="inSelectSlot">เลือกช่องเก็บ</label>
+                                    <select id="in-location" required class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                         <option value="" data-i18n="selectDash">-- เลือก --</option>
                                     </select>
                                 </div>
                             </div>
-                            <button type="submit" class="w-full md:w-auto px-8 bg-primary hover:bg-primaryHover text-white font-bold py-3 rounded-xl transition-colors text-sm shadow-md" data-i18n="inBtn">บันทึกรับเข้า</button>
+                            <button type="submit" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3.5 rounded-xl transition-colors text-base shadow-lg" data-i18n="inBtn">บันทึกรับเข้า</button>
                         </form>
                     </div>
 
                     <!-- Tab: Out -->
                     <div id="tab-out" class="tab-content hidden flex-col h-full w-full">
                         <div class="flex justify-between items-center mb-4 shrink-0">
-                            <h2 class="text-lg font-bold text-orange-500 flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                            <h2 class="text-xl font-bold text-orange-500 flex items-center gap-2">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
                                 <span data-i18n="outTitle">เบิกสินค้าออก</span>
                             </h2>
-                            <div class="flex p-1 rounded-lg" style="background:var(--hover-bg)">
-                                <button onclick="setViewMode('out','list')" id="view-out-list" class="grid-view-btn p-1.5 rounded-md active transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                            <div class="flex p-1.5 rounded-xl" style="background:var(--hover-bg)">
+                                <button onclick="setViewMode('out','list')" id="view-out-list" class="grid-view-btn p-2 rounded-lg active transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                                 </button>
-                                <button onclick="setViewMode('out','grid')" id="view-out-grid" class="grid-view-btn p-1.5 rounded-md transition-colors" style="color:var(--text-muted)">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                <button onclick="setViewMode('out','grid')" id="view-out-grid" class="grid-view-btn p-2 rounded-lg transition-colors" style="color:var(--text-muted)">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                 </button>
                             </div>
                         </div>
-                        <form id="form-out" onsubmit="handleStockOut(event)" class="flex flex-col h-full overflow-hidden">
-                            <div class="relative shrink-0 mb-3 max-w-sm">
-                                <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outSearch">ค้นหาสินค้าที่จะเบิก</label>
-                                <input type="text" id="out-search" placeholder="พิมพ์ชื่อสินค้า..." class="w-full px-3 py-2.5 border rounded-xl text-sm shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="filterOutItems()">
+                        <form id="form-out" onsubmit="handleStockOut(event)" class="flex flex-col h-full overflow-hidden relative">
+                            <div class="relative shrink-0 mb-4 md:max-w-md w-full">
+                                <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="outSearch">ค้นหาสินค้าที่จะเบิก</label>
+                                <input type="text" id="out-search" placeholder="พิมพ์ชื่อสินค้า..." class="w-full px-4 py-3 border rounded-xl text-base md:text-sm shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="filterOutItems()">
                             </div>
-                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 content-start items-list-view pb-3"></div>
-                            <div id="out-action-area" class="hidden mt-3 pt-4 border-t space-y-4 shrink-0 pb-2" style="border-color:var(--border);background:var(--modal-bg)">
-                                <div class="text-sm" style="color:var(--text-muted)"><span data-i18n="outFrom">เบิกจาก:</span> <span id="out-selected-label" class="font-bold text-base bg-orange-100 text-orange-700 px-2.5 py-1 rounded-lg ml-1"></span></div>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start items-list-view"></div>
+                            
+                            <div id="out-action-area" class="hidden absolute bottom-0 left-0 right-0 p-4 border-t shadow-[0_-10px_20px_rgba(0,0,0,0.05)] shrink-0 z-20 rounded-t-2xl" style="border-color:var(--border);background:var(--modal-bg)">
+                                <div class="flex justify-between items-center mb-3">
+                                    <div class="text-sm truncate" style="color:var(--text-muted)"><span data-i18n="outFrom">เบิกจาก:</span> <span id="out-selected-label" class="font-bold text-base bg-orange-100 text-orange-700 px-2.5 py-1 rounded-lg ml-1"></span></div>
+                                    <button type="button" onclick="cancelOut()" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outWho">ชื่อผู้เบิก / รายละเอียด</label>
-                                        <input type="text" id="out-who" required placeholder="เช่น นาย A แผนก B" class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                        <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outWho">ชื่อผู้เบิก</label>
+                                        <input type="text" id="out-who" required placeholder="นาย A แผนก B" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                    </div>
+                                    <div class="hidden md:block">
+                                        <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outDate">เวลาที่เบิก</label>
+                                        <input type="datetime-local" id="out-datetime" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                     </div>
                                     <div>
-                                        <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outDate">วันที่และเวลาที่เบิก</label>
-                                        <input type="datetime-local" id="out-datetime" required class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outQty">จำนวนที่เบิก</label>
+                                        <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outQty">จำนวน</label>
                                         <div class="flex gap-2">
-                                            <input type="number" id="out-qty" min="1" required placeholder="จำนวนชิ้น" class="w-full px-3 py-2.5 border rounded-xl text-sm flex-1 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
-                                            <button type="submit" class="px-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-sm whitespace-nowrap shadow-md" data-i18n="outBtn">ยืนยัน</button>
+                                            <input type="number" id="out-qty" min="1" required placeholder="ชิ้น" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm flex-1 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                            <button type="submit" class="px-5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-base md:text-sm whitespace-nowrap shadow-md" data-i18n="outBtn">ยืนยัน</button>
                                         </div>
                                     </div>
                                 </div>
@@ -444,31 +478,31 @@
 
                     <!-- Tab: Logs -->
                     <div id="tab-logs" class="tab-content hidden flex-col h-full w-full max-w-4xl mx-auto">
-                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 shrink-0" style="color:var(--text)">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <h2 class="text-xl font-bold mb-4 flex items-center gap-2 shrink-0" style="color:var(--text)">
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span data-i18n="logTitle">ประวัติการทำงานล่าสุด</span>
                         </h2>
-                        <div id="logs-container" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 content-start">
+                        <div id="logs-container" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start">
                             <div class="text-center py-8" style="color:var(--text-muted)" data-i18n="loading">กำลังโหลด...</div>
                         </div>
-                        <div id="log-pagination" class="hidden flex justify-between items-center mt-3 pt-3 border-t shrink-0" style="border-color:var(--border)">
-                            <button id="btn-prev-log" onclick="loadLogsPage(window.currentLogPage - 1)" class="px-4 py-2 rounded-xl transition-colors font-bold text-sm disabled:opacity-50" style="background:var(--hover-bg);color:var(--text)" data-i18n="btnPrev">ก่อนหน้า</button>
+                        <div id="log-pagination" class="hidden flex justify-between items-center mt-4 pt-4 border-t shrink-0 mb-2" style="border-color:var(--border)">
+                            <button id="btn-prev-log" onclick="loadLogsPage(window.currentLogPage - 1)" class="px-5 py-2.5 rounded-xl transition-colors font-bold text-sm disabled:opacity-50" style="background:var(--hover-bg);color:var(--text)" data-i18n="btnPrev">ก่อนหน้า</button>
                             <span id="log-page-info" class="text-sm font-bold" style="color:var(--text-muted)">หน้า 1</span>
-                            <button id="btn-next-log" onclick="loadLogsPage(window.currentLogPage + 1)" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl transition-colors font-bold text-sm disabled:opacity-50" data-i18n="btnNext">ถัดไป</button>
+                            <button id="btn-next-log" onclick="loadLogsPage(window.currentLogPage + 1)" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl transition-colors font-bold text-sm disabled:opacity-50" data-i18n="btnNext">ถัดไป</button>
                         </div>
                     </div>
 
                     <!-- Tab: Reports -->
                     <div id="tab-reports" class="tab-content hidden flex-col h-full w-full max-w-5xl mx-auto">
-                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 shrink-0" style="color:var(--text)">
-                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V10M12 20V4M6 20V14"></path></svg>
+                        <h2 class="text-xl font-bold mb-4 flex items-center gap-2 shrink-0" style="color:var(--text)">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V10M12 20V4M6 20V14"></path></svg>
                             <span data-i18n="repTitle">ส่งออกรายงาน</span>
                         </h2>
-                        <div class="p-4 rounded-xl border mb-4 shrink-0" style="background:var(--hover-bg);border-color:var(--border)">
+                        <div class="p-4 md:p-5 rounded-2xl border mb-5 shrink-0" style="background:var(--hover-bg);border-color:var(--border)">
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                 <div class="md:col-span-2">
-                                    <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="repType">ประเภทรายงาน</label>
-                                    <select id="rep-type" class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onchange="toggleReportFilters()">
+                                    <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repType">ประเภทรายงาน</label>
+                                    <select id="rep-type" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onchange="toggleReportFilters()">
                                         <option value="SUM" data-i18n="repOptSum">1. รายงานสรุปยอดรวมสินค้า</option>
                                         <option value="INV" data-i18n="repOpt1">2. รายงานแจกแจงตามช่อง</option>
                                         <option value="IN" data-i18n="repOpt2">3. รายงานการรับสินค้าเข้า</option>
@@ -476,50 +510,52 @@
                                     </select>
                                 </div>
                                 <div class="date-filter">
-                                    <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="repStart">ตั้งแต่วันที่</label>
-                                    <input type="date" id="rep-start" class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                    <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repStart">ตั้งแต่วันที่</label>
+                                    <input type="date" id="rep-start" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                 </div>
                                 <div class="date-filter">
-                                    <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="repEnd">ถึงวันที่</label>
-                                    <input type="date" id="rep-end" class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                    <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repEnd">ถึงวันที่</label>
+                                    <input type="date" id="rep-end" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                 </div>
                                 <div class="loc-filter hidden md:col-span-2">
-                                    <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="repFilterLoc">กรองเฉพาะช่อง</label>
-                                    <select id="rep-loc-filter" class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                    <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repFilterLoc">กรองเฉพาะช่อง</label>
+                                    <select id="rep-loc-filter" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                         <option value="">-- ทั้งหมด --</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="mt-4 flex flex-wrap gap-3">
-                                <button onclick="generateReport()" class="flex-1 md:flex-none px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm shadow-sm" data-i18n="repBtnGen">ดึงข้อมูลรายงาน</button>
-                                <button onclick="exportCSV()" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+                            <div class="mt-5 flex flex-wrap gap-3">
+                                <button onclick="generateReport()" class="flex-1 md:flex-none px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm shadow-md" data-i18n="repBtnGen">ดึงข้อมูลรายงาน</button>
+                                <button onclick="exportCSV()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
                                     <span data-i18n="repExcel">Excel (CSV)</span>
                                 </button>
-                                <button onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                <button onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     <span data-i18n="repPdf">พิมพ์ / PDF</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="flex-1 overflow-auto border rounded-xl relative min-h-[200px]" style="border-color:var(--border)">
-                            <table class="w-full text-sm text-left whitespace-nowrap">
-                                <thead id="rep-thead" class="sticky top-0 border-b z-10 text-xs uppercase" style="background:var(--hover-bg);border-color:var(--border);color:var(--text-muted)"></thead>
-                                <tbody id="rep-tbody"><tr><td class="text-center py-10 text-sm" colspan="100%" style="color:var(--text-muted)" data-i18n="repWait">คลิก "ดึงข้อมูลรายงาน" เพื่อแสดงผล</td></tr></tbody>
-                            </table>
+                        <div class="flex-1 overflow-auto border rounded-2xl relative min-h-[200px]" style="border-color:var(--border)">
+                            <div class="block w-full overflow-x-auto">
+                                <table class="w-full text-sm text-left whitespace-nowrap">
+                                    <thead id="rep-thead" class="sticky top-0 border-b z-10 text-xs uppercase" style="background:var(--hover-bg);border-color:var(--border);color:var(--text-muted)"></thead>
+                                    <tbody id="rep-tbody"><tr><td class="text-center py-10 text-sm" colspan="100%" style="color:var(--text-muted)" data-i18n="repWait">คลิก "ดึงข้อมูลรายงาน" เพื่อแสดงผล</td></tr></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Tab: Help -->
-                    <div id="tab-help" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-1">
-                        <h2 class="text-lg font-bold text-yellow-600 mb-4 flex items-center gap-2 shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div id="tab-help" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2 pb-10">
+                        <h2 class="text-xl font-bold text-yellow-600 mb-5 flex items-center gap-2 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span data-i18n="helpTitle">คู่มือการใช้งานระบบ</span>
                         </h2>
-                        <div class="border rounded-xl p-4 md:p-6 space-y-6 max-w-3xl mx-auto w-full" style="background:var(--hover-bg);border-color:var(--border)">
+                        <div class="border rounded-2xl p-5 md:p-8 space-y-8 max-w-3xl mx-auto w-full" style="background:var(--hover-bg);border-color:var(--border)">
                             <section>
-                                <h3 class="text-base font-bold mb-3 border-b pb-2" style="color:var(--text);border-color:var(--border)" data-i18n="help3DHeader">1. การควบคุมมุมมอง 3D</h3>
-                                <ul class="space-y-3 text-sm" style="color:var(--text)">
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2" style="color:var(--text);border-color:var(--border)" data-i18n="help3DHeader">1. การควบคุมมุมมอง 3D</h3>
+                                <ul class="space-y-4 text-base md:text-sm" style="color:var(--text)">
                                     <li class="flex items-start gap-3"><span class="text-blue-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpRotate">หมุนมุมกล้อง:</strong> <span data-i18n="helpRotateDesc">คลิกซ้ายค้างแล้วลาก</span></div></li>
                                     <li class="flex items-start gap-3"><span class="text-green-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpPan">เลื่อนกล้อง:</strong> <span data-i18n="helpPanDesc">คลิกขวาค้างแล้วลาก</span></div></li>
                                     <li class="flex items-start gap-3"><span class="text-purple-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpZoom">ซูมเข้า/ออก:</strong> <span data-i18n="helpZoomDesc">เลื่อน Scroll Wheel</span></div></li>
@@ -527,19 +563,19 @@
                                 </ul>
                             </section>
                             <section>
-                                <h3 class="text-base font-bold mb-3 border-b pb-2" style="color:var(--text);border-color:var(--border)" data-i18n="helpSysHeader">2. การจัดการคลังสินค้า</h3>
-                                <ul class="space-y-2.5 text-sm" style="color:var(--text)">
-                                    <li class="flex items-start gap-2"><span class="text-primary shrink-0">●</span><div><strong data-i18n="helpSys1">เช็คสต็อก:</strong> <span data-i18n="helpSys1Desc">ดูสินค้าทั้งหมด กด 👁 เพื่อดูใน 3D</span></div></li>
-                                    <li class="flex items-start gap-2"><span class="text-primary shrink-0">●</span><div><strong data-i18n="helpSys2">รับเข้า / เบิกออก:</strong> <span data-i18n="helpSys2Desc">บันทึกการเคลื่อนไหวสินค้า</span></div></li>
-                                    <li class="flex items-start gap-2"><span class="text-primary shrink-0">●</span><div><strong data-i18n="helpSys3">รายงาน:</strong> <span data-i18n="helpSys3Desc">ส่งออก CSV / PDF</span></div></li>
-                                    <li class="flex items-start gap-2"><span class="text-primary shrink-0">●</span><div><strong data-i18n="helpSys4">ผังคลัง:</strong> <span data-i18n="helpSys4Desc">ต้องใส่รหัสผ่านผู้ดูแล (⚙️ ขวาล่าง)</span></div></li>
-                                    <li class="flex items-start gap-2"><span class="text-red-500 shrink-0">●</span><div><strong>Low Stock Alert:</strong> สินค้าต่ำกว่า 10 ชิ้น จะแสดงป้ายเตือนสีแดงอัตโนมัติ</div></li>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2" style="color:var(--text);border-color:var(--border)" data-i18n="helpSysHeader">2. การจัดการคลังสินค้า</h3>
+                                <ul class="space-y-3.5 text-base md:text-sm" style="color:var(--text)">
+                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys1">เช็คสต็อก:</strong> <span data-i18n="helpSys1Desc">ดูสินค้าทั้งหมด กด 👁 เพื่อดูใน 3D</span></div></li>
+                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys2">รับเข้า / เบิกออก:</strong> <span data-i18n="helpSys2Desc">บันทึกการเคลื่อนไหวสินค้า</span></div></li>
+                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys3">รายงาน:</strong> <span data-i18n="helpSys3Desc">ส่งออก CSV / PDF</span></div></li>
+                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys4">ผังคลัง:</strong> <span data-i18n="helpSys4Desc">ต้องใส่รหัสผ่านผู้ดูแล (⚙️ ขวาล่าง)</span></div></li>
+                                    <li class="flex items-start gap-2.5"><span class="text-red-500 mt-1 shrink-0">●</span><div><strong>Low Stock Alert:</strong> สินค้าต่ำกว่า 10 ชิ้น จะแสดงป้ายเตือนสีแดงอัตโนมัติ</div></li>
                                 </ul>
                             </section>
-                            <div class="border-t pt-4 text-center" style="border-color:var(--border)">
-                                <div class="text-xs mb-2" style="color:var(--text-muted)" data-i18n="helpDev">ผู้พัฒนา AArm -- version 2.0.0 -- 16/05/2026</div>
-                                <a href="mailto:velken_arm_@hotmail.com" class="inline-flex items-center gap-1.5 text-primary hover:text-primaryHover font-bold transition-colors text-sm bg-green-50 px-3 py-1.5 rounded-lg">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            <div class="border-t pt-5 text-center" style="border-color:var(--border)">
+                                <div class="text-xs mb-3" style="color:var(--text-muted)" data-i18n="helpDev">ผู้พัฒนา AArm -- version 2.0.0 -- 16/05/2026</div>
+                                <a href="mailto:velken_arm_@hotmail.com" class="inline-flex items-center gap-2 text-primary hover:text-primaryHover font-bold transition-colors text-sm bg-green-50 px-4 py-2 rounded-xl">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                     Contact Developer
                                 </a>
                             </div>
@@ -547,78 +583,78 @@
                     </div>
 
                     <!-- Tab: Settings -->
-                    <div id="tab-settings" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-1">
-                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 shrink-0" style="color:var(--text)">
-                            <svg class="w-5 h-5" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <div id="tab-settings" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2 pb-10">
+                        <h2 class="text-xl font-bold mb-5 flex items-center gap-2 shrink-0" style="color:var(--text)">
+                            <svg class="w-6 h-6" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             <span data-i18n="setMenu">การตั้งค่า</span>
                         </h2>
-                        <div class="space-y-4 max-w-xl">
+                        <div class="space-y-5 max-w-xl mx-auto w-full">
                             <!-- Language -->
-                            <div class="border rounded-xl p-4" style="background:var(--hover-bg);border-color:var(--border)">
-                                <label class="block font-bold text-sm mb-2" style="color:var(--text)" data-i18n="setLang">เลือกภาษา (Language)</label>
-                                <select id="lang-select" class="w-full px-3 py-2.5 border rounded-xl text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onchange="setLanguage(this.value)">
+                            <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
+                                <label class="block font-bold text-base md:text-sm mb-3" style="color:var(--text)" data-i18n="setLang">เลือกภาษา (Language)</label>
+                                <select id="lang-select" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onchange="setLanguage(this.value)">
                                     <option value="th">🇹🇭 ภาษาไทย</option>
                                     <option value="en">🇬🇧 English</option>
                                     <option value="ja">🇯🇵 日本語</option>
                                 </select>
                             </div>
                             <!-- Theme -->
-                            <div class="border rounded-xl p-4" style="background:var(--hover-bg);border-color:var(--border)">
-                                <label class="block font-bold text-sm mb-3" style="color:var(--text)">🎨 Theme</label>
-                                <div class="flex gap-3">
-                                    <button onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all border-primary bg-white text-slate-800">☀️ Light</button>
-                                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all border-transparent bg-slate-800 text-white">🌙 Dark</button>
+                            <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
+                                <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)">🎨 Theme</label>
+                                <div class="flex gap-4">
+                                    <button onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-primary bg-white text-slate-800 shadow-sm">☀️ Light</button>
+                                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-transparent bg-slate-800 text-white shadow-sm">🌙 Dark</button>
                                 </div>
                             </div>
                             <!-- Font Size -->
-                            <div class="border rounded-xl p-4" style="background:var(--hover-bg);border-color:var(--border)">
-                                <label class="block font-bold text-sm mb-3" style="color:var(--text)">🔡 ขนาดตัวหนังสือ</label>
-                                <div class="flex gap-3">
-                                    <button onclick="setFontSize('small')" id="btn-font-small" class="flex-1 py-2 rounded-xl text-xs font-bold border-2 transition-all" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">เล็ก</button>
-                                    <button onclick="setFontSize('normal')" id="btn-font-normal" class="flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all border-primary" style="background:var(--input-bg);color:var(--text)">ปกติ</button>
-                                    <button onclick="setFontSize('large')" id="btn-font-large" class="flex-1 py-2 rounded-xl text-base font-bold border-2 transition-all" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">ใหญ่</button>
+                            <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
+                                <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)">🔡 ขนาดตัวหนังสือ</label>
+                                <div class="flex gap-4">
+                                    <button onclick="setFontSize('small')" id="btn-font-small" class="flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all shadow-sm" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">เล็ก</button>
+                                    <button onclick="setFontSize('normal')" id="btn-font-normal" class="flex-1 py-3 rounded-xl text-base font-bold border-2 transition-all border-primary shadow-sm" style="background:var(--input-bg);color:var(--text)">ปกติ</button>
+                                    <button onclick="setFontSize('large')" id="btn-font-large" class="flex-1 py-3 rounded-xl text-lg font-bold border-2 transition-all shadow-sm" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">ใหญ่</button>
                                 </div>
-                                <p class="text-xs mt-2" style="color:var(--text-muted)">ระบบจดจำการตั้งค่าสำหรับครั้งต่อไปอัตโนมัติ</p>
+                                <p class="text-sm md:text-xs mt-4 text-center" style="color:var(--text-muted)">ระบบจดจำการตั้งค่าสำหรับครั้งต่อไปอัตโนมัติ</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Tab: Config -->
-                    <div id="tab-config" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-1">
-                        <h2 class="text-base font-bold mb-4 flex items-center gap-2 shrink-0" style="color:var(--text)">
-                            <svg class="w-4 h-4" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <div id="tab-config" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2 pb-10">
+                        <h2 class="text-lg font-bold mb-5 flex items-center gap-2 shrink-0" style="color:var(--text)">
+                            <svg class="w-5 h-5" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             <span data-i18n="cfgTitle">ตั้งค่ามิติชั้นวาง (ซม.)</span>
                         </h2>
-                        <form id="form-config" onsubmit="handleAddLocation(event)" oninput="updatePreview()" onchange="updatePreview()" class="space-y-3 shrink-0">
+                        <form id="form-config" onsubmit="handleAddLocation(event)" oninput="updatePreview()" onchange="updatePreview()" class="space-y-4 shrink-0">
                             <div>
-                                <label class="block font-medium text-xs mb-1" style="color:var(--text)" data-i18n="cfgPrefix">อักษรนำหน้าแถว</label>
-                                <input type="text" id="loc-prefix" required placeholder="เช่น B" class="w-full px-3 py-2 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="cfgPrefix">อักษรนำหน้าแถว</label>
+                                <input type="text" id="loc-prefix" required placeholder="เช่น B" class="w-full px-4 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                             </div>
-                            <div class="grid grid-cols-2 gap-3 p-3 rounded-xl border" style="background:var(--hover-bg);border-color:var(--border)">
-                                <div class="col-span-2 font-bold text-xs uppercase tracking-wider text-blue-600" data-i18n="cfgBatch">การสร้างช่องแบบกลุ่ม</div>
-                                <div><label class="block text-xs mb-1" style="color:var(--text-muted)" data-i18n="cfgSlots">จำนวนช่อง</label><input type="number" id="loc-slots" value="1" min="1" required class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                <div><label class="block text-xs mb-1" style="color:var(--text-muted)" data-i18n="cfgOrder">ทิศทาง</label><select id="loc-order" class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"><option value="asc">1→N</option><option value="desc">N→1</option></select></div>
-                                <div class="col-span-2"><label class="block text-xs mb-1" style="color:var(--text-muted)" data-i18n="cfgDir">แกน 3D</label><select id="loc-axis" class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"><option value="x" data-i18n="cfgDirX">แกน X (ซ้าย-ขวา)</option><option value="y" data-i18n="cfgDirZ">แกน Y (ลึก)</option></select></div>
-                                <div class="col-span-2 border-t pt-2" style="border-color:var(--border)"><label class="block text-xs mb-1" style="color:var(--text-muted)" data-i18n="cfgRot">การหันหน้า</label><select id="loc-rot" class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"><option value="0" data-i18n="cfgRot0">0 องศา (ปกติ)</option><option value="90" data-i18n="cfgRot90">90 องศา</option></select></div>
+                            <div class="grid grid-cols-2 gap-4 p-4 rounded-2xl border" style="background:var(--hover-bg);border-color:var(--border)">
+                                <div class="col-span-2 font-bold text-sm uppercase tracking-wider text-blue-600" data-i18n="cfgBatch">การสร้างช่องแบบกลุ่ม</div>
+                                <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="cfgSlots">จำนวนช่อง</label><input type="number" id="loc-slots" value="1" min="1" required class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="cfgOrder">ทิศทาง</label><select id="loc-order" class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"><option value="asc">1→N</option><option value="desc">N→1</option></select></div>
+                                <div class="col-span-2"><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="cfgDir">แกน 3D</label><select id="loc-axis" class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"><option value="x" data-i18n="cfgDirX">แกน X (ซ้าย-ขวา)</option><option value="y" data-i18n="cfgDirZ">แกน Y (ลึก)</option></select></div>
+                                <div class="col-span-2 border-t pt-3 mt-1" style="border-color:var(--border)"><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="cfgRot">การหันหน้า</label><select id="loc-rot" class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"><option value="0" data-i18n="cfgRot0">0 องศา (ปกติ)</option><option value="90" data-i18n="cfgRot90">90 องศา</option></select></div>
                             </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div><label class="block text-xs mb-1" style="color:var(--text)" data-i18n="cfgX">X (แนวนอน)</label><input type="number" id="loc-x" required placeholder="0" class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                <div><label class="block text-xs mb-1" style="color:var(--text)" data-i18n="cfgZ">Y (แนวลึก)</label><input type="number" id="loc-z" required placeholder="0" class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm mb-1.5" style="color:var(--text)" data-i18n="cfgX">X (แนวนอน)</label><input type="number" id="loc-x" required placeholder="0" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                <div><label class="block text-sm mb-1.5" style="color:var(--text)" data-i18n="cfgZ">Y (แนวลึก)</label><input type="number" id="loc-z" required placeholder="0" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                             </div>
-                            <div class="p-3 rounded-xl border" style="background:var(--hover-bg);border-color:var(--border)">
-                                <p class="font-bold text-xs mb-2" style="color:var(--text)" data-i18n="cfgSize">ขนาดต่อ 1 ช่อง (ซม.)</p>
-                                <div class="grid grid-cols-3 gap-2">
-                                    <div><label class="text-xs block mb-1" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="loc-w" value="200" required class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                    <div><label class="text-xs block mb-1" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="loc-d" value="100" required class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                    <div><label class="text-xs block mb-1" style="color:var(--text-muted)" data-i18n="heightPerLvl">สูง/ชั้น</label><input type="number" id="loc-h" value="150" required class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                            <div class="p-4 rounded-2xl border" style="background:var(--hover-bg);border-color:var(--border)">
+                                <p class="font-bold text-sm mb-3" style="color:var(--text)" data-i18n="cfgSize">ขนาดต่อ 1 ช่อง (ซม.)</p>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div><label class="text-xs block mb-1.5" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="loc-w" value="200" required class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="text-xs block mb-1.5" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="loc-d" value="100" required class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="text-xs block mb-1.5" style="color:var(--text-muted)" data-i18n="heightPerLvl">สูง/ชั้น</label><input type="number" id="loc-h" value="150" required class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                                 </div>
-                                <div class="mt-2"><label class="text-xs block mb-1" style="color:var(--text-muted)" data-i18n="cfgLevels">จำนวนชั้น</label><input type="number" id="loc-levels" min="1" max="10" value="3" required class="w-full px-2 py-1.5 border rounded-lg text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                <div class="mt-3"><label class="text-xs block mb-1.5" style="color:var(--text-muted)" data-i18n="cfgLevels">จำนวนชั้น</label><input type="number" id="loc-levels" min="1" max="10" value="3" required class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                             </div>
-                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl text-sm" data-i18n="cfgBtn">บันทึกผังคลังสินค้า</button>
+                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl text-base shadow-md" data-i18n="cfgBtn">บันทึกผังคลังสินค้า</button>
                         </form>
-                        <div class="mt-5 border-t pt-4 shrink-0" style="border-color:var(--border)">
-                            <h3 class="text-sm font-bold mb-3" style="color:var(--text)" data-i18n="cfgList">รายการชั้นวางปัจจุบัน</h3>
-                            <div id="locations-list" class="space-y-2 pb-10"></div>
+                        <div class="mt-6 border-t pt-5 shrink-0" style="border-color:var(--border)">
+                            <h3 class="text-base font-bold mb-4" style="color:var(--text)" data-i18n="cfgList">รายการชั้นวางปัจจุบัน</h3>
+                            <div id="locations-list" class="space-y-3 pb-4"></div>
                         </div>
                     </div>
 
@@ -630,41 +666,41 @@
     <div id="print-area"></div>
 
     <!-- Confirm Modal -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-[100] pointer-events-auto">
-        <div class="p-6 rounded-2xl w-11/12 md:w-80 shadow-2xl" style="background:var(--modal-bg);border:1px solid var(--border)">
-            <h3 class="text-base font-bold mb-2" style="color:var(--text)" id="confirm-title">ยืนยัน</h3>
-            <p class="text-sm mb-6 leading-relaxed" style="color:var(--text-muted)" id="confirm-msg">...</p>
-            <div class="flex gap-3">
-                <button id="confirm-cancel" class="flex-1 py-2.5 rounded-xl font-bold text-sm" style="background:var(--hover-bg);color:var(--text)">ยกเลิก</button>
-                <button id="confirm-ok" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-sm">ยืนยัน</button>
+    <div id="confirm-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-[100] pointer-events-auto p-4">
+        <div class="p-6 md:p-8 rounded-3xl w-full max-w-sm shadow-2xl" style="background:var(--modal-bg);border:1px solid var(--border)">
+            <h3 class="text-lg font-bold mb-3" style="color:var(--text)" id="confirm-title">ยืนยัน</h3>
+            <p class="text-base md:text-sm mb-8 leading-relaxed" style="color:var(--text-muted)" id="confirm-msg">...</p>
+            <div class="flex gap-4">
+                <button id="confirm-cancel" class="flex-1 py-3 rounded-xl font-bold text-sm" style="background:var(--hover-bg);color:var(--text)">ยกเลิก</button>
+                <button id="confirm-ok" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-sm shadow-md">ยืนยัน</button>
             </div>
         </div>
     </div>
 
     <!-- Item Details Modal -->
-    <div id="item-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm items-center justify-center pointer-events-auto z-[80]">
-        <div class="rounded-2xl p-5 md:p-6 w-11/12 md:w-96 shadow-2xl relative border" style="background:var(--modal-bg);border-color:var(--border)">
-            <button onclick="closeItemModal()" class="absolute top-4 right-4 p-1.5 rounded-xl transition-colors" style="color:var(--text-muted)">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div id="item-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm items-center justify-center pointer-events-auto z-[80] p-4">
+        <div class="rounded-3xl p-6 w-full max-w-md shadow-2xl relative border" style="background:var(--modal-bg);border-color:var(--border)">
+            <button onclick="closeItemModal()" class="absolute top-4 right-4 p-2 rounded-xl transition-colors bg-gray-100 hover:bg-gray-200 text-gray-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <div class="flex items-center gap-4 mb-5 border-b pb-4" style="border-color:var(--border)">
-                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-primary shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            <div class="flex items-center gap-4 mb-6 border-b pb-5 pr-8" style="border-color:var(--border)">
+                <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center text-primary shrink-0">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                 </div>
-                <h3 id="modal-name" class="font-bold text-base truncate" style="color:var(--text)">Name</h3>
+                <h3 id="modal-name" class="font-bold text-lg md:text-xl truncate" style="color:var(--text)">Name</h3>
             </div>
-            <div class="space-y-3 text-sm" style="color:var(--text-muted)">
-                <div class="flex justify-between items-center"><span data-i18n="mdlLoc">ตำแหน่ง:</span> <span id="modal-loc" class="font-bold px-2.5 py-1 rounded-lg text-sm" style="background:var(--hover-bg);color:var(--text)"></span></div>
-                <div class="flex justify-between items-center"><span data-i18n="mdlQty">จำนวน:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-2.5 py-1 rounded-lg text-base"></span></div>
+            <div class="space-y-4 text-base md:text-sm" style="color:var(--text-muted)">
+                <div class="flex justify-between items-center"><span data-i18n="mdlLoc">ตำแหน่ง:</span> <span id="modal-loc" class="font-bold px-3 py-1.5 rounded-lg" style="background:var(--hover-bg);color:var(--text)"></span></div>
+                <div class="flex justify-between items-center"><span data-i18n="mdlQty">จำนวน:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-3 py-1.5 rounded-lg text-lg border border-green-100"></span></div>
                 <div class="flex justify-between items-center"><span data-i18n="mdlSize">ขนาด:</span> <span id="modal-size" class="font-medium" style="color:var(--text)"></span></div>
                 <div class="flex justify-between items-center"><span data-i18n="mdlUpdate">อัปเดต:</span> <span id="modal-date" class="text-xs font-medium" style="color:var(--text)"></span></div>
             </div>
-            <div class="mt-5 flex flex-col gap-2">
-                <button id="btn-view-map" class="w-full bg-blue-50 text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-100 transition-colors text-sm flex items-center justify-center gap-2">
+            <div class="mt-8 flex flex-col gap-3">
+                <button id="btn-view-map" class="w-full bg-blue-50 text-blue-600 font-bold py-3.5 rounded-xl hover:bg-blue-100 transition-colors text-base flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     <span data-i18n="btnViewMap">ดูตำแหน่งบน 3D</span>
                 </button>
-                <button id="btn-modal-out" class="w-full bg-orange-100 text-orange-600 font-bold py-3 rounded-xl hover:bg-orange-200 transition-colors text-sm flex items-center justify-center gap-2">
+                <button id="btn-modal-out" class="w-full bg-orange-100 text-orange-600 font-bold py-3.5 rounded-xl hover:bg-orange-200 transition-colors text-base flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
                     <span data-i18n="mdlBtnOut">นำไปเบิกออก</span>
                 </button>
@@ -675,9 +711,9 @@
     <div id="toast-container"></div>
 
     <!-- Credit Watermark (home only) -->
-    <div id="credit-watermark" class="fixed bottom-3 left-3 z-[990] pointer-events-none px-2.5 py-1 rounded-full shadow-sm border flex items-center gap-1 opacity-40" style="background:var(--card-bg);border-color:var(--border)">
-        <svg class="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-        <span class="text-[9px] font-bold tracking-wider" style="color:var(--text)">Developed By AArm 2026</span>
+    <div id="credit-watermark" class="absolute z-[990] pointer-events-none px-3 py-1.5 rounded-full shadow-sm border flex items-center gap-1.5 opacity-40 bg-white dark:bg-slate-800" style="border-color:var(--border)">
+        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        <span class="text-[10px] font-bold tracking-wider" style="color:var(--text)">Developed By AArm 2026</span>
     </div>
 
     <!-- ===== LOCALIZATION ===== -->
@@ -687,7 +723,7 @@
             loading:"กำลังโหลดระบบ 3D คลังสินค้า...",menuOverview:"ภาพรวมคลังสินค้า",menuSearch:"เช็คสต็อก / ค้นหา",menuIn:"รับสินค้าเข้า",menuOut:"เบิกสินค้าออก",menuLogs:"ประวัติการทำงาน",menuReports:"รายงาน",menuHelp:"วิธีการใช้งาน",menuSettings:"การตั้งค่า",
             searchTitle:"สต็อกทั้งหมด / ค้นหา",searchPlaceholder:"พิมพ์ชื่อสินค้า...",notFound:"ไม่พบสินค้าในสต็อก",sizeText:"ขนาด",slotText:"ช่อง",pcsText:"ชิ้น",
             inTitle:"รับสินค้าเข้า",inItemName:"ชื่อสินค้า",inSize:"ขนาดแพ็กเกจ (cm)",width:"กว้าง",depth:"ลึก",height:"สูง",inQty:"จำนวน (ชิ้น)",inSelectSlot:"เลือกช่องเก็บ",selectDash:"-- เลือก --",inBtn:"บันทึกรับเข้า",
-            outTitle:"เบิกสินค้าออก",outSearch:"ค้นหาสินค้า",outFrom:"เบิกจาก:",outWho:"ชื่อผู้เบิก",outDate:"วันที่",outQty:"จำนวน",outBtn:"ยืนยัน",
+            outTitle:"เบิกสินค้าออก",outSearch:"ค้นหาสินค้า",outFrom:"เบิกจาก:",outWho:"ชื่อผู้เบิก",outDate:"เวลาที่เบิก",outQty:"จำนวน",outBtn:"ยืนยัน",
             logTitle:"ประวัติการทำงาน",logEmpty:"ยังไม่มีประวัติ",logBy:"บันทึกโดย",
             repTitle:"รายงาน",repType:"ประเภทรายงาน",repOptSum:"1. สรุปยอดรวมสินค้า",repOpt1:"2. แจกแจงตามช่อง",repOpt2:"3. รายงานรับสินค้าเข้า",repOpt3:"4. รายงานเบิกสินค้าออก",repStart:"ตั้งแต่วันที่",repEnd:"ถึงวันที่",repFilterLoc:"กรองช่อง",repBtnGen:"ดึงข้อมูล",repExcel:"Excel (CSV)",repPdf:"พิมพ์ / PDF",repWait:'คลิก "ดึงข้อมูล" เพื่อแสดงผล',repEmpty:"ไม่พบข้อมูล",
             helpTitle:"คู่มือการใช้งาน",help3DHeader:"1. การควบคุม 3D",helpRotate:"หมุนกล้อง:",helpRotateDesc:"คลิกซ้ายค้างแล้วลาก",helpPan:"เลื่อนกล้อง:",helpPanDesc:"คลิกขวาค้างแล้วลาก",helpZoom:"ซูม:",helpZoomDesc:"เลื่อน Scroll",helpTouch:"มือถือ:",helpTouchDesc:"1 นิ้วหมุน, 2 นิ้วซูม",helpSysHeader:"2. การจัดการคลัง",helpSys1:"เช็คสต็อก:",helpSys1Desc:"ดูสินค้า กด 👁 ดู 3D",helpSys2:"รับเข้า/เบิกออก:",helpSys2Desc:"บันทึกการเคลื่อนไหว",helpSys3:"รายงาน:",helpSys3Desc:"ส่งออก CSV/PDF",helpSys4:"ผังคลัง:",helpSys4Desc:"ต้องใส่รหัสผ่าน",helpDev:"ผู้พัฒนา AArm -- v2.0 -- 16/05/2026",
@@ -785,12 +821,10 @@
     };
 
     /* ===== PASSWORD ===== */
-    // Obfuscated: Admin@2026 stored as char codes
-    const _pwdCodes = [65,100,109,105,110,64,50,48,50,54];
+    const _pwdCodes = [65,100,109,105,110,64,50,48,50,54]; // Admin@2026
     const _correctPwd = () => _pwdCodes.map(c=>String.fromCharCode(c)).join('');
 
     window.openConfigWithPassword = function(){
-        // Check if already unlocked in this session
         if(sessionStorage.getItem('stocky_unlocked')==='1'){
             openTab('config');
             return;
@@ -835,8 +869,12 @@
         if(tab==='search') handleSearch(); else filterOutItems();
     };
 
+    window.cancelOut = function() {
+        selectedOutItem = null;
+        document.getElementById('out-action-area').classList.add('hidden');
+    };
+
     document.addEventListener('DOMContentLoaded',()=>{
-        // Restore preferences
         const savedTheme = localStorage.getItem('stocky_theme') || 'light';
         setTheme(savedTheme);
         const savedFont = localStorage.getItem('stocky_font') || 'normal';
@@ -846,7 +884,6 @@
         setViewMode('search','list');
         setViewMode('out','list');
 
-        // Date defaults
         const now=new Date();
         const firstDay=new Date(now.getFullYear(),now.getMonth(),1);
         const fmt=d=>{ const z=n=>('0'+n).slice(-2); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; };
@@ -915,7 +952,7 @@
     // Easter egg state
     let easterEggShown=false;
     let moonScene,moonRenderer,moonCamera,ufoMesh;
-    const MAX_ZOOM_DIST=25000; // Lock zoom at this distance before Easter egg
+    const MAX_ZOOM_DIST=100000; // Increased distance for Easter Egg significantly
 
     function showToast(msg,type='success'){
         const c=document.getElementById('toast-container');
@@ -960,7 +997,6 @@
         const mainModal=document.getElementById('main-modal');
         const mainOverlay=document.getElementById('main-overlay');
         const credit=document.getElementById('credit-watermark');
-        const base="absolute z-[60] rounded-2xl flex flex-col pointer-events-none transition-all duration-300 overflow-hidden";
 
         if(tabId==='home'){
             mainOverlay.classList.remove('opacity-100');
@@ -975,14 +1011,20 @@
 
             if(tabId==='config'){
                 mainOverlay.classList.add('hidden');
-                mainModal.className=`${base} top-3 right-3 bottom-3 w-11/12 md:w-[22rem] modal-show shadow-2xl border`
                 mainModal.style.borderColor='var(--border)';
+                // Maintain absolute classes for right panel
+                mainModal.classList.add('top-3','right-3','bottom-3','w-11/12','md:w-[24rem]');
+                mainModal.classList.remove('inset-2','md:inset-4','lg:inset-y-6','lg:inset-x-8');
             } else {
                 mainOverlay.classList.remove('hidden');
                 setTimeout(()=>mainOverlay.classList.add('opacity-100'),10);
-                mainModal.className=`${base} inset-1 md:inset-3 modal-show shadow-2xl`;
                 mainModal.style.borderColor='';
+                mainModal.classList.remove('top-3','right-3','bottom-3','w-11/12','md:w-[24rem]');
+                mainModal.classList.add('inset-2','md:inset-4','lg:inset-y-6','lg:inset-x-8');
             }
+            
+            // Trigger animation
+            setTimeout(() => { mainModal.classList.add('modal-show'); }, 10);
 
             document.querySelectorAll('.tab-content').forEach(el=>el.classList.add('hidden'));
             const tabEl=document.getElementById(`tab-${tabId}`);
@@ -1048,10 +1090,10 @@
             if(log.action==='OUT'){color='text-orange-500';bg='bg-orange-100';icon='-';}
             if(log.action==='CONFIG'){color='text-slate-600';bg='bg-slate-100';icon='⚙';}
             cont.innerHTML+=`
-            <div class="p-4 border rounded-xl text-xs hover:shadow-sm transition-shadow card" style="background:var(--card-bg);border-color:var(--border)">
+            <div class="p-4 border rounded-xl text-sm hover:shadow-sm transition-shadow card" style="background:var(--card-bg);border-color:var(--border)">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="font-bold ${color} ${bg} px-2 py-1 rounded-lg tracking-wider">${icon} ${log.action}</span>
-                    <span style="color:var(--text-muted)">${date}</span>
+                    <span class="font-bold ${color} ${bg} px-2.5 py-1 rounded-lg tracking-wider text-xs">${icon} ${log.action}</span>
+                    <span class="text-xs" style="color:var(--text-muted)">${date}</span>
                 </div>
                 <div class="text-sm font-medium leading-relaxed" style="color:var(--text)">${log.details}</div>
                 <div class="text-xs mt-3 border-t pt-2" style="color:var(--text-muted);border-color:var(--border)">${t('logBy')}: ${log.user}</div>
@@ -1079,11 +1121,13 @@
         const isDark=document.documentElement.classList.contains('dark');
         const sceneBg=isDark?0x0a1628:0xf8fafc;
         scene.background=new THREE.Color(sceneBg);
-        scene.fog=new THREE.Fog(sceneBg,1000,40000);
-
-        camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,10,50000);
+        
+        // Increase Far limit to support new Easter Egg distance
+        camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,10,250000);
         camera.position.set(2000,2000,2000);
         camera.lookAt(0,0,0);
+        
+        scene.fog=new THREE.Fog(sceneBg,1000,150000);
 
         renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
         renderer.setSize(window.innerWidth,window.innerHeight);
@@ -1095,9 +1139,8 @@
         controls.enableDamping=true;
         controls.dampingFactor=0.05;
         controls.maxPolarAngle=Math.PI/2-0.02;
-        controls.maxDistance=MAX_ZOOM_DIST; // Lock max zoom
+        controls.maxDistance=MAX_ZOOM_DIST; 
 
-        // Fade modal on config interaction
         controls.addEventListener('start',()=>{
             const m=document.getElementById('main-modal');
             if(m.classList.contains('modal-show')&&!document.getElementById('tab-config').classList.contains('hidden')) m.style.opacity='0.15';
@@ -1122,12 +1165,12 @@
         dl.shadow.camera.top=sd; dl.shadow.camera.bottom=-sd;
         scene.add(dl);
 
-        const floorGeo=new THREE.PlaneGeometry(100000,100000);
+        const floorGeo=new THREE.PlaneGeometry(300000,300000); // Expanded floor
         const floorMat=new THREE.MeshStandardMaterial({color:isDark?0x0f172a:0xffffff,roughness:0.9});
         const floor=new THREE.Mesh(floorGeo,floorMat);
         floor.rotation.x=-Math.PI/2; floor.receiveShadow=true;
         scene.add(floor);
-        const grid=new THREE.GridHelper(100000,200,0x10b981,isDark?0x1e3a5f:0xe2e8f0);
+        const grid=new THREE.GridHelper(300000,600,0x10b981,isDark?0x1e3a5f:0xe2e8f0);
         grid.position.y=0.5; scene.add(grid);
 
         highlightBox=new THREE.Mesh(
@@ -1141,6 +1184,8 @@
 
         raycaster=new THREE.Raycaster();
         mouse=new THREE.Vector2();
+        
+        // Touch events handling
         renderer.domElement.addEventListener('pointerdown',onPointerDown);
         renderer.domElement.addEventListener('touchstart',(e)=>{
             if(e.touches.length>1) return;
@@ -1188,7 +1233,6 @@
             const mScene=new THREE.Scene();
             moonScene=mScene;
 
-            // Stars
             const starGeo=new THREE.BufferGeometry();
             const starVerts=[];
             for(let i=0;i<2000;i++){
@@ -1197,7 +1241,6 @@
             starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starVerts,3));
             mScene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xffffff,size:1.5})));
 
-            // Moon
             const moonGeo=new THREE.SphereGeometry(150,32,32);
             const moonMat=new THREE.MeshStandardMaterial({color:0xc8c8c8,roughness:0.9,metalness:0.0});
             const moon=new THREE.Mesh(moonGeo,moonMat);
@@ -1208,7 +1251,6 @@
             sunLight.position.set(300,200,100);
             mScene.add(sunLight);
 
-            // UFO
             const ufoGroup=new THREE.Group();
             const bodyGeo=new THREE.SphereGeometry(30,16,8);
             bodyGeo.scale(1,0.4,1);
@@ -1218,7 +1260,6 @@
             const domeMat=new THREE.MeshStandardMaterial({color:0x88ddff,transparent:true,opacity:0.7,metalness:0.3});
             const dome=new THREE.Mesh(domeGeo,domeMat);
             dome.position.y=8; ufoGroup.add(dome);
-            // Lights ring
             for(let i=0;i<8;i++){
                 const lGeo=new THREE.SphereGeometry(3,8,8);
                 const lMat=new THREE.MeshStandardMaterial({color:i%2===0?0x00ff88:0xff8800,emissive:i%2===0?0x00ff88:0xff8800,emissiveIntensity:1});
@@ -1241,7 +1282,6 @@
                     moonCamera.aspect=w/h; moonCamera.updateProjectionMatrix();
                 }
                 moon.rotation.y+=0.002;
-                // UFO flies across
                 ufoGroup.position.x+=1.2;
                 ufoGroup.position.y=120+Math.sin(frame*0.03)*30;
                 ufoGroup.rotation.y+=0.02;
@@ -1435,43 +1475,43 @@
             const isLow=item.qty<LOW_STOCK_THRESHOLD;
             const lowBadge=isLow?`<span class="low-stock-badge">${t('lowStockAlert')}</span>`:'';
             const div=document.createElement('div');
-            div.className='p-3 border rounded-xl shadow-sm hover:border-primary cursor-pointer hover:shadow-md transition-all card';
+            div.className='p-4 border rounded-2xl shadow-sm hover:border-primary cursor-pointer hover:shadow-md transition-all card';
             div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
 
             if(viewModes.search==='list'){
                 div.innerHTML=`
-                <div class="flex-1 min-w-0">
-                    <div class="font-bold text-sm mb-1 flex items-center gap-2 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge}</div>
-                    <div class="flex items-center gap-2 flex-wrap text-xs" style="color:var(--text-muted)">
-                        <span class="font-bold px-2 py-0.5 rounded-lg" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</span>
+                <div class="flex-1 min-w-0 pr-2">
+                    <div class="font-bold text-base md:text-sm mb-1.5 flex items-center gap-2 flex-wrap truncate" style="color:var(--text)">${item.name} ${lowBadge}</div>
+                    <div class="flex items-center gap-2 flex-wrap text-sm md:text-xs" style="color:var(--text-muted)">
+                        <span class="font-bold px-2.5 py-1 rounded-lg" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</span>
                         <span>${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 shrink-0 mt-2 sm:mt-0">
-                    <div class="text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg whitespace-nowrap border border-green-100">${item.qty} ${t('pcsText')}</div>
-                    <button class="btn-eye p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <div class="flex items-center gap-2 shrink-0 mt-3 sm:mt-0">
+                    <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg whitespace-nowrap border border-green-100">${item.qty} ${t('pcsText')}</div>
+                    <button class="btn-eye p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     </button>
-                    <button class="btn-out p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                    <button class="btn-out p-2.5 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
                     </button>
                 </div>`;
             } else {
                 div.classList.add('flex-col','justify-between');
                 div.innerHTML=`
                 <div class="w-full">
-                    <div class="font-bold text-sm mb-1 truncate flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge}</div>
-                    <div class="text-xs mb-2" style="color:var(--text-muted)">${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</div>
-                    <div class="text-xs font-bold px-2 py-1 rounded-lg inline-block mb-2" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
+                    <div class="font-bold text-base md:text-sm mb-2 flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge}</div>
+                    <div class="text-sm md:text-xs mb-3" style="color:var(--text-muted)">${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</div>
+                    <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block mb-3" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
                 </div>
-                <div class="flex items-center justify-between w-full border-t pt-2 mt-auto" style="border-color:var(--border)">
-                    <div class="text-sm font-bold text-primary px-2.5 py-1 bg-green-50 rounded-lg">${item.qty} ${t('pcsText')}</div>
-                    <div class="flex gap-1.5">
-                        <button class="btn-eye p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <div class="flex items-center justify-between w-full border-t pt-3 mt-auto" style="border-color:var(--border)">
+                    <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg">${item.qty} ${t('pcsText')}</div>
+                    <div class="flex gap-2">
+                        <button class="btn-eye p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                         </button>
-                        <button class="btn-out p-1.5 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                        <button class="btn-out p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
                         </button>
                     </div>
                 </div>`;
@@ -1520,25 +1560,25 @@
         Object.keys(groups).sort().forEach(prefix=>{
             const grpLocs=groups[prefix].sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}));
             const gDiv=document.createElement('div');
-            gDiv.className='border rounded-xl overflow-hidden mb-2';
+            gDiv.className='border rounded-xl overflow-hidden mb-3';
             gDiv.style.borderColor='var(--border)'; gDiv.style.background='var(--card-bg)';
             const hdr=document.createElement('div');
-            hdr.className='flex justify-between items-center p-3 cursor-pointer select-none border-b';
+            hdr.className='flex justify-between items-center p-4 cursor-pointer select-none border-b';
             hdr.style.background='var(--hover-bg)'; hdr.style.borderColor='var(--border)';
             hdr.innerHTML=`
             <div class="font-bold text-sm" style="color:var(--text)">${t('lblRow')} ${prefix} <span class="text-xs ml-2" style="color:var(--text-muted)">(${grpLocs.length} ${t('lblSlot')})</span></div>
-            <div class="flex items-center gap-2">
-                <button onclick="event.stopPropagation();deleteLocationGroup('${prefix}')" class="text-red-500 hover:bg-red-50 px-2.5 py-1 rounded-lg text-xs font-bold">${t('delRow')}</button>
-                <svg class="w-4 h-4 transition-transform group-arrow" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            <div class="flex items-center gap-3">
+                <button onclick="event.stopPropagation();deleteLocationGroup('${prefix}')" class="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">${t('delRow')}</button>
+                <svg class="w-5 h-5 transition-transform group-arrow" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </div>`;
             const cont=document.createElement('div');
             cont.className='hidden flex-col divide-y'; cont.style.borderColor='var(--border)';
             grpLocs.forEach(loc=>{
                 cont.innerHTML+=`
-                <div class="flex justify-between items-center p-3 pl-5 text-xs" style="color:var(--text)">
+                <div class="flex justify-between items-center p-3 pl-6 text-sm md:text-xs" style="color:var(--text)">
                     <div><strong>${t('lblSlot')} ${loc.id}</strong> <span style="color:var(--text-muted)">${loc.rot==90?'(90°)':''}</span>
-                    <span class="block mt-0.5" style="color:var(--text-muted)">X:${loc.x},Y:${loc.z} | ${loc.w}x${loc.d}x${loc.h}cm | ${t('lblLevel')}:${loc.levels}</span></div>
-                    <button onclick="deleteLocation('${loc.id}')" class="text-red-400 hover:bg-red-50 p-1.5 rounded-lg">${t('delBtn')}</button>
+                    <span class="block mt-1" style="color:var(--text-muted)">X:${loc.x},Y:${loc.z} | ${loc.w}x${loc.d}x${loc.h}cm | ${t('lblLevel')}:${loc.levels}</span></div>
+                    <button onclick="deleteLocation('${loc.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition-colors">${t('delBtn')}</button>
                 </div>`;
             });
             hdr.onclick=()=>{ const isHidden=cont.classList.contains('hidden'); cont.classList.toggle('hidden',!isHidden); cont.classList.toggle('flex',isHidden); hdr.querySelector('.group-arrow').classList.toggle('rotate-180',isHidden); };
@@ -1630,7 +1670,7 @@
             if(matches.length>0){
                 matches.forEach(m=>{
                     const div=document.createElement('div');
-                    div.className='autocomplete-item text-sm'; div.innerText=m.name;
+                    div.className='autocomplete-item text-base md:text-sm'; div.innerText=m.name;
                     div.onclick=()=>{ input.value=m.name; if(m.w) document.getElementById('in-w').value=m.w; if(m.d) document.getElementById('in-d').value=m.d; if(m.h) document.getElementById('in-h').value=m.h; list.style.display='none'; };
                     list.appendChild(div);
                 });
@@ -1667,22 +1707,22 @@
             const isLow=item.qty<LOW_STOCK_THRESHOLD;
             const lowBadge=isLow?`<span class="low-stock-badge">${t('lowStockAlert')}</span>`:'';
             const div=document.createElement('div');
-            div.className='p-3 border rounded-xl shadow-sm hover:border-orange-300 cursor-pointer transition-all card';
+            div.className='p-4 border rounded-2xl shadow-sm hover:border-orange-300 cursor-pointer transition-all card';
             div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
             if(viewModes.out==='list'){
                 div.innerHTML=`
-                <div class="flex-1 min-w-0">
-                    <div class="font-bold text-sm mb-1 flex items-center gap-2 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge}</div>
-                    <div class="text-xs font-bold px-2 py-0.5 rounded-lg inline-block" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
+                <div class="flex-1 min-w-0 pr-2">
+                    <div class="font-bold text-base md:text-sm mb-1.5 flex items-center gap-2 flex-wrap truncate" style="color:var(--text)">${item.name} ${lowBadge}</div>
+                    <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
                 </div>
-                <div class="text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg whitespace-nowrap border border-green-100 mt-2 sm:mt-0 ml-auto">${item.qty} ${t('pcsText')}</div>`;
+                <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg whitespace-nowrap border border-green-100 mt-2 sm:mt-0 ml-auto shrink-0">${item.qty} ${t('pcsText')}</div>`;
             } else {
                 div.classList.add('flex-col','justify-between');
                 div.innerHTML=`
                 <div class="w-full text-center">
-                    <div class="font-bold text-sm mb-1.5 flex items-center justify-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge}</div>
-                    <div class="text-xs font-bold px-2 py-1 rounded-lg inline-block mb-2" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
-                    <div class="text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg border border-green-100">${item.qty} ${t('pcsText')}</div>
+                    <div class="font-bold text-base md:text-sm mb-2 flex items-center justify-center gap-1.5 flex-wrap truncate" style="color:var(--text)">${item.name} ${lowBadge}</div>
+                    <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block mb-3" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
+                    <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg border border-green-100">${item.qty} ${t('pcsText')}</div>
                 </div>`;
             }
             div.onclick=()=>{ selectedOutItem=item; document.getElementById('out-action-area').classList.remove('hidden'); document.getElementById('out-selected-label').innerText=`${item.name} (${formatLocation(item.locationId)})`; document.getElementById('out-qty').max=item.qty; };
@@ -1758,8 +1798,8 @@
             window.currentReportData=data;
             if(data.length===0){ thead.innerHTML=''; tbody.innerHTML=`<tr><td colspan="5" class="text-center py-8 text-sm text-red-500 font-bold">${t('repEmpty')}</td></tr>`; return; }
             const headers=Object.keys(data[0]);
-            thead.innerHTML='<tr>'+headers.map(h=>`<th class="px-4 py-3 text-left font-bold border-r last:border-r-0 whitespace-nowrap" style="border-color:var(--border)">${h}</th>`).join('')+'</tr>';
-            tbody.innerHTML=data.map(row=>'<tr class="border-b hover:opacity-80 transition-opacity" style="border-color:var(--border)">'+ headers.map(h=>`<td class="px-4 py-3 border-r last:border-r-0 text-sm" style="color:var(--text);border-color:var(--border)">${row[h]}</td>`).join('')+'</tr>').join('');
+            thead.innerHTML='<tr>'+headers.map(h=>`<th class="px-5 py-4 text-left font-bold border-r last:border-r-0 whitespace-nowrap" style="border-color:var(--border)">${h}</th>`).join('')+'</tr>';
+            tbody.innerHTML=data.map(row=>'<tr class="border-b hover:opacity-80 transition-opacity" style="border-color:var(--border)">'+ headers.map(h=>`<td class="px-5 py-4 border-r last:border-r-0 text-sm" style="color:var(--text);border-color:var(--border)">${row[h]}</td>`).join('')+'</tr>').join('');
         }catch(e){ console.error(e); showToast(t('toastError'),'error'); tbody.innerHTML=''; }
     };
 
