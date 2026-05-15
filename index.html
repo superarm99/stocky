@@ -283,7 +283,7 @@
 
             <nav class="flex-1 overflow-y-auto p-3 space-y-1 pb-10">
                 <button onclick="openTab('home')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all bg-indigo-50 text-indigo-600" data-tab="home" style="color:var(--text-muted)">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuOverview">ภาพรวมคลังสินค้า</span>
                 </button>
                 <hr class="my-2" style="border-color:var(--border)">
@@ -336,8 +336,8 @@
                 </button>
             </div>
 
-            <!-- Modal Overlay: ถอด class modal-hidden ออกแล้วใช้ utility class ของ Tailwind แทน -->
-            <div id="main-overlay" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] hidden opacity-0 pointer-events-none transition-opacity duration-300" onclick="openTab('home')"></div>
+            <!-- Modal Overlay: FIXED ใช้ fixed เพื่อให้คลุมมิดถึงขอบล่าง 100dvh จริงๆใน Safari/Mobile -->
+            <div id="main-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] hidden opacity-0 pointer-events-none transition-opacity duration-300" onclick="openTab('home')"></div>
 
             <div id="main-modal" class="absolute z-[60] rounded-2xl flex flex-col modal-hidden pointer-events-none overflow-hidden border" style="background:var(--modal-bg); border-color:var(--border)">
                 <!-- Modal Header -->
@@ -482,8 +482,9 @@
                             <span data-i18n="repTitle">ส่งออกรายงาน</span>
                         </h2>
                         <div class="p-4 md:p-5 rounded-2xl border mb-5 shrink-0" style="background:var(--hover-bg);border-color:var(--border)">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                                <div class="md:col-span-2">
+                            <!-- FIXED: เปลี่ยนการจัด Grid เพื่อให้ช่องวันที่บนมือถือ/แท็บเล็ต ไม่ล้นจอ -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                                <div class="sm:col-span-2 lg:col-span-2">
                                     <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repType">ประเภทรายงาน</label>
                                     <select id="rep-type" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onchange="toggleReportFilters()">
                                         <option value="SUM" data-i18n="repOptSum">1. รายงานสรุปยอดรวมสินค้า</option>
@@ -500,7 +501,7 @@
                                     <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repEnd">ถึงวันที่</label>
                                     <input type="date" id="rep-end" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                 </div>
-                                <div class="loc-filter hidden md:col-span-2">
+                                <div class="loc-filter hidden sm:col-span-2 lg:col-span-2">
                                     <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repFilterLoc">กรองเฉพาะช่อง</label>
                                     <select id="rep-loc-filter" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                         <option value="">-- ทั้งหมด --</option>
@@ -513,7 +514,8 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
                                     <span data-i18n="repExcel">Excel (CSV)</span>
                                 </button>
-                                <button onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md">
+                                <!-- FIXED: เพิ่ม ID สำหรับจัดการ Loading State ให้ปุ่ม Print -->
+                                <button id="btn-print-pdf" onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     <span data-i18n="repPdf">พิมพ์ / PDF</span>
                                 </button>
@@ -1017,7 +1019,7 @@
 
         if(tabId==='home'){
             mainOverlay.classList.remove('opacity-100');
-            mainOverlay.classList.add('opacity-0', 'pointer-events-none'); // [FIXED] เพิ่มการคืนค่าให้กดคลิกทะลุได้ และโปร่งใส
+            mainOverlay.classList.add('opacity-0', 'pointer-events-none');
             mainModal.classList.remove('modal-show');
             setTimeout(()=>{ mainOverlay.classList.add('hidden'); mainModal.classList.add('hidden'); },300);
             if(highlightBox) highlightBox.visible=false;
@@ -1033,7 +1035,7 @@
                 mainModal.classList.add('top-3','right-3','bottom-3','w-11/12','md:w-[24rem]');
                 mainModal.classList.remove('inset-2','md:inset-4','lg:inset-y-6','lg:inset-x-8');
             } else {
-                mainOverlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none'); // [FIXED] ถอด class ซ่อนออก เพื่อให้พื้นหลังทึบและรับคลิกปิดได้
+                mainOverlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
                 setTimeout(()=>mainOverlay.classList.add('opacity-100'),10);
                 mainModal.style.borderColor='';
                 mainModal.classList.remove('top-3','right-3','bottom-3','w-11/12','md:w-[24rem]');
@@ -1739,13 +1741,44 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 
+    // FIXED: อัปเดตฟังก์ชันนี้ ให้มี Loading Spinner และ Delay หลีกเลี่ยง UI ค้าง
     window.printPDF=function(){
         if(!window.currentReportData||window.currentReportData.length===0) return showToast(t('toastNoExport'),'error');
-        const pa=document.getElementById('print-area'); const sel=document.getElementById('rep-type'); const typeText=sel.options[sel.selectedIndex].text;
-        let html=`<h2>${typeText}</h2>`; if(sel.value!=='SUM') html+=`<p class="print-date">${document.getElementById('rep-start').value} - ${document.getElementById('rep-end').value}</p>`;
-        html+=`<table><thead><tr>`; const headers=Object.keys(window.currentReportData[0]); headers.forEach(h=>html+=`<th>${h}</th>`); html+=`</tr></thead><tbody>`;
-        window.currentReportData.forEach(row=>{ html+=`<tr>`; headers.forEach(h=>html+=`<td>${row[h]}</td>`); html+=`</tr>`; }); html+=`</tbody></table>`;
-        pa.innerHTML=html; window.print();
+        
+        const btn = document.getElementById('btn-print-pdf');
+        const originalHtml = btn.innerHTML;
+        // เปลี่ยนปุ่มเป็นสถานะโหลด
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>กำลังเตรียม...</span>`;
+        btn.disabled = true;
+
+        // หน่วงเวลาเล็กน้อยเพื่อให้เบราว์เซอร์โชว์อนิเมชันปุ่มโหลดก่อนค่อยเรียกหน้าจอ Print 
+        setTimeout(() => {
+            const pa=document.getElementById('print-area'); 
+            const sel=document.getElementById('rep-type'); 
+            const typeText=sel.options[sel.selectedIndex].text;
+            
+            let html=`<h2>${typeText}</h2>`; 
+            if(sel.value!=='SUM') html+=`<p class="print-date">${document.getElementById('rep-start').value} - ${document.getElementById('rep-end').value}</p>`;
+            html+=`<table><thead><tr>`; 
+            const headers=Object.keys(window.currentReportData[0]); 
+            headers.forEach(h=>html+=`<th>${h}</th>`); 
+            html+=`</tr></thead><tbody>`;
+            window.currentReportData.forEach(row=>{ 
+                html+=`<tr>`; headers.forEach(h=>html+=`<td>${row[h]}</td>`); html+=`</tr>`; 
+            }); 
+            html+=`</tbody></table>`;
+            pa.innerHTML=html; 
+
+            // เรียกคำสั่ง Print
+            window.print();
+
+            // คืนค่าปุ่มกลับเป็นเหมือนเดิมหลังจากกดปิดหน้าต่าง Print
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }, 500);
+
+        }, 150);
     };
     </script>
 </body>
