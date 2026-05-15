@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stocky - 3D Inventory</title>
+    
+    <!-- PWA / Apple Mobile Web App -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Stocky">
+    <meta name="theme-color" content="#10b981">
+    
+    <!-- Favicons -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMTBiOTgxIi8+PHBhdGggZD0iTTI1IDM1IEw1MCAyMCBMNzUgMzUgTjc1IDY1IEw1MCA4MCBMMjUgNjUgWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMjUgMzUgTDUwIDUwIEw3NSAzNSBNNTAgNTAgTDUwIDgwIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMTBiOTgxIi8+PHBhdGggZD0iTTI1IDM1IEw1MCAyMCBMNzUgMzUgTjc1IDY1IEw1MCA4MCBMMjUgNjUgWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMjUgMzUgTDUwIDUwIEw3NSAzNSBNNTAgNTAgTDUwIDgwIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'Sarabun', 'sans-serif'] },
+                    colors: { primary: '#10b981', primaryHover: '#059669' }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body { font-family: 'Inter', 'Sarabun', sans-serif; overflow: hidden; background-color: #f8fafc; }
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; outline: none; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; }
+        .pointer-events-auto { pointer-events: auto; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px;}
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        #loader { transition: opacity 0.5s ease; z-index: 9999; }
+        .spinner { border: 4px solid rgba(16, 185, 129, 0.2); border-left-color: #10b981; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: white; border-left: 4px solid #10b981; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease forwards, fadeOut 0.3s ease 2.7s forwards; }
+        .toast.error { border-left-color: #ef4444; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+        .autocomplete-list { position: absolute; z-index: 50; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; max-height: 150px; overflow-y: auto; width: 100%; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: none; }
+        .autocomplete-item { padding: 8px 12px; cursor: pointer; transition: background 0.2s; }
+        .autocomplete-item:hover { background-color: #f1f5f9; }
+        
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        @media (max-width: 768px) {
+            #sidebar { position: fixed; height: 100%; transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+            #overlay.open { display: block; }
+        }
+
+        /* Modal Overlay Animations - Clean Edges */
+        #main-overlay { transition: opacity 0.3s ease; }
+        #main-modal { transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .modal-hidden { opacity: 0; pointer-events: none; transform: scale(0.95); }
+        .modal-show { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+        #item-modal { display: none; opacity: 0; transition: opacity 0.2s; z-index: 70; }
+        #item-modal.show { display: flex; opacity: 1; }
+
+        /* Print Settings for PDF generation */
+        #print-area { display: none; }
+        @media print {
+            #canvas-container, #ui-layer, #toast-container, .fixed, #item-modal, #main-overlay, #main-modal, #confirm-modal { display: none !important; }
+            body { background: white !important; overflow: visible !important; }
+            #print-area { display: block !important; position: static; width: 100%; color: black; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; font-size: 14px; }
+            th { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; }
+            h2 { font-size: 24px; font-weight: bold; margin-bottom: 5px; text-align: center; }
+            p.print-date { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader" class="fixed inset-0 bg-white flex flex-col items-center justify-center">
+        <div class="mb-6 relative">
+            <svg class="w-24 h-24 text-primary" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round">
+                <rect x="15" y="30" width="70" height="60" rx="4"/>
+                <path d="M15 45 L50 60 L85 45 M50 60 L50 90 M25 30 L50 15 L75 30"/>
+            </svg>
+        </div>
+        <div class="spinner mb-4"></div>
+        <h1 class="text-2xl font-semibold text-gray-800 tracking-wider">STOCKY</h1>
+        <p class="text-gray-500 mt-2 text-sm" data-i18n="loading">กำลังโหลดระบบ 3D คลังสินค้า...</p>
+    </div>
+
+    <!-- 3D Container -->
+    <div id="canvas-container"></div>
+
+    <div id="ui-layer">
+        <div id="overlay" class="fixed inset-0 bg-black/20 hidden pointer-events-auto z-40 md:hidden" onclick="toggleSidebar()"></div>
+
+        <aside id="sidebar" class="w-72 bg-white/95 backdrop-blur-md border-r border-gray-200 shadow-xl flex flex-col pointer-events-auto z-50 h-full">
+            <div class="p-6 flex items-center justify-between border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 text-primary" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
+                        <rect x="15" y="30" width="70" height="60" rx="4"/><path d="M15 45 L50 60 L85 45 M50 60 L50 90 M25 30 L50 15 L75 30"/>
+                    </svg>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-wide">Stocky</h1>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+                <!-- Home / Overview Menu -->
+                <button onclick="openTab('home')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all active bg-indigo-50 text-indigo-600" data-tab="home">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="font-medium" data-i18n="menuOverview">ภาพรวมคลังสินค้า</span>
+                </button>
+
+                <hr class="my-2 border-gray-100">
+
+                <!-- Search Menu -->
+                <button onclick="openTab('search')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-green-50 hover:text-primary transition-all" data-tab="search">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <span class="font-medium" data-i18n="menuSearch">เช็คสต็อก / ค้นหา</span>
+                </button>
+                <!-- In Menu -->
+                <button onclick="openTab('in')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-green-50 hover:text-primary transition-all" data-tab="in">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
+                    <span class="font-medium" data-i18n="menuIn">รับสินค้าเข้า</span>
+                </button>
+                <!-- Out Menu -->
+                <button onclick="openTab('out')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-orange-50 hover:text-orange-500 transition-all" data-tab="out">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                    <span class="font-medium" data-i18n="menuOut">เบิกสินค้าออก</span>
+                </button>
+                <!-- Reports Menu -->
+                <button onclick="openTab('reports')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-purple-50 hover:text-purple-600 transition-all" data-tab="reports">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V10M12 20V4M6 20V14"></path></svg>
+                    <span class="font-medium" data-i18n="menuReports">รายงาน</span>
+                </button>
+                <!-- Logs Menu -->
+                <button onclick="openTab('logs')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all" data-tab="logs">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-medium" data-i18n="menuLogs">ประวัติการทำงาน</span>
+                </button>
+                
+                <hr class="my-4 border-gray-100">
+                
+                <!-- Help Menu -->
+                <button onclick="openTab('help')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-yellow-50 hover:text-yellow-600 transition-all" data-tab="help">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-medium" data-i18n="menuHelp">วิธีการใช้งาน</span>
+                </button>
+
+                <!-- Settings Button -->
+                <button onclick="openTab('settings')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-all" data-tab="settings">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span class="font-medium" data-i18n="menuSettings">การตั้งค่า</span>
+                </button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 relative">
+            <div class="md:hidden absolute top-4 left-4 z-30 pointer-events-auto">
+                <button onclick="toggleSidebar()" class="bg-white p-3 rounded-full shadow-lg text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+
+            <!-- Reset Camera & Config Group -->
+            <div class="absolute bottom-6 right-6 md:right-8 z-20 flex items-center justify-end group pointer-events-none">
+                <!-- Config Button (Shows on hover of the group) -->
+                <button onclick="openTab('config')" title="จัดการผังคลังสินค้า" class="pointer-events-auto bg-white/90 backdrop-blur p-3 rounded-full shadow-lg text-slate-600 hover:text-primary hover:bg-white transition-all duration-300 opacity-0 translate-x-8 group-hover:opacity-100 group-hover:translate-x-0 mr-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                </button>
+
+                <!-- Home Button -->
+                <button onclick="resetCamera()" title="กลับจุดศูนย์กลาง" class="pointer-events-auto bg-white/90 backdrop-blur p-4 rounded-full shadow-lg text-slate-600 hover:text-primary hover:bg-white transition-all relative z-10 border border-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                </button>
+            </div>
+
+            <!-- Absolute Modal Overlay & Container (Bound to <main>) -->
+            <div id="main-overlay" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] modal-hidden transition-opacity duration-300" onclick="openTab('home')"></div>
+            
+            <!-- Cleaned up Modal border/shadow -->
+            <div id="main-modal" class="absolute inset-2 md:inset-4 z-[60] bg-white rounded-2xl flex flex-col modal-hidden pointer-events-none transition-all duration-300 overflow-hidden">
+                
+                <!-- Modal Header / Close Button -->
+                <div class="flex justify-end p-3 border-b border-gray-100 pointer-events-auto shrink-0 bg-white">
+                    <button onclick="openTab('home')" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Modal Content Area (Full width, flexible) -->
+                <div id="action-panel" class="p-4 md:p-6 flex-1 w-full pointer-events-auto bg-white flex flex-col overflow-hidden">
+                    
+                    <!-- Tab: Search -->
+                    <div id="tab-search" class="tab-content hidden flex-col h-full w-full">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <span data-i18n="searchTitle">สต็อกทั้งหมด / ค้นหา</span>
+                        </h2>
+                        <input type="text" id="searchInput" data-i18n-ph="searchPlaceholder" placeholder="พิมพ์ชื่อสินค้า..." class="w-full max-w-md px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent mb-6 text-lg shrink-0" oninput="handleSearch()">
+                        
+                        <!-- List Layout Container -->
+                        <div id="search-results" class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Tab: In -->
+                    <div id="tab-in" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2">
+                        <h2 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
+                            <span data-i18n="inTitle">รับสินค้าเข้า</span>
+                        </h2>
+                        <form id="form-in" onsubmit="handleStockIn(event)" class="space-y-6 max-w-5xl">
+                            <div class="relative">
+                                <label class="block font-medium text-gray-700 mb-2" data-i18n="inItemName">ชื่อสินค้า</label>
+                                <input type="text" id="in-name" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary text-lg" autocomplete="off" oninput="showAutocomplete('in-name', 'in-autocomplete')">
+                                <div id="in-autocomplete" class="autocomplete-list"></div>
+                            </div>
+                            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                                <label class="block font-bold text-gray-800 mb-4 text-lg" data-i18n="inSize">ขนาดแพ็กเกจรวมต่อการนำเข้า (หน่วย: cm)</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div><label class="block text-sm text-gray-500 mb-1" data-i18n="width">กว้าง</label><input type="number" id="in-w" min="1" data-i18n-ph="width" placeholder="กว้าง" required class="w-full px-4 py-3 border border-gray-200 rounded-xl text-lg"></div>
+                                    <div><label class="block text-sm text-gray-500 mb-1" data-i18n="depth">ลึก</label><input type="number" id="in-d" min="1" data-i18n-ph="depth" placeholder="ลึก" required class="w-full px-4 py-3 border border-gray-200 rounded-xl text-lg"></div>
+                                    <div><label class="block text-sm text-gray-500 mb-1" data-i18n="height">สูง</label><input type="number" id="in-h" min="1" data-i18n-ph="height" placeholder="สูง" required class="w-full px-4 py-3 border border-gray-200 rounded-xl text-lg"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-2" data-i18n="inQty">จำนวนรวมทั้งหมด (ชิ้น)</label>
+                                    <input type="number" id="in-qty" min="1" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary text-lg">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-2" data-i18n="inSelectSlot">เลือกช่องเก็บ</label>
+                                    <select id="in-location" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary text-lg">
+                                        <option value="" data-i18n="selectDash">-- เลือก --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full md:w-auto px-8 bg-primary hover:bg-primaryHover text-white font-bold py-4 rounded-xl transition-colors mt-6 text-lg shadow-md" data-i18n="inBtn">บันทึกรับเข้า</button>
+                        </form>
+                    </div>
+
+                    <!-- Tab: Out -->
+                    <div id="tab-out" class="tab-content hidden flex-col h-full w-full">
+                        <h2 class="text-2xl font-bold text-orange-500 mb-6 flex items-center gap-3 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                            <span data-i18n="outTitle">เบิกสินค้าออก</span>
+                        </h2>
+                        <form id="form-out" onsubmit="handleStockOut(event)" class="flex flex-col h-full overflow-hidden">
+                            <div class="relative shrink-0 mb-4 max-w-md">
+                                <label class="block font-medium text-gray-700 mb-2" data-i18n="outSearch">ค้นหาสินค้าที่จะเบิก</label>
+                                <input type="text" id="out-search" data-i18n-ph="searchPlaceholder" placeholder="พิมพ์ชื่อสินค้า..." class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-lg" oninput="filterOutItems()">
+                            </div>
+                            
+                            <!-- Items populate here (Grid View) -->
+                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-2 bg-gray-50/50 rounded-2xl p-2 min-h-[20vh] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start border border-gray-100">
+                            </div>
+
+                            <div id="out-action-area" class="hidden mt-4 pt-6 border-t border-gray-200 space-y-5 shrink-0 bg-white">
+                                <div class="text-lg text-gray-600"><span data-i18n="outFrom">เบิกจาก:</span> <span id="out-selected-label" class="font-bold text-slate-800 text-xl block md:inline mt-1 md:mt-0 bg-orange-100 px-3 py-1 rounded-lg"></span></div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl">
+                                    <div>
+                                        <label class="block font-medium text-gray-700 mb-2" data-i18n="outWho">ชื่อผู้เบิก / รายละเอียด</label>
+                                        <input type="text" id="out-who" required data-i18n-ph="outWhoPh" placeholder="เช่น นาย A แผนก B" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 text-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-gray-700 mb-2" data-i18n="outDate">วันที่และเวลาที่เบิก</label>
+                                        <input type="datetime-local" id="out-datetime" required class="w-full px-4 py-3 border border-gray-200 rounded-xl text-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-gray-700 mb-2" data-i18n="outQty">จำนวนที่เบิก</label>
+                                        <div class="flex gap-2">
+                                            <input type="number" id="out-qty" min="1" required data-i18n-ph="qtyPieces" placeholder="จำนวนชิ้น" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 text-lg flex-1">
+                                            <button type="submit" class="px-6 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-lg whitespace-nowrap shadow-md" data-i18n="outBtn">ยืนยันการเบิก</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab: Logs -->
+                    <div id="tab-logs" class="tab-content hidden flex-col h-full w-full">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span data-i18n="logTitle">ประวัติการทำงานล่าสุด</span>
+                        </h2>
+                        <!-- List Layout Container -->
+                        <div id="logs-container" class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start">
+                            <div class="text-center text-gray-400 py-8 col-span-full" data-i18n="loading">กำลังโหลด...</div>
+                        </div>
+                        <!-- Pagination -->
+                        <div id="log-pagination" class="hidden flex justify-between items-center mt-4 pt-4 border-t border-gray-100 shrink-0">
+                            <button id="btn-prev-log" onclick="loadLogsPage(window.currentLogPage - 1)" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnPrev">ก่อนหน้า</button>
+                            <span id="log-page-info" class="text-base font-bold text-slate-600">หน้า 1</span>
+                            <button id="btn-next-log" onclick="loadLogsPage(window.currentLogPage + 1)" class="px-5 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnNext">ถัดไป</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Reports -->
+                    <div id="tab-reports" class="tab-content hidden flex-col h-full w-full">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V10M12 20V4M6 20V14"></path></svg>
+                            <span data-i18n="repTitle">ส่งออกรายงาน (Reports)</span>
+                        </h2>
+                        
+                        <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200 mb-6 shrink-0 max-w-6xl">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                <div class="md:col-span-2">
+                                    <label class="block font-medium text-gray-700 mb-2" data-i18n="repType">ประเภทรายงาน</label>
+                                    <select id="rep-type" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-white">
+                                        <option value="INV" data-i18n="repOpt1">1. รายงานสินค้าคงคลัง (Inventory)</option>
+                                        <option value="IN" data-i18n="repOpt2">2. รายงานการรับสินค้าเข้า (Stock In)</option>
+                                        <option value="OUT" data-i18n="repOpt3">3. รายงานการเบิกสินค้าออก (Stock Out)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-2" data-i18n="repStart">ตั้งแต่วันที่</label>
+                                    <input type="date" id="rep-start" required class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-white">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-2" data-i18n="repEnd">ถึงวันที่</label>
+                                    <input type="date" id="rep-end" required class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-white">
+                                </div>
+                            </div>
+                            <div class="mt-5 flex flex-wrap gap-3">
+                                <button onclick="generateReport()" class="flex-1 md:flex-none px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-colors shadow-sm text-lg" data-i18n="repBtnGen">ดึงข้อมูลรายงาน</button>
+                                <button onclick="exportCSV()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition-colors shadow-sm text-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+                                    <span data-i18n="repExcel">Excel (CSV)</span>
+                                </button>
+                                <button onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-bold transition-colors shadow-sm text-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                    <span data-i18n="repPdf">พิมพ์ / PDF</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 overflow-auto border border-gray-200 rounded-xl relative min-h-[300px]">
+                            <table class="w-full text-sm text-left whitespace-nowrap">
+                                <thead id="rep-thead" class="sticky top-0 bg-slate-100 border-b z-10 text-slate-700 uppercase">
+                                    <!-- Headers generated dynamically -->
+                                </thead>
+                                <tbody id="rep-tbody">
+                                    <tr><td class="text-center py-10 text-gray-400 text-base" colspan="100%" data-i18n="repWait">คลิก "ดึงข้อมูลรายงาน" เพื่อแสดงผล</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Help / How to Use -->
+                    <div id="tab-help" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2">
+                        <h2 class="text-2xl font-bold text-yellow-600 mb-6 flex items-center gap-3 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span data-i18n="helpTitle">คู่มือการใช้งานระบบ</span>
+                        </h2>
+                        
+                        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 space-y-8 max-w-5xl">
+                            
+                            <!-- 3D Controls -->
+                            <section>
+                                <h3 class="text-xl font-bold text-slate-800 mb-4 border-b border-gray-200 pb-2" data-i18n="help3DHeader">1. การควบคุมมุมมอง 3D</h3>
+                                <ul class="space-y-4 text-lg text-slate-700">
+                                    <li class="flex items-start gap-4">
+                                        <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 shrink-0">
+                                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                                        </div>
+                                        <div><strong class="block text-slate-800" data-i18n="helpRotate">หมุนมุมกล้อง:</strong> <span data-i18n="helpRotateDesc">คลิกซ้ายค้างไว้แล้วลากเมาส์ไปมา เพื่อหมุนดูรอบๆ</span></div>
+                                    </li>
+                                    <li class="flex items-start gap-4">
+                                        <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 shrink-0">
+                                            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                                        </div>
+                                        <div><strong class="block text-slate-800" data-i18n="helpPan">เลื่อนซ้าย/ขวา/ขึ้น/ลง:</strong> <span data-i18n="helpPanDesc">คลิกขวาค้างไว้แล้วลากเมาส์ เพื่อเลื่อนมุมมองกล้อง</span></div>
+                                    </li>
+                                    <li class="flex items-start gap-4">
+                                        <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 shrink-0">
+                                            <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
+                                        </div>
+                                        <div><strong class="block text-slate-800" data-i18n="helpZoom">ซูมเข้า/ออก:</strong> <span data-i18n="helpZoomDesc">เลื่อนลูกกลิ้งเมาส์ (Scroll Wheel) ขึ้นลง</span></div>
+                                    </li>
+                                    <li class="flex items-start gap-4">
+                                        <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 shrink-0">
+                                            <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <div><strong class="block text-slate-800" data-i18n="helpTouch">มือถือและแท็บเล็ต:</strong> <span data-i18n="helpTouchDesc">ใช้นิ้วเดียวลากเพื่อหมุนกล้อง และใช้สองนิ้วลากเพื่อเลื่อน หรือกางนิ้วเพื่อซูม</span></div>
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <!-- System Management -->
+                            <section>
+                                <h3 class="text-xl font-bold text-slate-800 mb-4 border-b border-gray-200 pb-2" data-i18n="helpSysHeader">2. การจัดการคลังสินค้าและระบบ</h3>
+                                <ul class="space-y-4 text-lg text-slate-700">
+                                    <li class="flex items-start gap-3">
+                                        <div class="mt-1 text-primary">●</div>
+                                        <div><strong class="text-slate-800" data-i18n="helpSys1">เช็คสต็อก (Search):</strong> <span data-i18n="helpSys1Desc">ดูรายการสินค้าทั้งหมด คลิกที่สินค้าเพื่อดูรายละเอียดและตำแหน่งใน 3D</span></div>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="mt-1 text-primary">●</div>
+                                        <div><strong class="text-slate-800" data-i18n="helpSys2">รับเข้า / เบิกออก (In/Out):</strong> <span data-i18n="helpSys2Desc">บันทึกข้อมูลการเอาสินค้าเข้าและออกจากชั้นวาง ระบบจะคำนวณและวาด 3D อัตโนมัติ</span></div>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="mt-1 text-primary">●</div>
+                                        <div><strong class="text-slate-800" data-i18n="helpSys3">รายงานและประวัติ (Reports & Logs):</strong> <span data-i18n="helpSys3Desc">ดูประวัติการทำรายการย้อนหลัง และสามารถส่งออกข้อมูลเป็น Excel หรือ PDF ได้</span></div>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="mt-1 text-primary">●</div>
+                                        <div><strong class="text-slate-800" data-i18n="helpSys4">จัดการผังคลังสินค้า (Layout Config):</strong> <span data-i18n="helpSys4Desc">ตั้งค่ามิติ ขนาด และจำนวนชั้นวาง (ไอคอน ⚙️ ซ่อนอยู่ข้างปุ่ม Home มุมขวาล่าง)</span></div>
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <div class="border-t border-gray-200 pt-6 text-center text-gray-500 text-sm font-medium" data-i18n="helpDev">
+                                ผู้พัฒนา AArm -- version 1.0.0 -- 15/05/2026
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Settings (Language) -->
+                    <div id="tab-settings" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span data-i18n="setMenu">การตั้งค่า</span>
+                        </h2>
+                        
+                        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-8 max-w-2xl">
+                            <label class="block font-bold text-gray-800 mb-4 text-lg" data-i18n="setLang">เลือกภาษา (Language)</label>
+                            <select id="lang-select" class="w-full px-4 py-4 border border-gray-300 rounded-xl bg-white text-lg focus:ring-2 focus:ring-slate-500 shadow-sm" onchange="setLanguage(this.value)">
+                                <option value="th">🇹🇭 ภาษาไทย</option>
+                                <option value="en">🇬🇧 English</option>
+                                <option value="ja">🇯🇵 日本語</option>
+                            </select>
+                            <p class="text-base text-gray-500 mt-4" data-i18n="setDesc">ระบบจะจดจำภาษาที่คุณเลือกไว้สำหรับการใช้งานครั้งต่อไป</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Config (Uses its own smaller Modal size in Logic) -->
+                    <div id="tab-config" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span data-i18n="cfgTitle">ตั้งค่ามิติชั้นวาง (หน่วย: เซนติเมตร)</span>
+                        </h2>
+                        
+                        <form id="form-config" onsubmit="handleAddLocation(event)" oninput="updatePreview()" onchange="updatePreview()" class="space-y-4 shrink-0">
+                            <div>
+                                <label class="block font-medium text-gray-700 mb-1" data-i18n="cfgPrefix">อักษรนำหน้าแถว (Prefix เช่น B)</label>
+                                <input type="text" id="loc-prefix" required data-i18n-ph="cfgPrefixPh" placeholder="เช่น B" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-slate-500">
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                                <div class="col-span-2 font-bold text-blue-800 text-sm uppercase tracking-wider" data-i18n="cfgBatch">การสร้างช่องแบบกลุ่มต่อเนื่อง</div>
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1 text-sm" data-i18n="cfgSlots">จำนวนช่อง</label>
+                                    <input type="number" id="loc-slots" required value="1" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1 text-sm" data-i18n="cfgOrder">ทิศทางการเรียง</label>
+                                    <select id="loc-order" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option value="asc">1 -> N</option>
+                                        <option value="desc">N -> 1</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block font-medium text-gray-700 mb-1 text-sm" data-i18n="cfgDir">ทิศทางการต่อช่องใน 3D</label>
+                                    <select id="loc-axis" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option value="x" data-i18n="cfgDirX">ตามแกน X (ซ้าย-ขวา)</option>
+                                        <option value="y" data-i18n="cfgDirZ">ตามแกน Y (ลึกเข้า-ออก)</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2 border-t border-blue-200 pt-2 mt-1">
+                                    <label class="block font-medium text-gray-700 mb-1 text-sm" data-i18n="cfgRot">การหันหน้าชั้นวาง (Rotation)</label>
+                                    <select id="loc-rot" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option value="0" data-i18n="cfgRot0">หันหน้าออกตามปกติ (0 องศา)</option>
+                                        <option value="90" data-i18n="cfgRot90">หันด้านข้าง (90 องศา)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1" data-i18n="cfgX">พิกัด X (แนวนอน)</label>
+                                    <input type="number" id="loc-x" required placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1" data-i18n="cfgZ">พิกัด Y (แนวลึก)</label>
+                                    <input type="number" id="loc-z" required placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                                <p class="font-bold text-slate-700 mb-3" data-i18n="cfgSize">ขนาดของชั้นวางต่อ 1 ช่อง (ซม.)</p>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div><label class="text-xs text-gray-600 block mb-1" data-i18n="width">กว้าง</label><input type="number" id="loc-w" required value="200" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></div>
+                                    <div><label class="text-xs text-gray-600 block mb-1" data-i18n="depth">ลึก</label><input type="number" id="loc-d" required value="100" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></div>
+                                    <div><label class="text-xs text-gray-600 block mb-1" data-i18n="heightPerLvl">สูง/ชั้น</label><input type="number" id="loc-h" required value="150" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="text-sm text-gray-600 block mb-1" data-i18n="cfgLevels">จำนวนชั้นทั้งหมด (แนวตั้ง)</label>
+                                    <input type="number" id="loc-levels" min="1" max="10" value="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl transition-colors mt-2 shadow-sm text-lg" data-i18n="cfgBtn">บันทึกผังคลังสินค้า</button>
+                        </form>
+
+                        <div class="mt-6 border-t border-gray-200 pt-6 shrink-0">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n="cfgList">รายการชั้นวางปัจจุบัน</h3>
+                            <div id="locations-list" class="space-y-2 pb-10"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Print / PDF Output Area -->
+    <div id="print-area"></div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-[100] pointer-events-auto transition-opacity">
+        <div class="bg-white p-6 rounded-3xl w-80 md:w-96 shadow-2xl">
+            <h3 class="text-xl font-bold mb-2 text-slate-800" id="confirm-title">ยืนยัน</h3>
+            <p class="text-slate-600 mb-6 leading-relaxed" id="confirm-msg">...</p>
+            <div class="flex gap-3">
+                <button id="confirm-cancel" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition-colors">ยกเลิก</button>
+                <button id="confirm-ok" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors shadow-sm">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Details Modal -->
+    <div id="item-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm items-center justify-center pointer-events-auto z-[80]">
+        <div class="bg-white rounded-3xl p-6 w-80 md:w-[400px] shadow-2xl relative transform transition-all scale-100 border border-gray-100">
+            <button onclick="closeItemModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="flex items-center gap-4 mb-5 border-b border-gray-100 pb-5">
+                <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center text-primary shrink-0 shadow-inner">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                </div>
+                <div>
+                    <h3 id="modal-name" class="font-bold text-xl text-slate-800 leading-tight">Name</h3>
+                </div>
+            </div>
+            <div class="space-y-3 text-base text-slate-600">
+                <div class="flex justify-between items-center border-b border-gray-50 pb-2"><span class="text-gray-500" data-i18n="mdlLoc">ตำแหน่ง:</span> <span id="modal-loc" class="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg"></span></div>
+                <div class="flex justify-between items-center border-b border-gray-50 pb-2"><span class="text-gray-500" data-i18n="mdlQty">จำนวนคงเหลือ:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-3 py-1 rounded-lg text-lg"></span></div>
+                <div class="flex justify-between items-center border-b border-gray-50 pb-2"><span class="text-gray-500" data-i18n="mdlSize">ขนาด (กxลxส):</span> <span id="modal-size" class="font-medium text-slate-800"></span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlUpdate">อัปเดตล่าสุด:</span> <span id="modal-date" class="text-sm font-medium text-slate-700"></span></div>
+            </div>
+            <div class="mt-6 flex flex-col gap-3">
+                <button id="btn-view-map" class="w-full bg-blue-50 text-blue-600 font-bold py-3.5 rounded-xl hover:bg-blue-100 transition-colors text-lg flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    <span data-i18n="btnViewMap">ดูตำแหน่งบน 3D</span>
+                </button>
+                <button onclick="closeItemModal(); openTab('out'); document.getElementById('out-search').value=document.getElementById('modal-name').innerText; filterOutItems(); setTimeout(() => { const outList = document.getElementById('out-items-list').children; for(let i=0; i<outList.length; i++) { if(outList[i].innerText.includes(document.getElementById('modal-name').innerText)) { outList[i].click(); break; } } }, 100);" class="w-full bg-orange-100 text-orange-600 font-bold py-3.5 rounded-xl hover:bg-orange-200 transition-colors text-lg flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                    <span data-i18n="mdlBtnOut">นำไปเบิกออก</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <!-- Credit Watermark (Clickable Mailto) -->
+    <a href="mailto:velken_arm_@hotmail.com" class="fixed bottom-4 left-4 z-[990] pointer-events-auto bg-white/70 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-gray-200/50 flex items-center gap-1.5 transition-all opacity-70 hover:opacity-100 cursor-pointer">
+        <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        <span class="text-[10px] font-bold text-slate-700 tracking-wider">Developed By AArm 2026</span>
+    </a>
+
+    <!-- Localization Dictionary -->
+    <script>
+        const i18nData = {
+            th: {
+                loading: "กำลังโหลดระบบ 3D คลังสินค้า...",
+                menuOverview: "ภาพรวมคลังสินค้า",
+                menuSearch: "เช็คสต็อก / ค้นหา",
+                menuIn: "รับสินค้าเข้า",
+                menuOut: "เบิกสินค้าออก",
+                menuLogs: "ประวัติการทำงาน",
+                menuReports: "รายงาน",
+                menuHelp: "วิธีการใช้งาน",
+                menuSettings: "การตั้งค่า",
+                searchTitle: "สต็อกทั้งหมด / ค้นหา",
+                searchPlaceholder: "พิมพ์ชื่อสินค้า...",
+                notFound: "ไม่พบสินค้าในสต็อก",
+                sizeText: "ขนาด",
+                slotText: "ช่อง",
+                pcsText: "ชิ้น",
+                inTitle: "รับสินค้าเข้า",
+                inItemName: "ชื่อสินค้า",
+                inSize: "ขนาดแพ็กเกจรวมต่อการนำเข้า (หน่วย: cm)",
+                width: "กว้าง", depth: "ลึก", height: "สูง",
+                inQty: "จำนวนรวมทั้งหมด (ชิ้น)",
+                inSelectSlot: "เลือกช่องเก็บ",
+                selectDash: "-- เลือก --",
+                inBtn: "บันทึกรับเข้า",
+                outTitle: "เบิกสินค้าออก",
+                outSearch: "ค้นหาสินค้าที่จะเบิก",
+                outFrom: "เบิกจาก:",
+                outWho: "ชื่อผู้เบิก / รายละเอียด",
+                outWhoPh: "เช่น นาย A แผนก B",
+                outDate: "วันที่และเวลาที่เบิก",
+                outQty: "จำนวนที่เบิก",
+                qtyPieces: "จำนวนชิ้น",
+                outBtn: "ยืนยันการเบิก",
+                logTitle: "ประวัติการทำงานล่าสุด",
+                logEmpty: "ยังไม่มีประวัติการทำงาน",
+                logBy: "บันทึกโดย",
+                repTitle: "ส่งออกรายงาน (Reports)",
+                repType: "ประเภทรายงาน",
+                repOpt1: "1. รายงานสินค้าคงคลัง (Inventory)",
+                repOpt2: "2. รายงานการรับสินค้าเข้า (Stock In)",
+                repOpt3: "3. รายงานการเบิกสินค้าออก (Stock Out)",
+                repStart: "ตั้งแต่วันที่", repEnd: "ถึงวันที่",
+                repBtnGen: "ดึงข้อมูลรายงาน",
+                repExcel: "Excel (CSV)", repPdf: "พิมพ์ / PDF",
+                repWait: "คลิก ดึงข้อมูลรายงาน เพื่อแสดงผล",
+                repEmpty: "ไม่พบข้อมูลในช่วงเวลาที่เลือก",
+                helpTitle: "คู่มือการใช้งานระบบ",
+                help3DHeader: "1. การควบคุมมุมมอง 3D",
+                helpRotate: "หมุนมุมกล้อง:",
+                helpRotateDesc: "คลิกซ้ายค้างไว้แล้วลากเมาส์ไปมา เพื่อหมุนดูรอบๆ",
+                helpPan: "เลื่อนซ้าย/ขวา/ขึ้น/ลง:",
+                helpPanDesc: "คลิกขวาค้างไว้แล้วลากเมาส์ เพื่อเลื่อนมุมมองกล้อง",
+                helpZoom: "ซูมเข้า/ออก:",
+                helpZoomDesc: "เลื่อนลูกกลิ้งเมาส์ (Scroll Wheel) ขึ้นลง",
+                helpTouch: "มือถือและแท็บเล็ต:",
+                helpTouchDesc: "ใช้นิ้วเดียวลากเพื่อหมุนกล้อง และใช้สองนิ้วลากเพื่อเลื่อน หรือกางนิ้วเพื่อซูม",
+                helpSysHeader: "2. การจัดการคลังสินค้าและระบบ",
+                helpSys1: "เช็คสต็อก (Search):",
+                helpSys1Desc: "ดูรายการสินค้าทั้งหมด คลิกที่สินค้าเพื่อดูรายละเอียดและตำแหน่งใน 3D",
+                helpSys2: "รับเข้า / เบิกออก (In/Out):",
+                helpSys2Desc: "บันทึกข้อมูลการเอาสินค้าเข้าและออกจากชั้นวาง ระบบจะคำนวณและวาด 3D อัตโนมัติ",
+                helpSys3: "รายงานและประวัติ (Reports & Logs):",
+                helpSys3Desc: "ดูประวัติการทำรายการย้อนหลัง และสามารถส่งออกข้อมูลเป็น Excel หรือ PDF ได้",
+                helpSys4: "จัดการผังคลังสินค้า (Layout Config):",
+                helpSys4Desc: "ตั้งค่ามิติ ขนาด และจำนวนชั้นวาง (ไอคอน ⚙️ ซ่อนอยู่ข้างปุ่ม Home มุมขวาล่าง)",
+                helpDev: "ผู้พัฒนา AArm -- version 1.0.0 -- 15/05/2026",
+                cfgTitle: "ตั้งค่ามิติชั้นวาง (หน่วย: เซนติเมตร)",
+                cfgPrefix: "อักษรนำหน้าแถว (Prefix เช่น B)",
+                cfgPrefixPh: "เช่น B",
+                cfgBatch: "การสร้างช่องแบบกลุ่มต่อเนื่อง",
+                cfgSlots: "จำนวนช่อง",
+                cfgOrder: "ทิศทางการเรียง",
+                cfgDir: "ทิศทางการต่อช่องใน 3D",
+                cfgDirX: "ตามแกน X (ซ้าย-ขวา)",
+                cfgDirZ: "ตามแกน Y (ลึกเข้า-ออก)",
+                cfgRot: "การหันหน้าชั้นวาง (Rotation)",
+                cfgRot0: "หันหน้าออกตามปกติ (0 องศา)",
+                cfgRot90: "หันด้านข้าง (90 องศา)",
+                cfgX: "พิกัด X (แนวนอน)",
+                cfgZ: "พิกัด Y (แนวลึก)",
+                cfgSize: "ขนาดของชั้นวางต่อ 1 ช่อง (ซม.)",
+                heightPerLvl: "สูง/ชั้น",
+                cfgLevels: "จำนวนชั้นทั้งหมด (แนวตั้ง)",
+                cfgBtn: "บันทึกผังคลังสินค้า",
+                cfgList: "รายการชั้นวางปัจจุบัน",
+                lblRow: "แถว",
+                delRow: "ลบแถวนี้",
+                confDelRowTitle: "ยืนยันการลบ",
+                confDelRowMsg: "คุณต้องการลบแถว {0} ทั้งหมดใช่หรือไม่?",
+                btnCancel: "ยกเลิก", btnOk: "ยืนยัน",
+                delBtn: "ลบ",
+                setMenu: "การตั้งค่า",
+                setLang: "เลือกภาษา (Language)",
+                setDesc: "ระบบจะจดจำภาษาที่คุณเลือกไว้สำหรับการใช้งานครั้งต่อไป",
+                mdlLoc: "ตำแหน่ง:",
+                mdlQty: "จำนวนคงเหลือ:",
+                mdlSize: "ขนาด (กxลxส):",
+                mdlUpdate: "อัปเดตล่าสุด:",
+                mdlBtnOut: "นำไปเบิกออก",
+                btnViewMap: "ดูตำแหน่งบน 3D",
+                toastSuccess: "สำเร็จ",
+                toastError: "เกิดข้อผิดพลาด",
+                toastNoStock: "จำนวนไม่พอให้เบิก",
+                toastDateReq: "กรุณาเลือกวันที่เริ่มต้นและสิ้นสุด",
+                toastNoExport: "ยังไม่มีข้อมูลสำหรับส่งออก",
+                colDate: "วันที่อัปเดตล่าสุด", colName: "ชื่อสินค้า", colQty: "จำนวนคงเหลือ", colSlot: "ช่องเก็บ", colSize: "ขนาด (กxลxส)",
+                colLogDate: "วันและเวลาที่ทำรายการ", colDetails: "รายละเอียด", colUser: "ผู้ทำรายการ / อุปกรณ์",
+                lblSlot: "ช่อง", lblLevel: "ชั้น",
+                lblPage: "หน้า",
+                btnPrev: "ก่อนหน้า",
+                btnNext: "ถัดไป"
+            },
+            en: {
+                loading: "Loading 3D Warehouse...",
+                menuOverview: "Overview",
+                menuSearch: "Check Stock / Search",
+                menuIn: "Stock In",
+                menuOut: "Stock Out",
+                menuLogs: "Operation Logs",
+                menuReports: "Reports",
+                menuHelp: "How to Use",
+                menuSettings: "Settings",
+                searchTitle: "All Stock / Search",
+                searchPlaceholder: "Type item name...",
+                notFound: "No items found in stock",
+                sizeText: "Size",
+                slotText: "Slot",
+                pcsText: "pcs",
+                inTitle: "Stock In",
+                inItemName: "Item Name",
+                inSize: "Package Size (unit: cm)",
+                width: "Width", depth: "Depth", height: "Height",
+                inQty: "Total Quantity (pcs)",
+                inSelectSlot: "Select Slot",
+                selectDash: "-- Select --",
+                inBtn: "Save Stock In",
+                outTitle: "Stock Out",
+                outSearch: "Search item to take out",
+                outFrom: "Take out from:",
+                outWho: "Recipient / Details",
+                outWhoPh: "e.g., Mr. A from Dept B",
+                outDate: "Date & Time",
+                outQty: "Quantity",
+                qtyPieces: "pcs",
+                outBtn: "Confirm Stock Out",
+                logTitle: "Recent Operation Logs",
+                logEmpty: "No operation logs yet",
+                logBy: "Logged by",
+                repTitle: "Export Reports",
+                repType: "Report Type",
+                repOpt1: "1. Inventory Report",
+                repOpt2: "2. Stock In Report",
+                repOpt3: "3. Stock Out Report",
+                repStart: "From Date", repEnd: "To Date",
+                repBtnGen: "Generate Report",
+                repExcel: "Excel (CSV)", repPdf: "Print / PDF",
+                repWait: "Click 'Generate Report' to view data",
+                repEmpty: "No data found for the selected period",
+                helpTitle: "System Guide",
+                help3DHeader: "1. 3D Camera Controls",
+                helpRotate: "Rotate Camera:",
+                helpRotateDesc: "Left Click & Drag to rotate your view.",
+                helpPan: "Pan Camera:",
+                helpPanDesc: "Right Click & Drag to move the camera view.",
+                helpZoom: "Zoom In/Out:",
+                helpZoomDesc: "Use the Mouse Scroll Wheel.",
+                helpTouch: "Mobile/Tablet:",
+                helpTouchDesc: "Use 1 finger to rotate, 2 fingers to pan or pinch to zoom.",
+                helpSysHeader: "2. Warehouse Management",
+                helpSys1: "Check Stock (Search):",
+                helpSys1Desc: "View all items. Click an item to see details and locate it in 3D.",
+                helpSys2: "Stock In / Out:",
+                helpSys2Desc: "Record inventory movements. The 3D view will update automatically.",
+                helpSys3: "Reports & Logs:",
+                helpSys3Desc: "View past operations and export data to Excel or PDF.",
+                helpSys4: "Layout Config:",
+                helpSys4Desc: "Set rack dimensions. (The ⚙️ icon is hidden next to the Home button on the bottom right)",
+                helpDev: "Developer: AArm -- version 1.0.0 -- 15/05/2026",
+                cfgTitle: "Rack Dimensions Config (cm)",
+                cfgPrefix: "Row Prefix (e.g., B)",
+                cfgPrefixPh: "e.g., B",
+                cfgBatch: "Batch Creation",
+                cfgSlots: "Number of Slots",
+                cfgOrder: "Numbering Order",
+                cfgDir: "3D Alignment Axis",
+                cfgDirX: "Align on X Axis (Left-Right)",
+                cfgDirZ: "Align on Y Axis (Depth)",
+                cfgRot: "Rack Orientation",
+                cfgRot0: "Face Forward (0 deg)",
+                cfgRot90: "Face Sideways (90 deg)",
+                cfgX: "X Coord (Start cm)",
+                cfgZ: "Y Coord (Start Depth cm)",
+                cfgSize: "Size per 1 Slot (cm)",
+                heightPerLvl: "H / Lvl",
+                cfgLevels: "Total Levels (Vertical)",
+                cfgBtn: "Save Layout",
+                cfgList: "Current Racks Layout",
+                lblRow: "Row",
+                delRow: "Delete Row",
+                confDelRowTitle: "Confirm Deletion",
+                confDelRowMsg: "Are you sure you want to delete the entire Row {0}?",
+                btnCancel: "Cancel", btnOk: "Confirm",
+                delBtn: "Delete",
+                setMenu: "Settings",
+                setLang: "Select Language",
+                setDesc: "The system will remember your language preference.",
+                mdlLoc: "Location:",
+                mdlQty: "Remaining Qty:",
+                mdlSize: "Size (WxDxH):",
+                mdlUpdate: "Last Update:",
+                mdlBtnOut: "Take Out Item",
+                btnViewMap: "View on 3D Map",
+                toastSuccess: "Success",
+                toastError: "An error occurred",
+                toastNoStock: "Not enough quantity to take out",
+                toastDateReq: "Please select start and end dates",
+                toastNoExport: "No data to export",
+                colDate: "Last Update", colName: "Item Name", colQty: "Remaining", colSlot: "Slot", colSize: "Size (WxDxH)",
+                colLogDate: "Date & Time", colDetails: "Details", colUser: "User / Device",
+                lblSlot: "Slot", lblLevel: "Level",
+                lblPage: "Page",
+                btnPrev: "Previous",
+                btnNext: "Next"
+            },
+            ja: {
+                loading: "3D倉庫を読み込み中...",
+                menuOverview: "概要",
+                menuSearch: "在庫確認・検索",
+                menuIn: "入庫",
+                menuOut: "出庫",
+                menuLogs: "操作履歴",
+                menuReports: "レポート出力",
+                menuHelp: "使い方",
+                menuSettings: "設定",
+                searchTitle: "全在庫・検索",
+                searchPlaceholder: "商品名を入力...",
+                notFound: "在庫が見つかりません",
+                sizeText: "サイズ",
+                slotText: "場所",
+                pcsText: "個",
+                inTitle: "入庫処理",
+                inItemName: "商品名",
+                inSize: "パッケージのサイズ (単位: cm)",
+                width: "幅", depth: "奥行", height: "高さ",
+                inQty: "合計数量 (個)",
+                inSelectSlot: "保管場所を選択",
+                selectDash: "-- 選択 --",
+                inBtn: "入庫を保存",
+                outTitle: "出庫処理",
+                outSearch: "出庫する商品を検索",
+                outFrom: "出庫元:",
+                outWho: "出庫者 / 詳細",
+                outWhoPh: "例: A部署のBさん",
+                outDate: "日時",
+                outQty: "数量",
+                qtyPieces: "個",
+                outBtn: "出庫を確定",
+                logTitle: "最新の操作履歴",
+                logEmpty: "操作履歴はまだありません",
+                logBy: "記録者",
+                repTitle: "レポート出力",
+                repType: "レポートの種類",
+                repOpt1: "1. 在庫レポート",
+                repOpt2: "2. 入庫レポート",
+                repOpt3: "3. 出庫レポート",
+                repStart: "開始日", repEnd: "終了日",
+                repBtnGen: "レポート作成",
+                repExcel: "Excel (CSV)", repPdf: "印刷 / PDF",
+                repWait: "「レポート作成」をクリックして表示",
+                repEmpty: "選択期間のデータがありません",
+                helpTitle: "システム操作ガイド",
+                help3DHeader: "1. 3Dカメラの操作",
+                helpRotate: "回転:",
+                helpRotateDesc: "左クリックしてドラッグすると、視点を回転できます。",
+                helpPan: "移動:",
+                helpPanDesc: "右クリックしてドラッグすると、カメラを移動できます。",
+                helpZoom: "ズーム:",
+                helpZoomDesc: "マウスホイールで拡大・縮小できます。",
+                helpTouch: "モバイル端末:",
+                helpTouchDesc: "1本指で回転、2本指で移動またはズームします。",
+                helpSysHeader: "2. 倉庫・在庫管理",
+                helpSys1: "在庫確認 (検索):",
+                helpSys1Desc: "全商品を表示します。商品をクリックすると詳細と3D上の位置を確認できます。",
+                helpSys2: "入庫 / 出庫:",
+                helpSys2Desc: "在庫の増減を記録します。3Dビューは自動的に更新されます。",
+                helpSys3: "レポートと履歴:",
+                helpSys3Desc: "過去の操作履歴を確認し、ExcelやPDFに出力できます。",
+                helpSys4: "レイアウト設定:",
+                helpSys4Desc: "ラックの寸法を設定します。(⚙️アイコンは右下のホームボタンの横に隠れています)",
+                helpDev: "開発者: AArm -- バージョン 1.0.0 -- 2026/05/15",
+                cfgTitle: "ラック寸法設定 (単位: cm)",
+                cfgPrefix: "行のプレフィックス (例: B)",
+                cfgPrefixPh: "例: B",
+                cfgBatch: "一括作成",
+                cfgSlots: "枠の数",
+                cfgOrder: "番号順",
+                cfgDir: "3D配置の軸",
+                cfgDirX: "X軸に配置 (左右)",
+                cfgDirZ: "Y軸に配置 (奥行き)",
+                cfgRot: "ラックの向き",
+                cfgRot0: "正面向き (0度)",
+                cfgRot90: "横向き (90度)",
+                cfgX: "X座標 (開始 cm)",
+                cfgZ: "Y座標 (開始奥行き cm)",
+                cfgSize: "1枠のサイズ (cm)",
+                heightPerLvl: "高さ/段",
+                cfgLevels: "総段数 (垂直)",
+                cfgBtn: "レイアウトを保存",
+                cfgList: "現在のラック一覧",
+                lblRow: "行",
+                delRow: "行を削除",
+                confDelRowTitle: "削除の確認",
+                confDelRowMsg: "行 {0} をすべて削除してもよろしいですか？",
+                btnCancel: "キャンセル", btnOk: "確認",
+                delBtn: "削除",
+                setMenu: "設定",
+                setLang: "言語選択 (Language)",
+                setDesc: "選択した言語は次回以降も記憶されます。",
+                mdlLoc: "場所:",
+                mdlQty: "残量:",
+                mdlSize: "サイズ (幅x奥x高):",
+                mdlUpdate: "最終更新:",
+                mdlBtnOut: "この商品を出庫する",
+                btnViewMap: "3Dマップで見る",
+                toastSuccess: "成功しました",
+                toastError: "エラーが発生しました",
+                toastNoStock: "出庫可能な数量が不足しています",
+                toastDateReq: "開始日と終了日を選択してください",
+                toastNoExport: "出力するデータがありません",
+                colDate: "最終更新", colName: "商品名", colQty: "残量", colSlot: "場所", colSize: "サイズ",
+                colLogDate: "日時", colDetails: "詳細", colUser: "ユーザー / 端末",
+                lblSlot: "枠", lblLevel: "段",
+                lblPage: "ページ",
+                btnPrev: "前へ",
+                btnNext: "次へ"
+            }
+        };
+
+        let currentLang = localStorage.getItem('stocky_lang') || 'th';
+
+        function t(key) {
+            return i18nData[currentLang][key] || key;
+        }
+
+        // Helper function to format "B1L1" into "Slot B1 - Level 1" based on language
+        function formatLocation(locId) {
+            const parts = locId.split('L');
+            if(parts.length === 2) {
+                return `${t('lblSlot')} ${parts[0]} - ${t('lblLevel')} ${parts[1]}`;
+            }
+            return locId;
+        }
+
+        window.setLanguage = function(lang) {
+            currentLang = lang;
+            localStorage.setItem('stocky_lang', lang);
+            document.getElementById('lang-select').value = lang;
+            
+            // Translate tags
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18nData[lang][key]) el.innerText = i18nData[lang][key];
+            });
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (i18nData[lang][key]) el.setAttribute('placeholder', i18nData[lang][key]);
+            });
+
+            // Re-render components to update generated text
+            updateSelects();
+            if(!document.getElementById('tab-search').classList.contains('hidden')) handleSearch();
+            if(!document.getElementById('tab-out').classList.contains('hidden')) filterOutItems();
+            updateConfigList();
+            
+            // Update pagination text manually if visible
+            if (!document.getElementById('tab-logs').classList.contains('hidden')) {
+                document.getElementById('log-page-info').innerText = `${t('lblPage')} ${window.currentLogPage + 1}`;
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('lang-select').value = currentLang;
+            setLanguage(currentLang);
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3nqaASe3YMSws9pSU4cUd4JVEOTaDSX8",
+            authDomain: "stocky-ded11.firebaseapp.com",
+            projectId: "stocky-ded11",
+            storageBucket: "stocky-ded11.firebasestorage.app",
+            messagingSenderId: "70344451921",
+            appId: "1:70344451921:web:f56af7b00473dc16025570",
+            measurementId: "G-K1V1LMXJN5"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'stocky-app-id';
+        const appId = rawAppId.replace(/[^a-zA-Z0-9-]/g, '-'); 
+        const getPublicPath = (colName) => `artifacts/${appId}/public/data/${colName}`;
+
+        window.db = db; window.auth = auth; window.firestorePath = getPublicPath;
+        window.collection = collection; window.doc = doc; window.setDoc = setDoc;
+        window.addDoc = addDoc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot;
+        window.query = query; window.orderBy = orderBy; window.limit = limit; window.getDocs = getDocs;
+        window.startAfter = startAfter;
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                if (window.initializeAppLogic) window.initializeAppLogic();
+            } catch (error) {
+                console.error("Auth error:", error);
+                const loader = document.getElementById('loader');
+                if(loader) loader.remove();
+                
+                const errDiv = document.createElement('div');
+                errDiv.className = 'fixed inset-0 z-[10000] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm pointer-events-auto';
+                errDiv.innerHTML = `
+                    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                        <h3 class="text-xl font-bold text-red-500 mb-2">เข้าสู่ระบบไม่ได้</h3>
+                        <div class="text-sm bg-slate-50 p-3 rounded mb-3 border">กรุณาไปที่ Firebase Console > Authentication > เปิดใช้งาน Anonymous Login</div>
+                        <div class="text-xs text-gray-500 bg-gray-100 p-2 rounded font-mono mb-4">${error.code || error}</div>
+                        <button onclick="location.reload()" class="w-full bg-slate-800 text-white font-medium py-2 rounded-lg">ลองใหม่</button>
+                    </div>`;
+                document.body.appendChild(errDiv);
+            }
+        }
+        initAuth();
+    </script>
+
+    <script>
+        let db, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, firestorePath, auth, query, orderBy, limit, getDocs, startAfter;
+        let locations = [];
+        let inventory = [];
+        let itemHistory = [];
+        let selectedOutItem = null;
+        window.currentReportData = []; 
+        
+        // สำหรับระบบแบ่งหน้า Logs
+        window.currentLogPage = 0;
+        window.logCursors = [];
+        window.currentLogs = [];
+
+        let clientInfo = "Unknown Device";
+        const ua = navigator.userAgent;
+        let os = "PC";
+        if (/android/i.test(ua)) os = "Android";
+        else if (/ipad|iphone|ipod/i.test(ua)) os = "iOS";
+        else if (/mac/i.test(ua)) os = "Mac";
+        else if (/win/i.test(ua)) os = "Windows";
+
+        fetch('https://api.ipify.org?format=json')
+            .then(r => r.json())
+            .then(data => { clientInfo = `${os} (IP: ${data.ip})`; })
+            .catch(() => { clientInfo = `${os} (Local/Unknown IP)`; });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const formatLocalDate = (d) => {
+                const z = n => ('0' + n).slice(-2);
+                return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
+            };
+            document.getElementById('rep-start').value = formatLocalDate(firstDay);
+            document.getElementById('rep-end').value = formatLocalDate(now);
+        });
+
+        // Three.js Globals
+        let scene, camera, renderer, controls, raycaster, mouse;
+        let warehouseGroup = new THREE.Group();
+        let previewGroup = new THREE.Group();
+        let itemMeshes = {}; 
+        let highlightBox = null;
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.innerHTML = `<span class="text-sm font-medium text-gray-800">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        window.showConfirm = function(title, msg, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-msg').innerText = msg;
+            
+            document.getElementById('confirm-cancel').innerText = t('btnCancel');
+            document.getElementById('confirm-ok').innerText = t('btnOk');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            document.getElementById('confirm-cancel').onclick = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+            document.getElementById('confirm-ok').onclick = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                if(onConfirm) onConfirm();
+            };
+        };
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('open');
+        }
+
+        window.openTab = function(tabId) {
+            // Manage UI Active State
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-green-50', 'text-primary', 'bg-blue-50', 'text-blue-600', 'bg-slate-50', 'text-slate-800', 'bg-purple-50', 'text-purple-600', 'bg-orange-50', 'text-orange-500', 'bg-indigo-50', 'text-indigo-600', 'bg-yellow-50', 'text-yellow-600');
+                el.classList.add('text-gray-600');
+            });
+
+            const btn = document.querySelector(`[data-tab="${tabId}"]`);
+            if(btn) {
+                btn.classList.remove('text-gray-600');
+                if(tabId === 'home') btn.classList.add('bg-indigo-50', 'text-indigo-600');
+                else if(tabId === 'config' || tabId === 'settings') btn.classList.add('bg-slate-50', 'text-slate-800');
+                else if(tabId === 'logs') btn.classList.add('bg-blue-50', 'text-blue-600');
+                else if(tabId === 'reports') btn.classList.add('bg-purple-50', 'text-purple-600');
+                else if(tabId === 'out') btn.classList.add('bg-orange-50', 'text-orange-500');
+                else if(tabId === 'help') btn.classList.add('bg-yellow-50', 'text-yellow-600');
+                else btn.classList.add('bg-green-50', 'text-primary');
+            }
+
+            const mainModal = document.getElementById('main-modal');
+            const mainOverlay = document.getElementById('main-overlay');
+            
+            const baseClasses = "absolute z-[60] bg-white rounded-2xl flex flex-col pointer-events-none transition-all duration-300 overflow-hidden";
+
+            if(tabId === 'home') {
+                mainOverlay.classList.remove('opacity-100');
+                mainModal.classList.remove('modal-show');
+                setTimeout(() => {
+                    mainOverlay.classList.add('hidden');
+                    mainModal.classList.add('hidden');
+                }, 300);
+                if(highlightBox) highlightBox.visible = false;
+                while(previewGroup.children.length > 0) previewGroup.remove(previewGroup.children[0]);
+            } else {
+                mainModal.classList.remove('hidden');
+                
+                if(tabId === 'config') {
+                    mainOverlay.classList.add('hidden');
+                    mainModal.className = `${baseClasses} top-4 right-4 bottom-4 w-11/12 md:w-[26rem] modal-show shadow-2xl border border-gray-200`;
+                } else {
+                    mainOverlay.classList.remove('hidden');
+                    setTimeout(() => mainOverlay.classList.add('opacity-100'), 10);
+                    mainModal.className = `${baseClasses} inset-2 md:inset-4 modal-show`;
+                }
+                
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+                if(tabId === 'config') updatePreview(); 
+                else while(previewGroup.children.length > 0) previewGroup.remove(previewGroup.children[0]);
+                
+                if(tabId === 'search') handleSearch();
+                if(tabId === 'out') filterOutItems(); 
+                if(tabId === 'logs') loadLogsPage(0); // Load fresh logs
+            }
+
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('overlay').classList.remove('open');
+            }
+        }
+
+        // ระบบบันทึก Log และรีเฟรชหน้า Logs
+        async function writeLog(action, details, user) {
+            if(!auth || !auth.currentUser) return;
+            const logUser = user ? `${user} [${clientInfo}]` : `System [${clientInfo}]`;
+            try {
+                await addDoc(collection(db, firestorePath('logs')), { action, details, user: logUser, timestamp: Date.now() });
+                if (!document.getElementById('tab-logs').classList.contains('hidden')) {
+                    loadLogsPage(0); 
+                }
+            } catch(e) { console.error("Log error", e); }
+        }
+
+        // ฟังก์ชันโหลด Logs ตามเลขหน้า (0-indexed)
+        window.loadLogsPage = async function(pageIndex) {
+            const tbody = document.getElementById('logs-container');
+            tbody.innerHTML = `<div class="text-center text-gray-400 py-8 col-span-full text-base">${t('loading')}</div>`;
+            document.getElementById('log-pagination').classList.add('hidden');
+
+            try {
+                let q;
+                if (pageIndex === 0 || window.logCursors.length === 0) {
+                    q = query(collection(db, firestorePath('logs')), orderBy('timestamp', 'desc'), limit(20));
+                    window.logCursors = []; // รีเซ็ตการชี้หน้าเมื่อกลับไปหน้าแรกใหม่
+                } else {
+                    // ใช้ startAfter เริ่มจาก document ตัวสุดท้ายของหน้าก่อนหน้า
+                    q = query(collection(db, firestorePath('logs')), orderBy('timestamp', 'desc'), startAfter(window.logCursors[pageIndex - 1]), limit(20));
+                }
+
+                const snap = await getDocs(q);
+                window.currentLogs = [];
+                
+                if (!snap.empty) {
+                    // เก็บ cursor ของหน้าเพื่อเอาไว้กด Next ไปหน้าถัดไป
+                    if (window.logCursors.length <= pageIndex) {
+                        window.logCursors.push(snap.docs[snap.docs.length - 1]);
+                    } else {
+                        window.logCursors[pageIndex] = snap.docs[snap.docs.length - 1];
+                    }
+                    snap.forEach(doc => window.currentLogs.push({ id: doc.id, ...doc.data() }));
+                }
+
+                window.currentLogPage = pageIndex;
+                renderLogsList();
+            } catch(e) {
+                console.error(e);
+                tbody.innerHTML = `<div class="text-center text-red-500 py-8 col-span-full">${t('toastError')}</div>`;
+            }
+        }
+
+        function renderLogsList() {
+            const container = document.getElementById('logs-container');
+            container.innerHTML = '';
+            
+            if(window.currentLogs.length === 0 && window.currentLogPage === 0) {
+                container.innerHTML = `<div class="text-center text-gray-400 py-10 col-span-full text-lg">${t('logEmpty')}</div>`;
+                return;
+            }
+
+            window.currentLogs.forEach(log => {
+                const date = new Date(log.timestamp).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
+                let color = 'text-gray-500', bg = 'bg-gray-100', icon = '';
+                if(log.action === 'IN') { color = 'text-primary'; bg = 'bg-green-100'; icon = '+'; }
+                if(log.action === 'OUT') { color = 'text-orange-500'; bg = 'bg-orange-100'; icon = '-'; }
+                if(log.action === 'CONFIG') { color = 'text-slate-600'; bg = 'bg-slate-100'; icon = '⚙'; }
+
+                container.innerHTML += `
+                    <div class="p-5 bg-white border border-gray-100 rounded-2xl shadow-sm text-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="font-bold ${color} ${bg} px-3 py-1.5 rounded-lg text-xs tracking-wider">${icon} ${log.action}</span>
+                            <span class="text-sm text-gray-400 font-medium">${date}</span>
+                        </div>
+                        <div class="text-slate-800 mt-2 text-base font-medium leading-relaxed">${log.details}</div>
+                        <div class="text-xs text-gray-400 mt-4 border-t border-gray-50 pt-3">${t('logBy')}: ${log.user}</div>
+                    </div>`;
+            });
+
+            const pagination = document.getElementById('log-pagination');
+            if (window.currentLogs.length > 0 || window.currentLogPage > 0) {
+                pagination.classList.remove('hidden');
+                
+                const btnPrev = document.getElementById('btn-prev-log');
+                btnPrev.disabled = window.currentLogPage === 0;
+                btnPrev.classList.toggle('opacity-50', window.currentLogPage === 0);
+                btnPrev.classList.toggle('cursor-not-allowed', window.currentLogPage === 0);
+                
+                const hasNext = window.currentLogs.length === 20; 
+                const btnNext = document.getElementById('btn-next-log');
+                btnNext.disabled = !hasNext;
+                btnNext.classList.toggle('opacity-50', !hasNext);
+                btnNext.classList.toggle('cursor-not-allowed', !hasNext);
+                
+                document.getElementById('log-page-info').innerText = `${t('lblPage')} ${window.currentLogPage + 1}`;
+            }
+        }
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf8fafc);
+            scene.fog = new THREE.Fog(0xf8fafc, 1000, 40000);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 50000);
+            camera.position.set(2000, 2000, 2000); 
+            camera.lookAt(0,0,0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.02;
+            controls.target.set(0,0,0);
+            
+            // Fading Effect เวลาแตะ/หมุน 3D ขณะเปิดหน้า Config
+            controls.addEventListener('start', () => {
+                const modal = document.getElementById('main-modal');
+                if (modal.classList.contains('modal-show') && !document.getElementById('tab-config').classList.contains('hidden')) {
+                    modal.style.opacity = '0.15';
+                }
+            });
+            controls.addEventListener('end', () => {
+                document.getElementById('main-modal').style.opacity = '';
+            });
+
+            renderer.domElement.addEventListener('pointerdown', () => {
+                const modal = document.getElementById('main-modal');
+                if (modal.classList.contains('modal-show') && !document.getElementById('tab-config').classList.contains('hidden')) {
+                    modal.style.opacity = '0.15';
+                }
+            });
+            renderer.domElement.addEventListener('pointerup', () => {
+                document.getElementById('main-modal').style.opacity = '';
+            });
+            renderer.domElement.addEventListener('pointerleave', () => {
+                document.getElementById('main-modal').style.opacity = '';
+            });
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            dirLight.position.set(2000, 4000, 2000);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.camera.near = 100;
+            dirLight.shadow.camera.far = 15000;
+            const d = 3000;
+            dirLight.shadow.camera.left = -d; dirLight.shadow.camera.right = d;
+            dirLight.shadow.camera.top = d; dirLight.shadow.camera.bottom = -d;
+            scene.add(dirLight);
+
+            // ขยายพื้นที่พื้นและตารางแร็คเป็น 1x1 กิโลเมตร
+            const floorGeo = new THREE.PlaneGeometry(100000, 100000);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+            
+            const grid = new THREE.GridHelper(100000, 200, 0x10b981, 0xe2e8f0);
+            grid.position.y = 0.5;
+            scene.add(grid);
+
+            highlightBox = new THREE.Mesh(
+                new THREE.BoxGeometry(100, 100, 100),
+                new THREE.MeshBasicMaterial({ color: 0xffcc00, wireframe: true, transparent: true, opacity: 0.9, depthTest: false })
+            );
+            highlightBox.visible = false;
+            scene.add(highlightBox);
+
+            scene.add(warehouseGroup);
+            scene.add(previewGroup);
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            renderer.domElement.addEventListener('pointerdown', onPointerDown);
+            renderer.domElement.addEventListener('touchstart', (e) => {
+                if(e.touches.length > 1) return;
+                e.clientX = e.touches[0].clientX; e.clientY = e.touches[0].clientY;
+                onPointerDown(e);
+            }, {passive: false});
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            animate();
+        }
+
+        // Bounding Box Camera Reset 
+        window.resetCamera = function() {
+            let targetCenter = new THREE.Vector3(0, 0, 0);
+            let targetPos = new THREE.Vector3(2000, 2000, 2000); 
+
+            if (warehouseGroup.children.length > 0) {
+                const box = new THREE.Box3().setFromObject(warehouseGroup);
+                if (!box.isEmpty()) {
+                    box.getCenter(targetCenter);
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    
+                    let camDist = maxDim / (2 * Math.tan(Math.PI * camera.fov / 360));
+                    camDist *= 1.8; 
+                    if(camDist < 1000) camDist = 1000;
+
+                    const offset = new THREE.Vector3(1, 1, 1).normalize().multiplyScalar(camDist);
+                    targetPos.copy(targetCenter).add(offset);
+                }
+            }
+
+            let tStep = 0;
+            const startPos = camera.position.clone();
+            const startTar = controls.target.clone();
+            const anim = setInterval(() => {
+                tStep += 0.05; 
+                if(tStep >= 1) { 
+                    clearInterval(anim); 
+                    tStep = 1; 
+                }
+                camera.position.lerpVectors(startPos, targetPos, tStep);
+                controls.target.lerpVectors(startTar, targetCenter, tStep);
+            }, 16);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            if(highlightBox && highlightBox.visible) highlightBox.rotation.y += 0.03;
+            renderer.render(scene, camera);
+        }
+
+        function createTextSprite(message, size = 100) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 128;
+            const context = canvas.getContext('2d');
+            context.font = "Bold 72px 'Sarabun', sans-serif";
+            context.fillStyle = "#1e293b";
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.fillText(message, 256, 64);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(size*4, size*1, 1);
+            return sprite;
+        }
+
+        function rebuild3DWarehouse() {
+            while(warehouseGroup.children.length > 0) warehouseGroup.remove(warehouseGroup.children[0]);
+            itemMeshes = {};
+
+            const rackMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.3, roughness: 0.7 });
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.6 });
+
+            locations.forEach(loc => {
+                const rot = parseInt(loc.rot) || 0;
+                const dispW = rot === 90 ? parseFloat(loc.d) : parseFloat(loc.w);
+                const dispD = rot === 90 ? parseFloat(loc.w) : parseFloat(loc.d);
+                const h = parseFloat(loc.h) || 150;
+                const levels = parseInt(loc.levels) || 1;
+                const x = parseFloat(loc.x);
+                const z = parseFloat(loc.z);
+                
+                const legThickness = 5;
+                const shelfThickness = 2; 
+                let totalHeight = (levels - 1) * h + shelfThickness;
+                if(levels === 1) totalHeight = shelfThickness;
+
+                if(levels > 1) {
+                    const legGeo = new THREE.BoxGeometry(legThickness, totalHeight, legThickness);
+                    const positions = [
+                        [x - dispW/2 + legThickness/2, z - dispD/2 + legThickness/2],
+                        [x + dispW/2 - legThickness/2, z - dispD/2 + legThickness/2],
+                        [x - dispW/2 + legThickness/2, z + dispD/2 - legThickness/2],
+                        [x + dispW/2 - legThickness/2, z + dispD/2 - legThickness/2]
+                    ];
+                    positions.forEach(pos => {
+                        const leg = new THREE.Mesh(legGeo, legMat);
+                        leg.position.set(pos[0], totalHeight/2, pos[1]);
+                        leg.castShadow = true;
+                        warehouseGroup.add(leg);
+                    });
+                }
+
+                const label = createTextSprite(loc.id, (rot===90 ? dispD/4 : dispW/4));
+                label.position.set(x, totalHeight + (levels > 1 ? 50 : 30), z);
+                warehouseGroup.add(label);
+
+                for(let l = 0; l < levels; l++) {
+                    const shelfBaseY = l * h;
+                    
+                    const shelfGeo = new THREE.BoxGeometry(dispW, shelfThickness, dispD);
+                    const shelf = new THREE.Mesh(shelfGeo, rackMat);
+                    shelf.position.set(x, shelfBaseY + shelfThickness/2, z);
+                    shelf.receiveShadow = true; shelf.castShadow = true;
+                    warehouseGroup.add(shelf);
+
+                    if(levels > 1) {
+                        const lvlLabel = createTextSprite(`L${l+1}`, 20);
+                        lvlLabel.position.set(x, shelfBaseY + 20, z + dispD/2 + 5);
+                        warehouseGroup.add(lvlLabel);
+                    }
+
+                    const slotId = `${loc.id}L${l+1}`;
+                    const itemsInSlot = inventory.filter(i => i.locationId === slotId);
+                    
+                    if(itemsInSlot.length > 0) {
+                        let currentStackY = shelfBaseY + shelfThickness;
+
+                        // วาดเพียง 1 กล่องต่อ 1 รายการแพ็กเกจ (แม้จะมี Qty 200 ก็จะแสดงเป็น 1 แพ็กเกจใหญ่ตาม กxลxส)
+                        itemsInSlot.forEach(item => {
+                            const iW = parseFloat(item.w) || 50;
+                            const iD = parseFloat(item.d) || 50;
+                            const iH = parseFloat(item.h) || 50;
+                            
+                            const hue = (item.name.split('').reduce((a,b)=>a+b.charCodeAt(0),0) % 360) / 360;
+                            const itemMat = new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(hue, 0.7, 0.5), roughness: 0.4 });
+                            const itemGeo = new THREE.BoxGeometry(iW, iH, iD);
+
+                            // ป้องกันแพ็กเกจล้นความสูงชั้น
+                            if(currentStackY + iH > shelfBaseY + h) return; 
+
+                            const box = new THREE.Mesh(itemGeo, itemMat);
+                            if(rot === 90) box.rotation.y = Math.PI / 2;
+                            box.position.set(x, currentStackY + iH/2, z);
+                            box.castShadow = true; box.receiveShadow = true;
+                            box.userData = { type: 'item', data: item };
+                            warehouseGroup.add(box);
+                            
+                            itemMeshes[item.id] = box;
+                            currentStackY += iH;
+                        });
+                    }
+                }
+            });
+        }
+
+        window.initializeAppLogic = function() {
+            db = window.db; collection = window.collection; doc = window.doc;
+            setDoc = window.setDoc; addDoc = window.addDoc; deleteDoc = window.deleteDoc;
+            onSnapshot = window.onSnapshot; firestorePath = window.firestorePath;
+            auth = window.auth; query = window.query; orderBy = window.orderBy; limit = window.limit;
+            getDocs = window.getDocs; startAfter = window.startAfter;
+
+            if (!auth || !auth.currentUser) return;
+            initThreeJS();
+
+            const locRef = collection(db, firestorePath('locations'));
+            const invRef = collection(db, firestorePath('inventory'));
+            const histRef = collection(db, firestorePath('itemHistory'));
+
+            onSnapshot(locRef, (snap) => {
+                locations = []; snap.forEach(doc => locations.push({ id: doc.id, ...doc.data() }));
+                updateSelects(); updateConfigList(); rebuild3DWarehouse();
+                const loader = document.getElementById('loader');
+                if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 500); }
+                setTimeout(resetCamera, 500); 
+            });
+
+            onSnapshot(invRef, (snap) => {
+                inventory = []; snap.forEach(doc => inventory.push({ id: doc.id, ...doc.data() }));
+                rebuild3DWarehouse(); 
+                if(!document.getElementById('tab-search').classList.contains('hidden')) handleSearch();
+                if(!document.getElementById('tab-out').classList.contains('hidden')) filterOutItems();
+            });
+
+            onSnapshot(histRef, (snap) => {
+                itemHistory = []; snap.forEach(doc => itemHistory.push({ id: doc.id, ...doc.data() }));
+            });
+            
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('out-datetime').value = now.toISOString().slice(0,16);
+            
+            openTab('home');
+        };
+
+        function onPointerDown(event) {
+            if(!document.getElementById('main-modal').classList.contains('hidden') && document.getElementById('tab-config').classList.contains('hidden')) return;
+
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ( ( event.clientX - rect.left ) / rect.width ) * 2 - 1;
+            mouse.y = - ( ( event.clientY - rect.top ) / rect.height ) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(warehouseGroup.children, false);
+
+            if(intersects.length > 0) {
+                const hit = intersects[0].object;
+                if(hit.userData && hit.userData.type === 'item') {
+                    const item = hit.userData.data;
+                    highlightLocation(item.locationId, item.id);
+                    showItemDetails(item);
+                }
+            } else {
+                closeItemModal();
+            }
+        }
+
+        function showItemDetails(item) {
+            document.getElementById('modal-name').innerText = item.name;
+            document.getElementById('modal-loc').innerText = formatLocation(item.locationId);
+            document.getElementById('modal-qty').innerText = `${item.qty} ${t('pcsText')}`;
+            document.getElementById('modal-size').innerText = `${item.w||'?'}x${item.d||'?'}x${item.h||'?'} cm`;
+            document.getElementById('modal-date').innerText = new Date(item.timestamp).toLocaleString('th-TH');
+            
+            document.getElementById('btn-view-map').onclick = () => {
+                openTab('home');
+                highlightLocation(item.locationId, item.id);
+                closeItemModal();
+            };
+
+            document.getElementById('item-modal').classList.add('show');
+        }
+
+        window.closeItemModal = function() {
+            document.getElementById('item-modal').classList.remove('show');
+        }
+
+        window.handleSearch = function() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const resContainer = document.getElementById('search-results');
+            resContainer.innerHTML = ''; 
+            
+            let results = [...inventory];
+            if(query) results = results.filter(i => i.name.toLowerCase().includes(query));
+            
+            results.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+
+            if(results.length === 0) return resContainer.innerHTML = `<div class="text-center text-red-400 py-10 text-base col-span-full">${t('notFound')}</div>`;
+
+            results.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-primary transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:shadow-md';
+                div.innerHTML = `
+                    <div class="flex-1">
+                        <div class="font-bold text-slate-800 text-xl mb-1">${item.name}</div>
+                        <div class="text-sm text-gray-500 mb-2">${t('sizeText')}: <span class="font-medium text-slate-700">${item.w}x${item.d}x${item.h} cm</span></div>
+                        <div class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg inline-block">${formatLocation(item.locationId)}</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-lg font-bold text-primary px-4 py-2 bg-green-50 rounded-xl whitespace-nowrap border border-green-100">${item.qty} ${t('pcsText')}</div>
+                        <button class="btn-eye p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors shadow-sm" title="${t('btnViewMap')}">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                        <button class="btn-out p-3 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-colors shadow-sm" title="${t('mdlBtnOut')}">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                        </button>
+                    </div>
+                `;
+                
+                div.onclick = (e) => {
+                    if(e.target.closest('.btn-eye') || e.target.closest('.btn-out')) return;
+                    showItemDetails(item);
+                };
+
+                div.querySelector('.btn-eye').onclick = (e) => {
+                    e.stopPropagation();
+                    openTab('home');
+                    highlightLocation(item.locationId, item.id);
+                };
+                
+                div.querySelector('.btn-out').onclick = (e) => {
+                    e.stopPropagation();
+                    openTab('out');
+                    document.getElementById('out-search').value = item.name;
+                    filterOutItems();
+                    setTimeout(() => {
+                        const outList = document.getElementById('out-items-list').children;
+                        for(let i=0; i<outList.length; i++) {
+                            if(outList[i].innerText.includes(item.name)) {
+                                outList[i].click();
+                                break;
+                            }
+                        }
+                    }, 100);
+                };
+
+                resContainer.appendChild(div);
+            });
+        }
+
+        function highlightLocation(slotId, itemId = null) {
+            let targetMesh = itemId ? itemMeshes[itemId] : null;
+            if(!targetMesh) {
+                for(let key in itemMeshes) if(itemMeshes[key].userData.data.locationId === slotId) { targetMesh = itemMeshes[key]; break; }
+            }
+
+            if(targetMesh) {
+                const pos = new THREE.Vector3(); targetMesh.getWorldPosition(pos);
+                const item = targetMesh.userData.data;
+                highlightBox.geometry = new THREE.BoxGeometry((item.w||50)*1.1, (item.h||50)*1.1, (item.d||50)*1.1);
+                highlightBox.position.copy(pos); highlightBox.visible = true;
+
+                const targetCamPos = new THREE.Vector3(pos.x + 400, pos.y + 300, pos.z + 500);
+                let tStep = 0; const startPos = camera.position.clone();
+                const startTar = controls.target.clone();
+                const anim = setInterval(() => {
+                    tStep += 0.05; if(tStep >= 1) { clearInterval(anim); tStep = 1; }
+                    camera.position.lerpVectors(startPos, targetCamPos, tStep);
+                    controls.target.lerpVectors(startTar, pos, tStep);
+                }, 16);
+            }
+        }
+
+        function updateSelects() {
+            const select = document.getElementById('in-location');
+            select.innerHTML = `<option value="">${t('selectDash')}</option>`;
+            const sortedLocations = [...locations].sort((a, b) => a.id.localeCompare(b.id, undefined, {numeric: true, sensitivity: 'base'}));
+            
+            sortedLocations.forEach(loc => {
+                for(let l=1; l<=(loc.levels||1); l++) {
+                    const exactId = `${loc.id}L${l}`;
+                    select.innerHTML += `<option value="${exactId}">${formatLocation(exactId)}</option>`;
+                }
+            });
+        }
+
+        function updateConfigList() {
+            const list = document.getElementById('locations-list');
+            list.innerHTML = '';
+            
+            // Group by Prefix
+            const groups = {};
+            locations.forEach(loc => {
+                const match = loc.id.match(/^([a-zA-Z]+)(\d*)$/);
+                const prefix = match ? match[1] : 'Other';
+                if(!groups[prefix]) groups[prefix] = [];
+                groups[prefix].push(loc);
+            });
+
+            // Sort and Render Groups
+            Object.keys(groups).sort().forEach(prefix => {
+                const grpLocs = groups[prefix].sort((a, b) => a.id.localeCompare(b.id, undefined, {numeric: true, sensitivity: 'base'}));
+                
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white mb-3 shadow-sm';
+                
+                const header = document.createElement('div');
+                header.className = 'flex justify-between items-center bg-slate-50 p-3 cursor-pointer select-none border-b border-gray-100 hover:bg-slate-100 transition-colors';
+                header.innerHTML = `
+                    <div class="font-bold text-slate-800 text-base">${t('lblRow')} ${prefix} <span class="text-xs text-gray-500 font-normal ml-2">(${grpLocs.length} ${t('lblSlot')})</span></div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="event.stopPropagation(); deleteLocationGroup('${prefix}')" class="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors">${t('delRow')}</button>
+                        <svg class="w-5 h-5 text-gray-400 transition-transform transform duration-200 group-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                `;
+                
+                const content = document.createElement('div');
+                content.className = 'hidden flex-col divide-y divide-gray-100';
+                
+                grpLocs.forEach(loc => {
+                    const rotText = loc.rot == 90 ? '(90°)' : '';
+                    content.innerHTML += `
+                        <div class="flex justify-between items-center p-3 hover:bg-gray-50 transition-colors">
+                            <div>
+                                <strong class="text-slate-700 text-sm">${t('lblSlot')} ${loc.id} ${rotText}</strong> 
+                                <span class="text-xs text-gray-500 block mt-0.5">X:${loc.x}, Y:${loc.z} | ${loc.w}x${loc.d}x${loc.h}cm | ${t('lblLevel')}: ${loc.levels}</span>
+                            </div>
+                            <button onclick="deleteLocation('${loc.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg text-xs font-bold transition-colors" title="${t('delBtn')}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>`;
+                });
+                
+                header.onclick = () => {
+                    const isHidden = content.classList.contains('hidden');
+                    content.classList.toggle('hidden', !isHidden);
+                    content.classList.toggle('flex', isHidden);
+                    header.querySelector('.group-arrow').classList.toggle('rotate-180', isHidden);
+                };
+
+                groupDiv.appendChild(header);
+                groupDiv.appendChild(content);
+                list.appendChild(groupDiv);
+            });
+        }
+
+        window.handleAddLocation = async function(e) {
+            e.preventDefault();
+            const prefix = document.getElementById('loc-prefix').value.trim();
+            const slots = parseInt(document.getElementById('loc-slots').value);
+            const order = document.getElementById('loc-order').value;
+            const axis = document.getElementById('loc-axis').value;
+            const rot = document.getElementById('loc-rot').value;
+            
+            const startX = parseFloat(document.getElementById('loc-x').value);
+            const startZ = parseFloat(document.getElementById('loc-z').value);
+            const w = parseFloat(document.getElementById('loc-w').value);
+            const d = parseFloat(document.getElementById('loc-d').value);
+            const h = parseFloat(document.getElementById('loc-h').value);
+            const levels = parseInt(document.getElementById('loc-levels').value);
+
+            const dispW = rot === '90' ? d : w;
+            const dispD = rot === '90' ? w : d;
+
+            try {
+                let promises = [];
+                for(let i = 0; i < slots; i++) {
+                    let slotNumber = order === 'asc' ? (i + 1) : (slots - i);
+                    let id = slots === 1 ? prefix : `${prefix}${slotNumber}`;
+                    let currentX = startX; 
+                    let currentZ = startZ;
+                    
+                    if (axis === 'x') currentX = startX + (i * dispW); 
+                    else currentZ = startZ - (i * dispD); 
+
+                    const data = { x: currentX, z: currentZ, w: w, d: d, h: h, levels: levels, rot: parseInt(rot) };
+                    promises.push(setDoc(doc(db, firestorePath('locations'), id), data));
+                }
+                await Promise.all(promises);
+                
+                writeLog('CONFIG', `[Layout] ${prefix} x${slots} (${w}x${d}x${h} Lvl:${levels} Rot:${rot}°)`);
+                showToast(t('toastSuccess'));
+                updatePreview();
+            } catch(e) { showToast(t('toastError'), "error"); }
+        }
+
+        window.updatePreview = function() {
+            while(previewGroup.children.length > 0) previewGroup.remove(previewGroup.children[0]);
+            if(document.getElementById('tab-config').classList.contains('hidden')) return;
+
+            const slots = parseInt(document.getElementById('loc-slots').value) || 1;
+            const axis = document.getElementById('loc-axis').value;
+            const rot = document.getElementById('loc-rot').value;
+            const startX = parseFloat(document.getElementById('loc-x').value) || 0;
+            const startZ = parseFloat(document.getElementById('loc-z').value) || 0;
+            const w = parseFloat(document.getElementById('loc-w').value) || 200;
+            const d = parseFloat(document.getElementById('loc-d').value) || 100;
+            const h = parseFloat(document.getElementById('loc-h').value) || 150;
+            const levels = parseInt(document.getElementById('loc-levels').value) || 1;
+
+            const dispW = rot === '90' ? d : w;
+            const dispD = rot === '90' ? w : d;
+
+            const rackMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.15, depthWrite: false });
+            const shelfMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, transparent: true, opacity: 0.4, depthWrite: false });
+
+            for(let i = 0; i < slots; i++) {
+                let currentX = startX; 
+                let currentZ = startZ;
+                if (axis === 'x') currentX = startX + (i * dispW); 
+                else currentZ = startZ - (i * dispD); 
+
+                const totalHeight = levels === 1 ? 5 : (levels - 1) * h + 5;
+                const ghostBox = new THREE.Mesh(new THREE.BoxGeometry(dispW, totalHeight, dispD), rackMat);
+                ghostBox.position.set(currentX, totalHeight/2, currentZ);
+                previewGroup.add(ghostBox);
+
+                for(let l = 0; l < levels; l++) {
+                    const shelf = new THREE.Mesh(new THREE.BoxGeometry(dispW, 5, dispD), shelfMat);
+                    shelf.position.set(currentX, (l * h) + 2.5, currentZ);
+                    previewGroup.add(shelf);
+                }
+            }
+        }
+
+        window.deleteLocation = async function(id) {
+            try {
+                await deleteDoc(doc(db, firestorePath('locations'), id));
+                writeLog('CONFIG', `Delete ${id}`);
+                showToast(t('toastSuccess'));
+            } catch(e) { showToast(t('toastError'), "error"); }
+        }
+
+        window.deleteLocationGroup = function(prefix) {
+            showConfirm(t('confDelRowTitle'), t('confDelRowMsg').replace('{0}', prefix), async () => {
+                try {
+                    const batch = locations.filter(loc => {
+                        const match = loc.id.match(/^([a-zA-Z]+)(\d*)$/);
+                        return match && match[1] === prefix;
+                    });
+                    let promises = batch.map(loc => deleteDoc(doc(db, firestorePath('locations'), loc.id)));
+                    await Promise.all(promises);
+                    writeLog('CONFIG', `Delete Row ${prefix} (${batch.length} slots)`);
+                    showToast(t('toastSuccess'));
+                } catch(e) { showToast(t('toastError'), "error"); }
+            });
+        }
+
+        let autocompleteTimeout;
+        window.showAutocomplete = function(inputId, listId) {
+            clearTimeout(autocompleteTimeout);
+            const input = document.getElementById(inputId);
+            const val = input.value.trim().toLowerCase();
+            const list = document.getElementById(listId);
+            if(val.length < 1) return list.style.display = 'none';
+
+            autocompleteTimeout = setTimeout(() => {
+                const matches = itemHistory.filter(i => i.name.toLowerCase().includes(val)).slice(0, 5);
+                list.innerHTML = '';
+                if(matches.length > 0) {
+                    matches.forEach(m => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item text-base text-gray-700 py-2';
+                        div.innerText = m.name;
+                        div.onclick = () => {
+                            input.value = m.name;
+                            if(m.w) document.getElementById('in-w').value = m.w;
+                            if(m.d) document.getElementById('in-d').value = m.d;
+                            if(m.h) document.getElementById('in-h').value = m.h;
+                            list.style.display = 'none';
+                        };
+                        list.appendChild(div);
+                    });
+                    list.style.display = 'block';
+                } else list.style.display = 'none';
+            }, 300);
+        }
+
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('.relative')) document.querySelectorAll('.autocomplete-list').forEach(el => el.style.display = 'none');
+        });
+
+        window.handleStockIn = async function(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('in-name').value.trim(),
+                w: parseFloat(document.getElementById('in-w').value),
+                d: parseFloat(document.getElementById('in-d').value),
+                h: parseFloat(document.getElementById('in-h').value),
+                qty: parseInt(document.getElementById('in-qty').value),
+                locationId: document.getElementById('in-location').value,
+                timestamp: Date.now()
+            };
+
+            try {
+                const existing = inventory.find(i => i.name === data.name && i.locationId === data.locationId);
+                if(existing) {
+                    await setDoc(doc(db, firestorePath('inventory'), existing.id), { qty: existing.qty + data.qty, timestamp: Date.now() }, { merge: true });
+                } else {
+                    await addDoc(collection(db, firestorePath('inventory')), data);
+                }
+                
+                const historyId = data.name.replace(/[\/\\]/g, '_'); 
+                await setDoc(doc(db, firestorePath('itemHistory'), historyId), { name: data.name, w: data.w, d: data.d, h: data.h });
+                
+                writeLog('IN', `[IN] ${data.name} (+${data.qty}) -> ${formatLocation(data.locationId)}`);
+                showToast(t('toastSuccess'));
+                document.getElementById('form-in').reset();
+            } catch(e) { showToast(t('toastError'), "error"); }
+        }
+
+        window.filterOutItems = function() {
+            const query = document.getElementById('out-search').value.toLowerCase();
+            const list = document.getElementById('out-items-list');
+            list.innerHTML = '';
+            
+            let filtered = [...inventory];
+            if(query) filtered = filtered.filter(i => i.name.toLowerCase().includes(query));
+            filtered.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+            
+            if(filtered.length === 0) {
+                list.innerHTML = `<div class="text-center text-red-400 py-10 text-base col-span-full">${t('notFound')}</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'p-4 border border-gray-200 rounded-xl bg-white cursor-pointer hover:border-orange-400 hover:shadow-sm flex justify-between items-center transition-all';
+                div.innerHTML = `
+                    <div><div class="font-bold text-slate-800 text-lg mb-1">${item.name}</div><div class="text-sm text-gray-500"><span class="font-medium bg-slate-100 px-2 py-1 rounded">${formatLocation(item.locationId)}</span></div></div>
+                    <div class="text-lg font-bold text-primary px-4 py-2 bg-green-50 rounded-xl">${item.qty} ${t('pcsText')}</div>
+                `;
+                div.onclick = () => {
+                    selectedOutItem = item;
+                    document.getElementById('out-action-area').classList.remove('hidden');
+                    document.getElementById('out-selected-label').innerText = `${item.name} (${formatLocation(item.locationId)})`;
+                    document.getElementById('out-qty').max = item.qty;
+                };
+                list.appendChild(div);
+            });
+        }
+
+        window.handleStockOut = async function(e) {
+            e.preventDefault();
+            if(!selectedOutItem) return;
+            const outQty = parseInt(document.getElementById('out-qty').value);
+            const who = document.getElementById('out-who').value.trim();
+            const dt = document.getElementById('out-datetime').value; 
+            
+            if(outQty > selectedOutItem.qty) return showToast(t('toastNoStock'), "error");
+
+            try {
+                const newQty = selectedOutItem.qty - outQty;
+                if(newQty === 0) await deleteDoc(doc(db, firestorePath('inventory'), selectedOutItem.id));
+                else await setDoc(doc(db, firestorePath('inventory'), selectedOutItem.id), { qty: newQty }, { merge: true });
+
+                const dtFormatted = new Date(dt).toLocaleString('th-TH');
+                writeLog('OUT', `[OUT] ${selectedOutItem.name} (-${outQty}) <- ${formatLocation(selectedOutItem.locationId)} (By: ${who} @ ${dtFormatted})`);
+                
+                showToast(t('toastSuccess'));
+                document.getElementById('out-action-area').classList.add('hidden');
+                document.getElementById('out-search').value = '';
+                selectedOutItem = null; filterOutItems();
+            } catch(e) { showToast(t('toastError'), "error"); }
+        }
+
+        // --- Reports Functions ---
+        window.generateReport = async function() {
+            const type = document.getElementById('rep-type').value;
+            const startVal = document.getElementById('rep-start').value;
+            const endVal = document.getElementById('rep-end').value;
+            
+            if(!startVal || !endVal) return showToast(t('toastDateReq'), "error");
+            
+            const startTs = new Date(startVal).setHours(0,0,0,0);
+            const endTs = new Date(endVal).setHours(23,59,59,999);
+            
+            const tbody = document.getElementById('rep-tbody');
+            const thead = document.getElementById('rep-thead');
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-500 font-medium">${t('loading')}</td></tr>`;
+            
+            let data = [];
+            
+            try {
+                if(type === 'INV') {
+                    data = inventory.filter(i => i.timestamp >= startTs && i.timestamp <= endTs)
+                        .sort((a,b) => b.timestamp - a.timestamp)
+                        .map(i => {
+                            let obj = {};
+                            obj[t('colDate')] = new Date(i.timestamp).toLocaleString('th-TH');
+                            obj[t('colName')] = i.name;
+                            obj[t('colQty')] = i.qty;
+                            obj[t('colSlot')] = formatLocation(i.locationId);
+                            obj[t('colSize')] = `${i.w}x${i.d}x${i.h} cm`;
+                            return obj;
+                        });
+                } else {
+                    const snap = await window.getDocs(collection(db, firestorePath('logs')));
+                    let allLogs = [];
+                    snap.forEach(doc => allLogs.push(doc.data()));
+                    
+                    data = allLogs.filter(l => 
+                        l.action === type && 
+                        l.timestamp >= startTs && 
+                        l.timestamp <= endTs
+                    ).sort((a,b) => b.timestamp - a.timestamp).map(l => {
+                        let obj = {};
+                        obj[t('colLogDate')] = new Date(l.timestamp).toLocaleString('th-TH');
+                        obj[t('colDetails')] = l.details;
+                        obj[t('colUser')] = l.user;
+                        return obj;
+                    });
+                }
+                
+                window.currentReportData = data;
+                
+                if(data.length === 0) {
+                    thead.innerHTML = '';
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-red-500 text-base font-medium">${t('repEmpty')}</td></tr>`;
+                    return;
+                }
+                
+                const headers = Object.keys(data[0]);
+                thead.innerHTML = '<tr>' + headers.map(h => `<th class="px-5 py-3 text-left font-bold border-r border-gray-200 last:border-r-0">${h}</th>`).join('') + '</tr>';
+                
+                tbody.innerHTML = data.map(row => 
+                    '<tr class="border-b border-gray-100 hover:bg-purple-50/50 transition-colors">' + 
+                    headers.map(h => `<td class="px-5 py-3 text-gray-800 border-r border-gray-100 last:border-r-0">${row[h]}</td>`).join('') + 
+                    '</tr>'
+                ).join('');
+                
+            } catch(e) {
+                console.error(e);
+                showToast(t('toastError'), "error");
+                tbody.innerHTML = '';
+            }
+        }
+
+        window.exportCSV = function() {
+            if(!window.currentReportData || window.currentReportData.length === 0) return showToast(t('toastNoExport'), "error");
+            
+            let csvContent = "\uFEFF"; 
+            const headers = Object.keys(window.currentReportData[0]);
+            csvContent += headers.join(",") + "\n";
+            
+            window.currentReportData.forEach(row => {
+                const values = headers.map(header => `"${String(row[header]).replace(/"/g, '""')}"`);
+                csvContent += values.join(",") + "\n";
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            
+            const typeStr = document.getElementById('rep-type').value;
+            link.download = `Stocky_${typeStr}_Report_${new Date().toISOString().slice(0,10)}.csv`;
+            
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.printPDF = function() {
+            if(!window.currentReportData || window.currentReportData.length === 0) return showToast(t('toastNoExport'), "error");
+            
+            const printArea = document.getElementById('print-area');
+            const sel = document.getElementById('rep-type');
+            const typeText = sel.options[sel.selectedIndex].text;
+            const startVal = document.getElementById('rep-start').value;
+            const endVal = document.getElementById('rep-end').value;
+            
+            let html = `<h2>${typeText}</h2>`;
+            html += `<p class="print-date">From: ${startVal || '-'} To: ${endVal || '-'}</p>`;
+            
+            html += `<table>`;
+            const headers = Object.keys(window.currentReportData[0]);
+            
+            html += `<thead><tr>`;
+            headers.forEach(h => html += `<th>${h}</th>`);
+            html += `</tr></thead><tbody>`;
+            
+            window.currentReportData.forEach(row => {
+                html += `<tr>`;
+                headers.forEach(h => html += `<td>${row[h]}</td>`);
+                html += `</tr>`;
+            });
+            html += `</tbody></table>`;
+            
+            printArea.innerHTML = html;
+            window.print(); 
+        }
+    </script>
+</body>
+</html>
