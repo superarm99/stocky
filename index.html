@@ -281,7 +281,7 @@
 
             <nav class="flex-1 overflow-y-auto p-3 space-y-1 pb-10">
                 <button onclick="openTab('home')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all bg-indigo-50 text-indigo-600" data-tab="home" style="color:var(--text-muted)">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuOverview">ภาพรวมคลังสินค้า</span>
                 </button>
                 <hr class="my-2" style="border-color:var(--border)">
@@ -333,7 +333,6 @@
                 </button>
             </div>
 
-            <!-- Modal Overlay -->
             <div id="main-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] hidden opacity-0 pointer-events-none transition-opacity duration-300" onclick="openTab('home')"></div>
 
             <div id="main-modal" class="absolute z-[60] rounded-2xl flex flex-col modal-hidden pointer-events-none overflow-hidden border" style="background:var(--modal-bg); border-color:var(--border)">
@@ -380,9 +379,9 @@
                             <div class="p-5 rounded-2xl border" style="background:var(--hover-bg);border-color:var(--border)">
                                 <label class="block font-bold text-sm mb-4" style="color:var(--text)" data-i18n="inSize">ขนาดแพ็กเกจ เพื่อจำลองใน 3D (cm)</label>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="in-w" min="1" placeholder="ค่าเริ่มต้น 40" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="in-d" min="1" placeholder="ค่าเริ่มต้น 40" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="height">สูง</label><input type="number" id="in-h" min="1" placeholder="ค่าเริ่มต้น 15" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="in-w" placeholder="ค่าเริ่มต้น 40" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="in-d" placeholder="ค่าเริ่มต้น 40" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="height">สูง</label><input type="number" id="in-h" placeholder="ค่าเริ่มต้น 15" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                                 </div>
                                 <p class="text-xs mt-3" style="color:var(--text-muted)" data-i18n="inSizeHint">* หากไม่กรอก ระบบจะใช้ขนาดมาตรฐาน 40x40x15</p>
                             </div>
@@ -479,7 +478,8 @@
                             <span data-i18n="repTitle">ส่งออกรายงาน</span>
                         </h2>
                         <div class="p-4 md:p-5 rounded-2xl border mb-5 shrink-0" style="background:var(--hover-bg);border-color:var(--border)">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                            <!-- ปรับแก้ Grid เอา items-end ออกเพื่อไม่ให้ทะลุ -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                                 <div class="sm:col-span-2 lg:col-span-2">
                                     <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repType">ประเภทรายงาน</label>
                                     <select id="rep-type" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onchange="toggleReportFilters()">
@@ -489,22 +489,22 @@
                                         <option value="OUT" data-i18n="repOpt3">4. รายงานการเบิกสินค้าออก</option>
                                     </select>
                                 </div>
-                                <div class="date-filter">
+                                <div class="date-filter w-full">
                                     <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repStart">ตั้งแต่วันที่</label>
-                                    <input type="date" id="rep-start" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                    <input type="date" id="rep-start" class="w-full max-w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text);box-sizing:border-box">
                                 </div>
-                                <div class="date-filter">
+                                <div class="date-filter w-full">
                                     <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repEnd">ถึงวันที่</label>
-                                    <input type="date" id="rep-end" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                    <input type="date" id="rep-end" class="w-full max-w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text);box-sizing:border-box">
                                 </div>
-                                <div class="loc-filter hidden sm:col-span-2 lg:col-span-2">
+                                <div class="loc-filter hidden sm:col-span-2 lg:col-span-2 w-full">
                                     <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repFilterLoc">กรองเฉพาะช่อง</label>
                                     <select id="rep-loc-filter" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                         <option value="">-- ทั้งหมด --</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="mt-5 flex flex-wrap gap-3">
+                            <div class="flex flex-wrap gap-3">
                                 <button onclick="generateReport()" class="flex-1 md:flex-none px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm shadow-md" data-i18n="repBtnGen">ดึงข้อมูลรายงาน</button>
                                 <button onclick="exportCSV()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
@@ -611,7 +611,6 @@
                                     <option value="ja">🇯🇵 日本語</option>
                                 </select>
                             </div>
-                            <!-- Theme -->
                             <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
                                 <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)" data-i18n="setTheme">🎨 ธีมหน้าจอ (Theme)</label>
                                 <div class="flex gap-4">
@@ -619,7 +618,6 @@
                                     <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-transparent bg-slate-800 text-white shadow-sm" data-i18n="setThemeD">🌙 มืด</button>
                                 </div>
                             </div>
-                            <!-- Font Size -->
                             <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
                                 <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)" data-i18n="setFont">🔡 ขนาดตัวหนังสือ</label>
                                 <div class="flex gap-4">
@@ -703,19 +701,17 @@
                 <h3 id="modal-name" class="font-bold text-lg md:text-xl truncate" style="color:var(--text)">Name</h3>
             </div>
             
-            <div class="space-y-4 text-base md:text-sm" style="color:var(--text-muted)">
-                <div class="flex justify-between items-center"><span data-i18n="mdlLoc">ตำแหน่ง:</span> <span id="modal-loc" class="font-bold px-3 py-1.5 rounded-lg" style="background:var(--hover-bg);color:var(--text)"></span></div>
-                <div class="flex justify-between items-center"><span data-i18n="mdlQty">จำนวนคงเหลือ:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-3 py-1.5 rounded-lg text-lg border border-green-100"></span></div>
-                <div class="flex justify-between items-center"><span data-i18n="mdlUpdate">นำเข้า/อัปเดตล่าสุด:</span> <span id="modal-date" class="text-xs font-medium" style="color:var(--text)"></span></div>
-                
-                <div class="border-t pt-4 mt-2 space-y-3" style="border-color:var(--border)">
-                    <div class="flex justify-between items-start gap-4">
-                        <span data-i18n="mdlLastOut" class="shrink-0 text-orange-600 font-bold flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> เบิกล่าสุด:</span> 
-                        <div id="modal-last-out" class="text-right">
-                            <span class="text-xs italic" data-i18n="mdlNone">ยังไม่มีการเบิก</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="space-y-3 text-sm" style="color:var(--text)">
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlLoc">ตำแหน่ง:</span> <span id="modal-loc" class="font-bold px-3 py-1.5 rounded-lg" style="background:var(--hover-bg);color:var(--text)"></span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlQty">จำนวนคงเหลือ:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-3 py-1.5 rounded-lg text-lg border border-green-100"></span></div>
+                <hr class="my-2 border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlDateIn">วันที่นำเข้าคลัง:</span> <span id="modal-date-in" class="font-medium"></span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlDateUpd">วันที่อัปเดตล่าสุด:</span> <span id="modal-date-upd" class="font-medium"></span></div>
+                <hr class="my-2 border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center text-orange-600"><span class="font-bold" data-i18n="mdlLastOut">วันที่เบิกล่าสุด:</span> <span id="modal-out-date" class="font-bold"></span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlOutBy">เบิกล่าสุดโดย:</span> <span id="modal-out-by" class="font-medium"></span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlOutQty">จำนวนที่เบิกล่าสุด:</span> <span id="modal-out-qty" class="font-medium"></span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlOutCount">จำนวนครั้งที่เบิกทั้งหมด:</span> <span id="modal-out-count" class="font-medium"></span></div>
             </div>
 
             <div class="mt-8 flex flex-col gap-3">
@@ -742,7 +738,7 @@
     <script>
     const i18nData = {
         th: {
-            loading:"กำลังโหลดระบบ 3D คลังสินค้า...",menuOverview:"ภาพรวมคลังสินค้า",menuSearch:"เช็คสต็อก / ค้นหา",menuIn:"รับสินค้าเข้า",menuOut:"เบิกสินค้าออก",menuLogs:"ประวัติการทำงาน",menuReports:"รายงาน",menuHelp:"วิธีการใช้งาน",menuSettings:"การตั้งค่า",
+            loading:"กำลังโหลดระบบ...",menuOverview:"ภาพรวมคลังสินค้า",menuSearch:"เช็คสต็อก / ค้นหา",menuIn:"รับสินค้าเข้า",menuOut:"เบิกสินค้าออก",menuLogs:"ประวัติการทำงาน",menuReports:"รายงาน",menuHelp:"วิธีการใช้งาน",menuSettings:"การตั้งค่า",
             searchTitle:"สต็อกทั้งหมด / ค้นหา",searchPlaceholder:"พิมพ์ชื่อสินค้า...",notFound:"ไม่พบสินค้าในสต็อก",slotText:"ช่อง",pcsText:"ชิ้น",
             inTitle:"รับสินค้าเข้า",inItemName:"ชื่อสินค้า",inSize:"ขนาดแพ็กเกจ เพื่อจำลองใน 3D (cm)",inSizeHint:"* หากไม่กรอก ระบบจะใช้ขนาดมาตรฐาน 40x40x15",width:"กว้าง",depth:"ลึก",height:"สูง",inQty:"จำนวน (ชิ้น)",inSelectSlot:"เลือกช่องเก็บ",selectDash:"-- เลือก --",inBtn:"บันทึกรับเข้า",
             outTitle:"เบิกสินค้าออก",outSearch:"ค้นหาสินค้า",outFrom:"เบิกจาก:",outWho:"ชื่อผู้เบิก",outWhoPh:"เช่น นาย A แผนก B",outDate:"เวลาที่เบิก",outQty:"จำนวน",outQtyPh:"จำนวนชิ้น",outBtn:"ยืนยัน",
@@ -756,7 +752,7 @@
             cfgTitle:"ตั้งค่าชั้นวาง (ซม.)",cfgPrefix:"Prefix แถว",cfgBatch:"สร้างแบบกลุ่ม",cfgSlots:"จำนวนช่อง",cfgOrder:"ทิศทาง",cfgDir:"แกน 3D",cfgDirX:"แกน X (ซ้าย-ขวา)",cfgDirZ:"แกน Y (ลึก)",cfgRot:"การหันหน้า",cfgRot0:"0 องศา",cfgRot90:"90 องศา",cfgX:"X",cfgZ:"Y",cfgSize:"ขนาดต่อช่อง (ซม.)",heightPerLvl:"สูง/ชั้น",cfgLevels:"จำนวนชั้น",cfgBtn:"บันทึกผังคลังสินค้า",cfgList:"รายการชั้นวางปัจจุบัน",lblRow:"แถว",delRow:"ลบแถว",confDelRowTitle:"ยืนยันการลบ",confDelRowMsg:"ลบแถว {0} ทั้งหมดใช่ไหม?",btnCancel:"ยกเลิก",btnOk:"ยืนยัน",delBtn:"ลบ",
             setMenu:"การตั้งค่า",setLang:"เลือกภาษา", setTheme:"🎨 ธีมหน้าจอ (Theme)", setThemeL:"☀️ สว่าง", setThemeD:"🌙 มืด",
             setFont:"🔡 ขนาดตัวหนังสือ", setFontS:"เล็ก", setFontN:"ปกติ", setFontL:"ใหญ่", setFontDesc:"ระบบจดจำการตั้งค่าสำหรับครั้งต่อไปอัตโนมัติ",
-            mdlLoc:"ตำแหน่ง:",mdlQty:"จำนวนคงเหลือ:",mdlUpdate:"นำเข้า/อัปเดตล่าสุด:",mdlLastOut:"เบิกล่าสุด:",mdlNone:"ยังไม่มีการเบิก",mdlBy:"โดย:",mdlBtnOut:"นำไปเบิกออก",btnViewMap:"ดูตำแหน่งบน 3D",
+            mdlLoc:"ตำแหน่ง:",mdlQty:"จำนวนคงเหลือ:",mdlDateIn:"วันที่นำเข้าคลัง:",mdlDateUpd:"วันที่อัปเดตล่าสุด:",mdlLastOut:"วันที่เบิกล่าสุด:",mdlOutBy:"เบิกล่าสุดโดย:",mdlOutQty:"จำนวนที่เบิกล่าสุด:",mdlOutCount:"จำนวนครั้งที่เบิกทั้งหมด:",mdlNone:"- ยังไม่มีการเบิก -",mdlBtnOut:"นำไปเบิกออก",btnViewMap:"ดูตำแหน่งบน 3D",
             toastSuccess:"สำเร็จ",toastError:"เกิดข้อผิดพลาด",toastNoStock:"จำนวนไม่พอ",toastDateReq:"กรุณาเลือกวันที่",toastNoExport:"ไม่มีข้อมูลส่งออก",
             colDate:"วันที่",colName:"ชื่อสินค้า",colQty:"จำนวน",colSlot:"ช่อง",colLogDate:"วันเวลา",colDetails:"รายละเอียด",colUser:"ผู้ทำรายการ",
             lblSlot:"ช่อง",lblLevel:"ชั้น",lblPage:"หน้า",btnPrev:"ก่อนหน้า",btnNext:"ถัดไป",
@@ -765,7 +761,7 @@
             eeTitle:"🌙 ยินดีต้อนรับสู่ดวงจันทร์",eeDesc:"คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... เรามีคลังสินค้าบนอวกาศด้วยนะ!",eeBack:"🚀 กลับโลก"
         },
         en: {
-            loading:"Loading 3D Warehouse...",menuOverview:"Overview",menuSearch:"Check Stock / Search",menuIn:"Stock In",menuOut:"Stock Out",menuLogs:"Logs",menuReports:"Reports",menuHelp:"User Manual",menuSettings:"Settings",
+            loading:"Loading...",menuOverview:"Overview",menuSearch:"Check Stock / Search",menuIn:"Stock In",menuOut:"Stock Out",menuLogs:"Logs",menuReports:"Reports",menuHelp:"User Manual",menuSettings:"Settings",
             searchTitle:"All Stock / Search",searchPlaceholder:"Type item name...",notFound:"No items found",slotText:"Slot",pcsText:"pcs",
             inTitle:"Stock In",inItemName:"Item Name",inSize:"3D Simulation Size (cm)",inSizeHint:"* Default is 40x40x15 if left blank",width:"Width",depth:"Depth",height:"Height",inQty:"Total Qty (pcs)",inSelectSlot:"Select Slot",selectDash:"-- Select --",inBtn:"Save Stock In",
             outTitle:"Stock Out",outSearch:"Search item",outFrom:"From:",outWho:"Recipient",outWhoPh:"e.g., John Doe",outDate:"Date & Time",outQty:"Quantity",outQtyPh:"pcs",outBtn:"Confirm",
@@ -779,7 +775,7 @@
             cfgTitle:"Rack Config (cm)",cfgPrefix:"Row Prefix",cfgBatch:"Batch Create",cfgSlots:"Slots",cfgOrder:"Order",cfgDir:"3D Axis",cfgDirX:"X Axis (L-R)",cfgDirZ:"Y Axis (Depth)",cfgRot:"Orientation",cfgRot0:"0 deg",cfgRot90:"90 deg",cfgX:"X",cfgZ:"Y",cfgSize:"Size per Slot (cm)",heightPerLvl:"H/Lvl",cfgLevels:"Levels",cfgBtn:"Save Layout",cfgList:"Current Racks",lblRow:"Row",delRow:"Delete Row",confDelRowTitle:"Confirm Delete",confDelRowMsg:"Delete entire row {0}?",btnCancel:"Cancel",btnOk:"Confirm",delBtn:"Del",
             setMenu:"Settings",setLang:"Language", setTheme:"🎨 Theme", setThemeL:"☀️ Light", setThemeD:"🌙 Dark",
             setFont:"🔡 Font Size", setFontS:"Small", setFontN:"Normal", setFontL:"Large", setFontDesc:"Preferences are saved automatically",
-            mdlLoc:"Location:",mdlQty:"Remaining Qty:",mdlUpdate:"Stock In/Updated:",mdlLastOut:"Last Out:",mdlNone:"No records",mdlBy:"By:",mdlBtnOut:"Take Out",btnViewMap:"View in 3D",
+            mdlLoc:"Location:",mdlQty:"Remaining Qty:",mdlDateIn:"Date Imported:",mdlDateUpd:"Last Updated:",mdlLastOut:"Last Out Date:",mdlOutBy:"Last Out By:",mdlOutQty:"Last Out Qty:",mdlOutCount:"Total Out Count:",mdlNone:"- No Out Records -",mdlBtnOut:"Take Out",btnViewMap:"View in 3D",
             toastSuccess:"Success",toastError:"Error occurred",toastNoStock:"Insufficient qty",toastDateReq:"Select dates",toastNoExport:"No data to export",
             colDate:"Date",colName:"Item",colQty:"Qty",colSlot:"Slot",colLogDate:"DateTime",colDetails:"Details",colUser:"User",
             lblSlot:"Slot",lblLevel:"Lvl",lblPage:"Page",btnPrev:"Prev",btnNext:"Next",
@@ -788,7 +784,7 @@
             eeTitle:"🌙 Welcome to the Moon",eeDesc:"You zoomed out incredibly far... We have space warehouses too!",eeBack:"🚀 Back to Earth"
         },
         ja: {
-            loading:"3D倉庫を読み込み中...",menuOverview:"概要",menuSearch:"在庫確認・検索",menuIn:"入庫",menuOut:"出庫",menuLogs:"操作履歴",menuReports:"レポート",menuHelp:"マニュアル",menuSettings:"設定",
+            loading:"読み込み中...",menuOverview:"概要",menuSearch:"在庫確認・検索",menuIn:"入庫",menuOut:"出庫",menuLogs:"操作履歴",menuReports:"レポート",menuHelp:"マニュアル",menuSettings:"設定",
             searchTitle:"全在庫・検索",searchPlaceholder:"商品名を入力...",notFound:"在庫なし",slotText:"場所",pcsText:"個",
             inTitle:"入庫",inItemName:"商品名",inSize:"3D用サイズ (cm)",inSizeHint:"* 空白の場合はデフォルト 40x40x15",width:"幅",depth:"奥行",height:"高さ",inQty:"数量",inSelectSlot:"場所選択",selectDash:"-- 選択 --",inBtn:"入庫保存",
             outTitle:"出庫",outSearch:"検索",outFrom:"出庫元:",outWho:"出庫者",outWhoPh:"例: 太郎",outDate:"日時",outQty:"数量",outQtyPh:"個",outBtn:"確定",
@@ -802,7 +798,7 @@
             cfgTitle:"ラック設定 (cm)",cfgPrefix:"行プレフィックス",cfgBatch:"一括作成",cfgSlots:"枠数",cfgOrder:"順番",cfgDir:"3D軸",cfgDirX:"X軸 (左右)",cfgDirZ:"Y軸 (奥行)",cfgRot:"向き",cfgRot0:"0度",cfgRot90:"90度",cfgX:"X",cfgZ:"Y",cfgSize:"1枠サイズ (cm)",heightPerLvl:"高さ/段",cfgLevels:"段数",cfgBtn:"保存",cfgList:"現在のラック",lblRow:"行",delRow:"行削除",confDelRowTitle:"削除確認",confDelRowMsg:"行 {0} をすべて削除?",btnCancel:"キャンセル",btnOk:"確認",delBtn:"削除",
             setMenu:"設定",setLang:"言語", setTheme:"🎨 テーマ", setThemeL:"☀️ ライト", setThemeD:"🌙 ダーク",
             setFont:"🔡 フォントサイズ", setFontS:"小", setFontN:"標準", setFontL:"大", setFontDesc:"設定は自動的に保存されます",
-            mdlLoc:"場所:",mdlQty:"残量:",mdlUpdate:"入庫/更新日時:",mdlLastOut:"最終出庫:",mdlNone:"記録なし",mdlBy:"担当:",mdlBtnOut:"出庫する",btnViewMap:"3Dで見る",
+            mdlLoc:"場所:",mdlQty:"残量:",mdlDateIn:"入庫日:",mdlDateUpd:"最終更新:",mdlLastOut:"最終出庫日:",mdlOutBy:"出庫者:",mdlOutQty:"出庫量:",mdlOutCount:"合計出庫回数:",mdlNone:"- 記録なし -",mdlBtnOut:"出庫する",btnViewMap:"3Dで見る",
             toastSuccess:"成功",toastError:"エラー",toastNoStock:"数量不足",toastDateReq:"日付選択",toastNoExport:"データなし",
             colDate:"日付",colName:"商品名",colQty:"数量",colSlot:"場所",colLogDate:"日時",colDetails:"詳細",colUser:"ユーザー",
             lblSlot:"枠",lblLevel:"段",lblPage:"ページ",btnPrev:"前へ",btnNext:"次へ",
@@ -841,6 +837,13 @@
             const col = theme==='dark' ? 0x0a1628 : 0xf8fafc;
             window.scene.background = new THREE.Color(col);
             window.scene.fog.color = new THREE.Color(col);
+            if(window.floorMesh){
+                // ปรับพื้นให้เข้มขึ้นนิดนึง
+                window.floorMesh.material.color.setHex(theme==='dark' ? 0x0f172a : 0xe2e8f0);
+            }
+            if(window.gridMesh){
+                window.gridMesh.material.color.setHex(theme==='dark' ? 0x334155 : 0x94a3b8);
+            }
         }
     };
     function updateThemeButtons(theme){
@@ -976,7 +979,7 @@
     let scene,camera,renderer,controls,raycaster,mouse;
     let warehouseGroup=new THREE.Group(); let previewGroup=new THREE.Group();
     let itemMeshes={}; let highlightBox=null;
-    let clickableMeshes=[]; // [FIXED] Array เก็บเฉพาะกล่องสินค้า เพื่อให้จิ้มทะลุเหล็กได้
+    let clickableMeshes=[]; 
 
     // Easter egg state
     let easterEggShown=false; let moonScene,moonRenderer,moonCamera,ufoMesh;
@@ -1146,7 +1149,9 @@
         renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
         renderer.setSize(window.innerWidth,window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+        // [FIXED] เงาจางๆ และปรับประเภทเงาให้ซอฟต์ลง
         renderer.shadowMap.enabled=true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
         container.appendChild(renderer.domElement);
 
         controls=new THREE.OrbitControls(camera,renderer.domElement);
@@ -1169,21 +1174,28 @@
             }
         });
 
-        scene.add(new THREE.AmbientLight(0xffffff,0.7));
-        const dl=new THREE.DirectionalLight(0xffffff,0.6);
+        // [FIXED] ปรับแสงให้เงาดูจางลงและสว่างทั่วถึงมากขึ้น
+        scene.add(new THREE.AmbientLight(0xffffff, 0.85)); // เพิ่มแสง Ambient ให้สว่างขึ้น
+        const dl = new THREE.DirectionalLight(0xffffff, 0.25); // ลดความเข้มแสงแดดลง (เพื่อให้เงาบางมากๆ)
         dl.position.set(2000,4000,2000); dl.castShadow=true;
         dl.shadow.mapSize.width=2048; dl.shadow.mapSize.height=2048;
         dl.shadow.camera.near=100; dl.shadow.camera.far=15000;
         const sd=3000;
         dl.shadow.camera.left=-sd; dl.shadow.camera.right=sd; dl.shadow.camera.top=sd; dl.shadow.camera.bottom=-sd;
+        dl.shadow.bias = -0.0005;
         scene.add(dl);
 
         const floorGeo=new THREE.PlaneGeometry(150000,150000); 
-        const floorMat=new THREE.MeshStandardMaterial({color:isDark?0x0f172a:0xffffff,roughness:0.9});
+        // [FIXED] สีพื้นเข้มขึ้นอีกนิดในธีมสว่าง (0xe2e8f0)
+        const floorMat=new THREE.MeshStandardMaterial({color:isDark?0x0f172a:0xe2e8f0,roughness:1.0});
         const floor=new THREE.Mesh(floorGeo,floorMat);
         floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
-        const grid=new THREE.GridHelper(150000,300,0x10b981,isDark?0x1e3a5f:0xe2e8f0);
+        window.floorMesh = floor;
+
+        // [FIXED] เส้น Grid คั่นแถวชัดเจนขึ้น (ซอย 400 ช่อง สีเข้มขึ้น)
+        const grid=new THREE.GridHelper(150000, 400, 0x10b981, isDark?0x334155:0x94a3b8);
         grid.position.y=0.5; scene.add(grid);
+        window.gridMesh = grid;
 
         highlightBox=new THREE.Mesh(
             new THREE.BoxGeometry(100,100,100),
@@ -1194,7 +1206,6 @@
 
         raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
         
-        // [FIXED] Single listener for clicking. Pass only clickableMeshes to raycaster.
         renderer.domElement.addEventListener('pointerdown', (event) => {
             if(!document.getElementById('main-modal').classList.contains('hidden') && document.getElementById('tab-config').classList.contains('hidden')) return;
             if(!event.isPrimary) return; 
@@ -1204,7 +1215,7 @@
             mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
             raycaster.setFromCamera(mouse,camera);
             
-            // ใช้เช็คเฉพาะ array ของกล่องสินค้า เลเซอร์จะทะลุโครงเหล็กไปโดนกล่องด้านในแน่นอน
+            // ตรวจจับเฉพาะ กล่องสินค้า (clickableMeshes) ข้ามเสา ข้ามชั้นเหล็ก
             const hits=raycaster.intersectObjects(clickableMeshes, false);
 
             if(hits.length>0){
@@ -1224,13 +1235,13 @@
     // ===== EASTER EGG (Cinematic) =====
     function showEasterEgg(){
         const tl = document.getElementById('transition-layer');
-        tl.style.backgroundColor = '#ffffff'; // White Cloud Flash
+        tl.style.backgroundColor = '#ffffff'; 
         tl.style.opacity = '1';
         
         setTimeout(() => {
-            tl.style.backgroundColor = '#020B18'; // Dark Space
+            tl.style.backgroundColor = '#020B18'; 
             setTimeout(() => {
-                tl.style.opacity = '0'; // Reveal Moon
+                tl.style.opacity = '0'; 
                 document.getElementById('easter-egg').classList.add('show');
                 initMoonScene();
                 startTypewriter();
@@ -1363,8 +1374,9 @@
     function rebuild3DWarehouse(){
         while(warehouseGroup.children.length>0) warehouseGroup.remove(warehouseGroup.children[0]);
         itemMeshes={};
-        clickableMeshes=[]; // ล้างอาร์เรย์กล่องสินค้า
-        // [FIXED] ปรับสีชั้นวางให้อ่อนลง ลดความเงา เพิ่มความสว่าง
+        clickableMeshes=[]; 
+        
+        // [FIXED] ชั้นวางสีสว่างขึ้น ลดความเงา
         const rackMat=new THREE.MeshStandardMaterial({color:0xe2e8f0,metalness:0.1,roughness:0.8});
         const legMat=new THREE.MeshStandardMaterial({color:0xcbd5e1,metalness:0.2,roughness:0.8});
         
@@ -1375,25 +1387,21 @@
             const x=parseFloat(loc.x), z=parseFloat(loc.z); const legT=5, shelfT=2;
             let totalH=(levels-1)*h+shelfT; if(levels===1) totalH=shelfT;
             
-            // สร้างเสา
             if(levels>1){
                 const legGeo=new THREE.BoxGeometry(legT,totalH,legT);
                 [[x-dispW/2+legT/2,z-dispD/2+legT/2],[x+dispW/2-legT/2,z-dispD/2+legT/2],[x-dispW/2+legT/2,z+dispD/2-legT/2],[x+dispW/2-legT/2,z+dispD/2-legT/2]].forEach(pos=>{
                     const leg=new THREE.Mesh(legGeo,legMat); leg.position.set(pos[0],totalH/2,pos[1]); leg.castShadow=true; warehouseGroup.add(leg);
                 });
             }
-            // ป้ายชื่อแถว
+            
             const label=createTextSprite(loc.id,(rot===90?dispD:dispW)/4);
             label.position.set(x,totalH+(levels>1?50:30),z); warehouseGroup.add(label);
             
             for(let l=0;l<levels;l++){
                 const baseY=l*h;
-                // แผ่นชั้นวาง
                 const shelf=new THREE.Mesh(new THREE.BoxGeometry(dispW,shelfT,dispD),rackMat);
                 shelf.position.set(x,baseY+shelfT/2,z); shelf.receiveShadow=true; shelf.castShadow=true; warehouseGroup.add(shelf);
                 
-                // [FIXED] นำบรรทัดที่สร้างป้าย L1 L2 ออกตามความต้องการ
-
                 const slotId=`${loc.id}L${l+1}`;
                 const itemsInSlot=inventory.filter(i=>i.locationId===slotId);
                 if(itemsInSlot.length>0){
@@ -1410,7 +1418,7 @@
                         
                         warehouseGroup.add(box); 
                         itemMeshes[item.id]=box; 
-                        clickableMeshes.push(box); // เพิ่มใส่ array สำหรับกดคลิก
+                        clickableMeshes.push(box); 
                         
                         stackY+=iH;
                     });
@@ -1445,19 +1453,29 @@
         document.getElementById('modal-name').innerText=item.name;
         document.getElementById('modal-loc').innerText=formatLocation(item.locationId);
         document.getElementById('modal-qty').innerText=`${item.qty} ${t('pcsText')}`;
-        document.getElementById('modal-date').innerText=new Date(item.timestamp).toLocaleString('th-TH');
         
-        // [FIXED] โชว์ประวัติการเบิกล่าสุด
-        const loContainer = document.getElementById('modal-last-out');
-        if(item.lastOutDate && item.lastOutBy){
-            const loDate = new Date(item.lastOutDate).toLocaleString('th-TH');
-            loContainer.innerHTML = `
-                <div class="font-bold text-sm" style="color:var(--text)">${item.lastOutQty} ${t('pcsText')}</div>
-                <div class="text-xs mt-0.5" style="color:var(--text-muted)">${t('mdlBy')} ${item.lastOutBy}</div>
-                <div class="text-[10px]" style="color:var(--text-muted)">${loDate}</div>
-            `;
+        // [FIXED] จัดข้อมูลสินค้าครบถ้วน
+        const dateIn = item.dateIn ? item.dateIn : item.timestamp;
+        document.getElementById('modal-date-in').innerText=new Date(dateIn).toLocaleString('th-TH');
+        document.getElementById('modal-date-upd').innerText=new Date(item.timestamp).toLocaleString('th-TH');
+        
+        const outDateEl = document.getElementById('modal-out-date');
+        const outByEl = document.getElementById('modal-out-by');
+        const outQtyEl = document.getElementById('modal-out-qty');
+        const outCountEl = document.getElementById('modal-out-count');
+
+        if(item.lastOutDate) {
+            outDateEl.innerText = new Date(item.lastOutDate).toLocaleString('th-TH');
+            outDateEl.className = "font-bold text-orange-600";
+            outByEl.innerText = item.lastOutBy || "-";
+            outQtyEl.innerText = `${item.lastOutQty} ${t('pcsText')}`;
+            outCountEl.innerText = `${item.outCount || 0} ครั้ง`;
         } else {
-            loContainer.innerHTML = `<span class="text-xs italic" data-i18n="mdlNone">${t('mdlNone')}</span>`;
+            outDateEl.innerText = t('mdlNone');
+            outDateEl.className = "font-medium text-gray-500 italic";
+            outByEl.innerText = "-";
+            outQtyEl.innerText = "-";
+            outCountEl.innerText = "0 ครั้ง";
         }
 
         const btnViewMap = document.getElementById('btn-view-map');
@@ -1477,7 +1495,7 @@
 
     window.closeItemModal=function(){ document.getElementById('item-modal').classList.remove('show'); };
 
-    // --- SORTING (FIFO logic applied properly) ---
+    // --- SORTING ---
     window.handleSearch=function(){
         const q=document.getElementById('searchInput').value.toLowerCase().trim();
         const res=document.getElementById('search-results'); res.innerHTML='';
@@ -1507,6 +1525,7 @@
 
             const div=document.createElement('div');
             
+            // [FIXED] ตัดการโชว์ขนาดสินค้าออกจากหน้า UI
             if(viewModes.search==='list'){
                 div.className='group cursor-pointer transition-colors';
                 div.innerHTML=`
@@ -1647,15 +1666,14 @@
     window.handleStockIn=async function(e){
         e.preventDefault();
         
-        // [FIXED] Block button to prevent double submit
         const btn = document.getElementById('btn-submit-in');
         btn.disabled = true;
 
-        // [FIXED] Default size logic: 40x40x15 if empty
         const wVal = parseFloat(document.getElementById('in-w').value);
         const dVal = parseFloat(document.getElementById('in-d').value);
         const hVal = parseFloat(document.getElementById('in-h').value);
 
+        // [FIXED] เพิ่มข้อมูล DateIn ตอนเพิ่มของครั้งแรก
         const data={
             name: document.getElementById('in-name').value.trim(),
             w: isNaN(wVal) || wVal <= 0 ? 40 : wVal,
@@ -1667,8 +1685,16 @@
         };
         try{
             const existing=inventory.find(i=>i.name===data.name&&i.locationId===data.locationId);
-            if(existing) await setDoc(doc(db,firestorePath('inventory'),existing.id),{qty:existing.qty+data.qty,timestamp:Date.now()},{merge:true});
-            else await addDoc(collection(db,firestorePath('inventory')),data);
+            if(existing) {
+                await setDoc(doc(db,firestorePath('inventory'),existing.id),{
+                    qty: existing.qty+data.qty, 
+                    timestamp: Date.now()
+                },{merge:true});
+            } else {
+                data.dateIn = Date.now(); 
+                data.outCount = 0;
+                await addDoc(collection(db,firestorePath('inventory')),data);
+            }
             
             const hid=data.name.replace(/[\/\\]/g,'_'); 
             await setDoc(doc(db,firestorePath('itemHistory'),hid),{name:data.name,w:data.w,d:data.d,h:data.h});
@@ -1679,7 +1705,7 @@
         }catch(e){ 
             showToast(t('toastError'),'error'); 
         } finally {
-            btn.disabled = false; // Restore button
+            btn.disabled = false;
         }
     };
 
@@ -1739,7 +1765,6 @@
     window.handleStockOut=async function(e){
         e.preventDefault(); if(!selectedOutItem) return;
         
-        // [FIXED] Block button
         const btn = document.getElementById('btn-submit-out');
         btn.disabled = true;
 
@@ -1755,16 +1780,19 @@
 
         try{
             const newQty=selectedOutItem.qty-outQty;
+            const currentCount = selectedOutItem.outCount || 0;
             
-            // [FIXED] Update doc with last out details instead of just deleting
+            // [FIXED] เก็บประวัติการออกและเพิ่ม outCount
             if(newQty===0) {
                 await deleteDoc(doc(db,firestorePath('inventory'),selectedOutItem.id));
             } else {
                 await setDoc(doc(db,firestorePath('inventory'),selectedOutItem.id),{
                     qty: newQty,
+                    timestamp: Date.now(),
                     lastOutQty: outQty,
                     lastOutBy: who,
-                    lastOutDate: dtMs
+                    lastOutDate: dtMs,
+                    outCount: currentCount + 1
                 },{merge:true});
             }
 
@@ -1820,7 +1848,7 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 
-    // [FIXED] ใช้ onafterprint เพื่อจัดการสถานะปุ่ม ให้แม่นยำขึ้น
+    // [FIXED] ตัดปัญหา Canvas WebGL พังตอนปริ้นท์ ด้วยการซ่อน UI 3D ชั่วขณะ
     window.printPDF=function(){
         if(!window.currentReportData||window.currentReportData.length===0) return showToast(t('toastNoExport'),'error');
         
@@ -1846,22 +1874,24 @@
             html+=`</tbody></table>`;
             pa.innerHTML=html; 
 
-            // ฟังก์ชันคืนค่าปุ่ม
-            const restoreBtn = () => {
+            // ซ่อน 3D Canvas ชั่วคราวก่อนสั่งปริ้นท์ (จุดตายของเบราว์เซอร์เวลาเจอกับ WebGL)
+            const canvasContainer = document.getElementById('canvas-container');
+            const uiLayer = document.getElementById('ui-layer');
+            canvasContainer.style.display = 'none';
+            uiLayer.style.display = 'none';
+
+            try {
+                window.print();
+            } catch (e) {
+                console.error("Print Error:", e);
+            } finally {
+                // คืนค่ากลับทันทีที่หน้าต่าง Print ปิด
+                canvasContainer.style.display = 'block';
+                uiLayer.style.display = 'flex';
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
-                window.removeEventListener('afterprint', restoreBtn);
-            };
-
-            // เมื่อปิดหน้าต่าง Print ให้คืนค่าปุ่ม (เวิร์ค 90% ของเบราว์เซอร์)
-            window.addEventListener('afterprint', restoreBtn);
-            
-            window.print();
-            
-            // Fallback เผื่อเบราว์เซอร์ไหนไม่รองรับ afterprint แบบเนียนๆ (เช่น iOS บางเวอร์ชัน)
-            setTimeout(restoreBtn, 3000); 
-
-        }, 150);
+            }
+        }, 100);
     };
     </script>
 </body>
