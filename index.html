@@ -67,16 +67,14 @@
             overflow: hidden;
             background: var(--bg);
             color: var(--text);
-            /* Font Size Scale */
             font-size: var(--font-scale, 14px);
             transition: background 0.3s, color 0.3s;
-            /* Use dvh for mobile browser compatibility */
             height: 100dvh;
             width: 100vw;
             margin: 0;
             padding: 0;
-            overscroll-behavior: none;
-            touch-action: none;
+            overscroll-behavior: none; /* Fix safari bounce */
+            touch-action: none; /* Fix safari pinch-to-zoom jumping */
         }
 
         /* Font scale utility */
@@ -127,22 +125,10 @@
         #item-modal { display: none; opacity: 0; transition: opacity 0.2s; z-index: 70; }
         #item-modal.show { display: flex; opacity: 1; }
 
-        /* ===== CARDS ===== */
-        .card {
-            background: var(--card-bg);
-            border-color: var(--border);
-            color: var(--text);
-            transition: background 0.3s, border-color 0.3s;
-        }
-        .input-style {
-            background: var(--input-bg);
-            border-color: var(--input-border);
-            color: var(--text);
-            transition: background 0.3s, border-color 0.3s, color 0.3s;
-        }
-        @media screen and (max-width: 768px) {
-            input, select, textarea { font-size: 16px !important; }
-        }
+        /* ===== CARDS & INPUTS ===== */
+        .card { background: var(--card-bg); border-color: var(--border); color: var(--text); transition: background 0.3s, border-color 0.3s; }
+        .input-style { background: var(--input-bg); border-color: var(--input-border); color: var(--text); transition: background 0.3s, border-color 0.3s, color 0.3s; }
+        @media screen and (max-width: 768px) { input, select, textarea { font-size: 16px !important; } }
         .input-style:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); }
 
         /* ===== LOADER ===== */
@@ -158,7 +144,7 @@
         @keyframes fadeOut { from { opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 
         /* ===== AUTOCOMPLETE ===== */
-        .autocomplete-list { position: absolute; z-index: 50; background: var(--card-bg); border: 1px solid var(--border); border-radius: 0.5rem; max-height: 200px; overflow-y: auto; width: 100%; display: none; margin-top: 4px; }
+        .autocomplete-list { position: absolute; z-index: 50; background: var(--card-bg); border: 1px solid var(--border); border-radius: 0.5rem; max-height: 200px; overflow-y: auto; width: 100%; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); display: none; margin-top: 4px; }
         .autocomplete-item { padding: 10px 12px; cursor: pointer; transition: background 0.2s; font-size: 0.875rem; border-bottom: 1px solid var(--border); }
         .autocomplete-item:last-child { border-bottom: none; }
         .autocomplete-item:hover { background: var(--hover-bg); }
@@ -166,51 +152,51 @@
         /* ===== LIST / GRID VIEW ===== */
         .grid-view-btn.active { background: #e0e7ff; color: #4f46e5; border-color: #c7d2fe; }
         html.dark .grid-view-btn.active { background: #3730a3; color: #a5b4fc; }
-        .items-list-view > div { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 16px; }
-        .items-list-view .item-details { display: flex; flex-direction: row; align-items: center; gap: 12px; flex-wrap: wrap; }
+        
+        .items-list-view.list-mode > div { 
+            display: flex; flex-direction: row; align-items: center; justify-content: space-between; 
+            padding: 12px 0; border: none; border-bottom: 1px solid var(--border);
+            border-radius: 0; background: transparent; shadow: none;
+        }
+        .items-list-view.list-mode > div:hover { background: var(--hover-bg); padding-left: 8px; padding-right: 8px; }
         @media (max-width: 640px) {
-            .items-list-view > div { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .items-list-view > div > div:last-child { width: 100%; justify-content: space-between; }
+            .items-list-view.list-mode > div { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .items-list-view.list-mode > div > div:last-child { width: 100%; justify-content: space-between; }
         }
 
-        /* ===== CREDIT WATERMARK ===== */
-        #credit-watermark { transition: opacity 0.4s; bottom: max(12px, env(safe-area-inset-bottom)); left: max(12px, env(safe-area-inset-left)); }
-
-        /* ===== BADGES ===== */
+        /* ===== LOW STOCK BADGE ===== */
         .low-stock-badge { display: inline-flex; align-items: center; gap: 4px; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.65; } }
-        .fifo-badge { display: inline-flex; align-items: center; gap: 4px; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; }
-        html.dark .fifo-badge { background: #451a03; color: #fde68a; border-color: #78350f; }
 
-        /* ===== EASTER EGG — Moon ===== */
-        #easter-egg { position: fixed; inset: 0; z-index: 9990; display: none; flex-direction: column; align-items: center; justify-content: center; background: #020B18; color: white; font-family: 'Inter', sans-serif; text-align: center; pointer-events: auto; }
+        /* ===== EASTER EGG (TRANSITION & MOON) ===== */
+        #transition-layer { position: fixed; inset: 0; z-index: 9985; pointer-events: none; opacity: 0; transition: opacity 1.5s ease-in-out, background-color 1.5s ease-in-out; }
+        #easter-egg { position: fixed; inset: 0; z-index: 9990; display: none; flex-direction: column; align-items: center; justify-content: center; background: #020B18; color: white; font-family: 'Inter', sans-serif; text-align: center; pointer-events: auto; touch-action: none; overscroll-behavior: none; }
         #easter-egg.show { display: flex; }
         #moon-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .easter-text { position: relative; z-index: 2; }
-        .easter-text h1 { font-size: clamp(1.5rem, 5vw, 3rem); font-weight: 800; letter-spacing: 0.1em; color: #e2e8f0; margin-bottom: 0.5rem; text-shadow: 0 0 30px rgba(148,210,255,0.5); }
-        .easter-text p { font-size: clamp(0.8rem, 2vw, 1.1rem); color: #94a3b8; margin-bottom: 2rem; }
+        .easter-text { position: relative; z-index: 2; text-align: center; padding: 20px; }
+        .easter-text h1 { font-size: clamp(1.5rem, 5vw, 3rem); font-weight: 800; letter-spacing: 0.1em; color: #ffffff; margin-bottom: 0.5rem; text-shadow: 0 0 15px rgba(255,255,255,0.8), 0 0 30px rgba(148,210,255,0.6); min-height: 4rem; }
+        .easter-text p { font-size: clamp(0.8rem, 2vw, 1.1rem); color: #e2e8f0; margin-bottom: 2rem; min-height: 2rem; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         #btn-back-earth { padding: 12px 32px; background: #10b981; color: white; border: none; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; z-index: 2; position: relative; transition: background 0.2s; box-shadow: 0 4px 15px rgba(16,185,129,0.4); display: none; }
         #btn-back-earth:hover { background: #059669; transform: translateY(-2px); }
 
         /* ===== PASSWORD MODAL ===== */
         #pwd-modal { position: fixed; inset: 0; z-index: 9980; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; pointer-events: auto; padding: 16px;}
         #pwd-modal.show { display: flex; }
-        #pwd-box { background: var(--modal-bg); border-radius: 1.5rem; padding: 2rem; width: 100%; max-width: 380px; border: 1px solid var(--border); }
+        #pwd-box { background: var(--modal-bg); border-radius: 1.5rem; padding: 2rem; width: 100%; max-width: 380px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); border: 1px solid var(--border); }
 
         /* Print */
         #print-area { display: none; }
         @media print {
-            #canvas-container, #ui-layer, #toast-container, .fixed, #item-modal, #main-overlay, #main-modal, #confirm-modal, #easter-egg, #pwd-modal { display: none !important; }
+            #canvas-container, #ui-layer, #toast-container, .fixed, #item-modal, #main-overlay, #main-modal, #confirm-modal, #easter-egg, #pwd-modal, #transition-layer { display: none !important; }
             body { background: white !important; overflow: visible !important; font-size: 12px; height: auto; }
             #print-area { display: block !important; padding: 20px; color: black; }
             table { width: 100%; border-collapse: collapse; margin-top: 16px; }
             th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; font-size: 12px; }
             th { background: #f8fafc !important; -webkit-print-color-adjust: exact; }
             h2 { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 4px; }
-            p.print-date { text-align: center; color: #64748b; font-size: 12px; margin-bottom: 16px; }
         }
 
-        /* Dark mode text overrides */
+        /* Dark mode overrides */
         html.dark .text-slate-800 { color: #e2e8f0 !important; }
         html.dark .text-gray-700 { color: #cbd5e1 !important; }
         html.dark .text-gray-600 { color: #94a3b8 !important; }
@@ -220,20 +206,16 @@
         html.dark .bg-white { background: #1e293b !important; }
         html.dark .border-gray-100 { border-color: #334155 !important; }
         html.dark .border-gray-200 { border-color: #334155 !important; }
-        html.dark .text-slate-600 { color: #94a3b8 !important; }
-        html.dark .text-slate-700 { color: #cbd5e1 !important; }
         html.dark .bg-slate-50 { background: #1e293b !important; }
         html.dark .bg-slate-100 { background: #334155 !important; }
-        html.dark .bg-indigo-50 { background: #1e1b4b !important; }
-        html.dark .text-indigo-600 { color: #818cf8 !important; }
         html.dark select, html.dark input[type="text"], html.dark input[type="number"], html.dark input[type="datetime-local"], html.dark input[type="date"] {
-            background: var(--input-bg) !important;
-            border-color: var(--input-border) !important;
-            color: var(--text) !important;
+            background: var(--input-bg) !important; border-color: var(--input-border) !important; color: var(--text) !important;
         }
         html.dark #sidebar { background: rgba(15,23,42,0.98); border-right-color: #334155; }
         
         .floating-actions { bottom: max(20px, env(safe-area-inset-bottom)); right: max(20px, env(safe-area-inset-right)); }
+        .fifo-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; border: 1px solid #fde047; background: #fef9c3; color: #854d0e; font-weight: bold; margin-left: 6px; white-space: nowrap; }
+        html.dark .fifo-badge { background: #713f12; border-color: #a16207; color: #fef08a; }
     </style>
 </head>
 <body data-font="normal">
@@ -250,7 +232,8 @@
         <p class="mt-1 text-sm" style="color:var(--text-muted)" data-i18n="loading">กำลังโหลดระบบ 3D คลังสินค้า...</p>
     </div>
 
-    <!-- Easter Egg Moon -->
+    <!-- Transition & Easter Egg -->
+    <div id="transition-layer"></div>
     <div id="easter-egg">
         <canvas id="moon-canvas"></canvas>
         <div class="easter-text">
@@ -260,7 +243,7 @@
         </div>
     </div>
 
-    <!-- Password Modal (No Shadows) -->
+    <!-- Password Modal -->
     <div id="pwd-modal">
         <div id="pwd-box">
             <div class="flex items-center gap-3 mb-5">
@@ -287,7 +270,7 @@
     <div id="ui-layer">
         <div id="overlay" class="fixed inset-0 bg-black/40 hidden pointer-events-auto z-40 md:hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar()"></div>
 
-        <aside id="sidebar" class="w-64 backdrop-blur-md border-r flex flex-col pointer-events-auto z-50 h-full" style="background:var(--sidebar-bg);border-color:var(--border)">
+        <aside id="sidebar" class="w-64 backdrop-blur-md border-r shadow-xl flex flex-col pointer-events-auto z-50 h-full" style="background:var(--sidebar-bg);border-color:var(--border)">
             <div class="p-4 flex flex-col items-center justify-center border-b relative mt-[env(safe-area-inset-top)]" style="border-color:var(--border)">
                 <svg class="w-10 h-10 text-primary mb-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 22V8a2 2 0 012-2h12a2 2 0 012 2v14"></path><path d="M12 22V12"></path><path d="M4 12h16"></path><path d="M4 17h16"></path>
@@ -339,17 +322,17 @@
 
         <main class="flex-1 relative h-full">
             <div class="md:hidden absolute z-30 pointer-events-auto" style="top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left));">
-                <button onclick="toggleSidebar()" class="p-3 rounded-xl border" style="background:var(--card-bg);color:var(--text);border-color:var(--border)">
+                <button onclick="toggleSidebar()" class="p-3 rounded-xl shadow-lg border" style="background:var(--card-bg);color:var(--text);border-color:var(--border)">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
             </div>
 
             <!-- Reset Camera & Config -->
             <div class="absolute z-20 flex items-center justify-end group pointer-events-none floating-actions">
-                <button onclick="openConfigWithPassword()" title="จัดการผังคลังสินค้า" class="pointer-events-auto p-3 rounded-xl transition-all duration-300 opacity-0 translate-x-8 group-hover:opacity-100 group-hover:translate-x-0 mr-3 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
+                <button onclick="openConfigWithPassword()" title="จัดการผังคลังสินค้า" class="pointer-events-auto p-3 rounded-xl shadow-lg transition-all duration-300 opacity-0 translate-x-8 group-hover:opacity-100 group-hover:translate-x-0 mr-3 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </button>
-                <button onclick="resetCamera()" title="กลับมุมมองเริ่มต้น" class="pointer-events-auto p-4 rounded-xl transition-all relative z-10 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
+                <button onclick="resetCamera()" title="กลับมุมมองเริ่มต้น" class="pointer-events-auto p-4 rounded-xl shadow-xl transition-all relative z-10 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 001 1m-6 0h6"></path></svg>
                 </button>
             </div>
@@ -357,7 +340,7 @@
             <!-- Modal Overlay -->
             <div id="main-overlay" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] modal-hidden" onclick="openTab('home')"></div>
 
-            <div id="main-modal" class="absolute z-[60] rounded-2xl flex flex-col modal-hidden pointer-events-none overflow-hidden border" style="background:var(--modal-bg); border-color:var(--border)">
+            <div id="main-modal" class="absolute z-[60] rounded-2xl flex flex-col modal-hidden pointer-events-none overflow-hidden shadow-2xl border" style="background:var(--modal-bg); border-color:var(--border)">
                 <!-- Modal Header -->
                 <div class="flex justify-end p-2 border-b shrink-0 pointer-events-auto" style="border-color:var(--border);background:var(--modal-bg)">
                     <button onclick="openTab('home')" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-xl transition-colors">
@@ -383,17 +366,17 @@
                                 </button>
                             </div>
                         </div>
-                        <input type="text" id="searchInput" data-i18n-ph="searchPlaceholder" class="w-full md:max-w-md px-4 py-3 border rounded-xl mb-4 text-base md:text-sm shrink-0 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="handleSearch()">
-                        <div id="search-results" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start items-list-view"></div>
+                        <input type="text" id="searchInput" data-i18n-ph="searchPlaceholder" class="w-full md:max-w-md px-4 py-3 border rounded-xl mb-4 text-base md:text-sm shrink-0 shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="handleSearch()">
+                        <div id="search-results" class="flex-1 overflow-y-auto pr-2 pb-24 flex flex-col gap-3 content-start items-list-view"></div>
                     </div>
 
                     <!-- Tab: In -->
-                    <div id="tab-in" class="tab-content hidden relative max-w-3xl mx-auto w-full overflow-y-auto pr-2">
+                    <div id="tab-in" class="tab-content hidden flex-col relative max-w-3xl mx-auto w-full h-full">
                         <h2 class="text-xl font-bold text-primary mb-5 flex items-center gap-2 shrink-0">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
                             <span data-i18n="inTitle">รับสินค้าเข้า</span>
                         </h2>
-                        <form id="form-in" onsubmit="handleStockIn(event)" class="space-y-5 pb-24">
+                        <form id="form-in" onsubmit="handleStockIn(event)" class="flex-1 overflow-y-auto pr-2 space-y-6 pb-24">
                             <div class="relative">
                                 <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="inItemName">ชื่อสินค้า</label>
                                 <input type="text" id="in-name" required class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" autocomplete="off" oninput="showAutocomplete('in-name','in-autocomplete')">
@@ -401,7 +384,7 @@
                             </div>
                             <div class="p-5 rounded-2xl border" style="background:var(--hover-bg);border-color:var(--border)">
                                 <label class="block font-bold text-sm mb-4" style="color:var(--text)" data-i18n="inSize">ขนาดแพ็กเกจรวมต่อการนำเข้า (cm)</label>
-                                <div class="grid grid-cols-3 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="in-w" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                                     <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="in-d" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                                     <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="height">สูง</label><input type="number" id="in-h" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
@@ -419,7 +402,9 @@
                                     </select>
                                 </div>
                             </div>
-                            <button type="submit" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3.5 rounded-xl transition-colors text-base" data-i18n="inBtn">บันทึกรับเข้า</button>
+                            <div class="pt-2">
+                                <button type="submit" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3.5 rounded-xl transition-colors text-base shadow-lg" data-i18n="inBtn">บันทึกรับเข้า</button>
+                            </div>
                         </form>
                     </div>
 
@@ -442,14 +427,15 @@
                         <form id="form-out" onsubmit="handleStockOut(event)" class="flex flex-col h-full overflow-hidden relative">
                             <div class="relative shrink-0 mb-4 md:max-w-md w-full">
                                 <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="outSearch">ค้นหาสินค้าที่จะเบิก</label>
-                                <input type="text" id="out-search" data-i18n-ph="searchPlaceholder" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="filterOutItems()">
+                                <input type="text" id="out-search" data-i18n-ph="searchPlaceholder" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="filterOutItems()">
                             </div>
-                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start items-list-view"></div>
+                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-2 pb-24 flex flex-col gap-3 content-start items-list-view"></div>
                             
-                            <div id="out-action-area" class="hidden absolute bottom-0 left-0 right-0 p-4 border-t shrink-0 z-20 rounded-t-2xl" style="border-color:var(--border);background:var(--modal-bg)">
+                            <div id="out-action-area" class="hidden absolute bottom-0 left-0 right-0 p-4 border-t shadow-[0_-10px_20px_rgba(0,0,0,0.05)] shrink-0 z-20 rounded-t-2xl pb-[max(16px,env(safe-area-inset-bottom))]" style="border-color:var(--border);background:var(--modal-bg)">
                                 <div class="flex justify-between items-center mb-3">
                                     <div class="text-sm truncate" style="color:var(--text-muted)"><span data-i18n="outFrom">เบิกจาก:</span> <span id="out-selected-label" class="font-bold text-base bg-orange-100 text-orange-700 px-2.5 py-1 rounded-lg ml-1"></span></div>
-                                    <button type="button" onclick="cancelOut()" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg shrink-0">
+                                    <button type="button" onclick="cancelOut()" class="p-2 text-gray-400 hover:text-red-500 rounded-lg shrink-0 transition-colors bg-gray-50 dark:bg-gray-800">
+                                        <span class="sr-only">Cancel</span>
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
                                 </div>
@@ -466,7 +452,7 @@
                                         <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outQty">จำนวน</label>
                                         <div class="flex gap-2">
                                             <input type="number" id="out-qty" min="1" required data-i18n-ph="outQtyPh" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm flex-1 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
-                                            <button type="submit" class="px-5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-base md:text-sm whitespace-nowrap" data-i18n="outBtn">ยืนยัน</button>
+                                            <button type="submit" class="px-5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-base md:text-sm whitespace-nowrap shadow-md" data-i18n="outBtn">ยืนยัน</button>
                                         </div>
                                     </div>
                                 </div>
@@ -480,7 +466,7 @@
                             <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span data-i18n="logTitle">ประวัติการทำงานล่าสุด</span>
                         </h2>
-                        <div id="logs-container" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start">
+                        <div id="logs-container" class="flex-1 overflow-y-auto pr-2 pb-24 flex flex-col gap-3 content-start">
                             <div class="text-center py-8" style="color:var(--text-muted)" data-i18n="loading">กำลังโหลด...</div>
                         </div>
                         <div id="log-pagination" class="hidden flex justify-between items-center mt-4 pt-4 border-t shrink-0 mb-2" style="border-color:var(--border)">
@@ -523,19 +509,19 @@
                                 </div>
                             </div>
                             <div class="mt-5 flex flex-wrap gap-3">
-                                <button onclick="generateReport()" class="flex-1 md:flex-none px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm" data-i18n="repBtnGen">ดึงข้อมูลรายงาน</button>
-                                <button onclick="exportCSV()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-bold text-sm">
+                                <button onclick="generateReport()" class="flex-1 md:flex-none px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm shadow-md" data-i18n="repBtnGen">ดึงข้อมูลรายงาน</button>
+                                <button onclick="exportCSV()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
                                     <span data-i18n="repExcel">Excel (CSV)</span>
                                 </button>
-                                <button onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-sm">
+                                <button onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     <span data-i18n="repPdf">พิมพ์ / PDF</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="flex-1 overflow-auto border rounded-2xl relative min-h-[200px]" style="border-color:var(--border)">
-                            <div class="block w-full overflow-x-auto">
+                        <div class="flex-1 overflow-auto border rounded-2xl relative min-h-[200px] mb-8" style="border-color:var(--border)">
+                            <div class="block w-full overflow-x-auto h-full">
                                 <table class="w-full text-sm text-left whitespace-nowrap">
                                     <thead id="rep-thead" class="sticky top-0 border-b z-10 text-xs uppercase" style="background:var(--hover-bg);border-color:var(--border);color:var(--text-muted)"></thead>
                                     <tbody id="rep-tbody"><tr><td class="text-center py-10 text-sm" colspan="100%" style="color:var(--text-muted)" data-i18n="repWait">คลิก "ดึงข้อมูลรายงาน" เพื่อแสดงผล</td></tr></tbody>
@@ -551,25 +537,59 @@
                             <span data-i18n="helpTitle">คู่มือการใช้งานระบบ</span>
                         </h2>
                         <div class="border rounded-2xl p-5 md:p-8 space-y-8 max-w-3xl mx-auto w-full" style="background:var(--hover-bg);border-color:var(--border)">
+                            
                             <section>
-                                <h3 class="text-lg font-bold mb-4 border-b pb-2" style="color:var(--text);border-color:var(--border)" data-i18n="help3DHeader">1. การควบคุมมุมมอง 3D</h3>
-                                <ul class="space-y-4 text-base md:text-sm" style="color:var(--text)">
-                                    <li class="flex items-start gap-3"><span class="text-blue-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpRotate">หมุนมุมกล้อง:</strong> <span data-i18n="helpRotateDesc">คลิกซ้ายค้างแล้วลาก</span></div></li>
-                                    <li class="flex items-start gap-3"><span class="text-green-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpPan">เลื่อนกล้อง:</strong> <span data-i18n="helpPanDesc">คลิกขวาค้างแล้วลาก</span></div></li>
-                                    <li class="flex items-start gap-3"><span class="text-purple-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpZoom">ซูมเข้า/ออก:</strong> <span data-i18n="helpZoomDesc">เลื่อน Scroll Wheel</span></div></li>
-                                    <li class="flex items-start gap-3"><span class="text-orange-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpTouch">มือถือ:</strong> <span data-i18n="helpTouchDesc">1 นิ้วหมุน, 2 นิ้วเลื่อน/ซูม</span></div></li>
-                                </ul>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-primary" style="border-color:var(--border)" data-i18n="manH1">การนำทางและมุมมอง 3D (Overview)</h3>
+                                <div class="space-y-3 text-base md:text-sm" style="color:var(--text)">
+                                    <p data-i18n="manP1">หน้าภาพรวมคลังสินค้าเป็นจุดเริ่มต้น เพื่อดูสภาพจริงของคลังสินค้าในรูปแบบ 3D แบบเรียลไทม์</p>
+                                    <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600 dark:text-gray-400">
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP1L1">PC/Mouse:</strong> คลิกซ้ายเพื่อหมุนกล้อง, คลิกขวาเพื่อเลื่อน(Pan), ลูกกลิ้งเมาส์เพื่อซูมเข้า-ออก</li>
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP1L2">Mobile/Touch:</strong> ใช้ 1 นิ้วลากเพื่อหมุนกล้อง, ใช้ 2 นิ้วถ่างเพื่อซูม หรือเลื่อนเพื่อ Pan</li>
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP1L3">Click วัตถุ:</strong> คลิกที่กล่องสินค้าบนชั้นวาง เพื่อดูรายละเอียดชื่อ จำนวน และช่องเก็บ พร้อมปุ่มลัดเพื่อ "เบิกออก" ทันที</li>
+                                    </ul>
+                                </div>
                             </section>
+
                             <section>
-                                <h3 class="text-lg font-bold mb-4 border-b pb-2" style="color:var(--text);border-color:var(--border)" data-i18n="helpSysHeader">2. การจัดการคลังสินค้า</h3>
-                                <ul class="space-y-3.5 text-base md:text-sm" style="color:var(--text)">
-                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys1">เช็คสต็อก:</strong> <span data-i18n="helpSys1Desc">ดูสินค้าทั้งหมด กด 👁 เพื่อดูใน 3D</span></div></li>
-                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys2">รับเข้า / เบิกออก:</strong> <span data-i18n="helpSys2Desc">บันทึกการเคลื่อนไหวสินค้า</span></div></li>
-                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys3">รายงาน:</strong> <span data-i18n="helpSys3Desc">ส่งออก CSV / PDF</span></div></li>
-                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys4">ผังคลัง:</strong> <span data-i18n="helpSys4Desc">ต้องใส่รหัสผ่านผู้ดูแล (⚙️ ขวาล่าง)</span></div></li>
-                                    <li class="flex items-start gap-2.5"><span class="text-red-500 mt-1 shrink-0">●</span><div><strong>Low Stock Alert:</strong> สินค้าต่ำกว่า 10 ชิ้น จะแสดงป้ายเตือนสีแดงอัตโนมัติ</div></li>
-                                </ul>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-primary" style="border-color:var(--border)" data-i18n="manH2">การจัดการสต็อกสินค้า (In / Out)</h3>
+                                <div class="space-y-4 text-base md:text-sm" style="color:var(--text)">
+                                    <div>
+                                        <h4 class="font-bold flex items-center gap-2 mb-1"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">IN</span> รับเข้า (Stock In)</h4>
+                                        <p class="text-gray-600 dark:text-gray-400" data-i18n="manP2A">ใช้สำหรับนำสินค้าเข้าคลัง ระบุชื่อ ขนาด จำนวน และ "เลือกช่องเก็บ (Slot)" ระบบจะวาดกล่องใน 3D ให้ทันที หากพิมพ์ชื่อสินค้าเดิม ระบบจะเดาขนาดให้อัตโนมัติ (Autocomplete)</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold flex items-center gap-2 mb-1"><span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">OUT</span> เบิกออก (Stock Out)</h4>
+                                        <p class="text-gray-600 dark:text-gray-400" data-i18n="manP2B">ค้นหาสินค้าที่ต้องการเบิก <b>(ระบบจะเรียงสินค้าล็อตที่เข้าคลังก่อนขึ้นมาบนสุดเสมอแบบ FIFO พร้อมติดป้าย ⭐)</b> เลือกล็อตที่ต้องการ ระบุชื่อผู้เบิก จำนวน และกดยืนยัน จำนวนจะถูกหักออกจากระบบและ 3D ทันที</p>
+                                    </div>
+                                </div>
                             </section>
+
+                            <section>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-primary" style="border-color:var(--border)" data-i18n="manH3">การค้นหาและรายงาน (Search & Reports)</h3>
+                                <div class="space-y-3 text-base md:text-sm" style="color:var(--text)">
+                                    <ul class="list-disc pl-5 space-y-3 text-gray-600 dark:text-gray-400">
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP3L1">เมนูค้นหา:</strong> พิมพ์ชื่อสินค้าเพื่อเช็คสต็อกทันที สามารถกดไอคอน 👁️ เพื่อกระโดดไปดูตำแหน่งกล่องนั้นในโกดัง 3D ได้ทันที (กล่องจะกระพริบสีเหลือง)</li>
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP3L2">ประวัติการทำงาน:</strong> ดู Log ย้อนหลังว่าใคร รับเข้า/เบิกออก อะไรไปบ้าง เวลาไหน</li>
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP3L3">ส่งออกรายงาน:</strong> สร้าง Report ได้ 4 แบบ เลือกช่วงวันที่ แล้วกดปุ่มเขียวเพื่อโหลดไฟล์ Excel (CSV) ไปทำข้อมูลต่อ หรือกดปุ่มดำเพื่อปริ้น/เซฟเป็น PDF</li>
+                                    </ul>
+                                    <div class="bg-red-50 text-red-700 p-3 rounded-xl border border-red-200 mt-2 text-xs">
+                                        <b data-i18n="manAlert">⚠ สินค้าใกล้หมด (Low Stock Alert):</b> สินค้าที่มีจำนวนต่ำกว่า 10 ชิ้น จะมีป้ายสีแดงกระพริบเตือนในหน้าค้นหาและหน้าเบิกออกอัตโนมัติ
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-primary" style="border-color:var(--border)" data-i18n="manH4">การตั้งค่าผังคลังสินค้า (Admin Config)</h3>
+                                <div class="space-y-3 text-base md:text-sm text-gray-600 dark:text-gray-400">
+                                    <p data-i18n="manP4A">กดที่ปุ่ม ⚙️ (เฟือง) มุมขวาล่างในหน้า 3D (ต้องใส่รหัสผ่าน) เพื่อเข้าสู่โหมดสร้างชั้นวางสินค้า</p>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li data-i18n="manP4L1"><b>สร้างแบบกลุ่ม:</b> กำหนดอักษรนำ (เช่น A), จำนวนช่อง (เช่น 10), แกน (แนวนอน X, แนวตั้ง Y) ระบบจะสร้างชั้นวาง A1 ถึง A10 เรียงต่อกันให้อัตโนมัติ</li>
+                                        <li data-i18n="manP4L2"><b>ขนาด:</b> ใส่ขนาดกว้าง ลึก สูง(ต่อชั้น) ของชั้นวางเหล็ก เพื่อให้สัดส่วน 3D สมจริง</li>
+                                        <li data-i18n="manP4L3"><b>Preview:</b> ระบบจะแสดงเส้นประสีน้ำเงินให้ดูก่อนกดยืนยันบันทึกผัง</li>
+                                    </ul>
+                                </div>
+                            </section>
+
                             <div class="border-t pt-5 text-center" style="border-color:var(--border)">
                                 <div class="text-xs mb-3" style="color:var(--text-muted)" data-i18n="helpDev">ผู้พัฒนา AArm -- version 2.0.0 -- 16/05/2026</div>
                                 <a href="mailto:velken_arm_@hotmail.com" class="inline-flex items-center gap-2 text-primary hover:text-primaryHover font-bold transition-colors text-sm bg-green-50 px-4 py-2 rounded-xl">
@@ -600,17 +620,17 @@
                             <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
                                 <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)">🎨 Theme</label>
                                 <div class="flex gap-4">
-                                    <button onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-primary bg-white text-slate-800">☀️ Light</button>
-                                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-transparent bg-slate-800 text-white">🌙 Dark</button>
+                                    <button onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-primary bg-white text-slate-800 shadow-sm">☀️ Light</button>
+                                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-transparent bg-slate-800 text-white shadow-sm">🌙 Dark</button>
                                 </div>
                             </div>
                             <!-- Font Size -->
                             <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
                                 <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)">🔡 ขนาดตัวหนังสือ</label>
                                 <div class="flex gap-4">
-                                    <button onclick="setFontSize('small')" id="btn-font-small" class="flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">เล็ก</button>
-                                    <button onclick="setFontSize('normal')" id="btn-font-normal" class="flex-1 py-3 rounded-xl text-base font-bold border-2 transition-all border-primary" style="background:var(--input-bg);color:var(--text)">ปกติ</button>
-                                    <button onclick="setFontSize('large')" id="btn-font-large" class="flex-1 py-3 rounded-xl text-lg font-bold border-2 transition-all" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">ใหญ่</button>
+                                    <button onclick="setFontSize('small')" id="btn-font-small" class="flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all shadow-sm" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">เล็ก</button>
+                                    <button onclick="setFontSize('normal')" id="btn-font-normal" class="flex-1 py-3 rounded-xl text-base font-bold border-2 transition-all border-primary shadow-sm" style="background:var(--input-bg);color:var(--text)">ปกติ</button>
+                                    <button onclick="setFontSize('large')" id="btn-font-large" class="flex-1 py-3 rounded-xl text-lg font-bold border-2 transition-all shadow-sm" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">ใหญ่</button>
                                 </div>
                                 <p class="text-sm md:text-xs mt-4 text-center" style="color:var(--text-muted)">ระบบจดจำการตั้งค่าสำหรับครั้งต่อไปอัตโนมัติ</p>
                             </div>
@@ -648,7 +668,7 @@
                                 </div>
                                 <div class="mt-3"><label class="text-xs block mb-1.5" style="color:var(--text-muted)" data-i18n="cfgLevels">จำนวนชั้น</label><input type="number" id="loc-levels" min="1" max="10" value="3" required class="w-full px-3 py-2 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                             </div>
-                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl text-base" data-i18n="cfgBtn">บันทึกผังคลังสินค้า</button>
+                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl text-base shadow-md" data-i18n="cfgBtn">บันทึกผังคลังสินค้า</button>
                         </form>
                         <div class="mt-6 border-t pt-5 shrink-0" style="border-color:var(--border)">
                             <h3 class="text-base font-bold mb-4" style="color:var(--text)" data-i18n="cfgList">รายการชั้นวางปัจจุบัน</h3>
@@ -665,19 +685,19 @@
 
     <!-- Confirm Modal -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-[100] pointer-events-auto p-4">
-        <div class="p-6 md:p-8 rounded-2xl w-full max-w-sm border" style="background:var(--modal-bg);border-color:var(--border)">
+        <div class="p-6 md:p-8 rounded-3xl w-full max-w-sm shadow-2xl" style="background:var(--modal-bg);border:1px solid var(--border)">
             <h3 class="text-lg font-bold mb-3" style="color:var(--text)" id="confirm-title">ยืนยัน</h3>
             <p class="text-base md:text-sm mb-8 leading-relaxed" style="color:var(--text-muted)" id="confirm-msg">...</p>
             <div class="flex gap-4">
                 <button id="confirm-cancel" class="flex-1 py-3 rounded-xl font-bold text-sm" style="background:var(--hover-bg);color:var(--text)">ยกเลิก</button>
-                <button id="confirm-ok" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-sm">ยืนยัน</button>
+                <button id="confirm-ok" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-sm shadow-md">ยืนยัน</button>
             </div>
         </div>
     </div>
 
     <!-- Item Details Modal -->
     <div id="item-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm items-center justify-center pointer-events-auto z-[80] p-4">
-        <div class="rounded-2xl p-6 w-full max-w-md relative border" style="background:var(--modal-bg);border-color:var(--border)">
+        <div class="rounded-3xl p-6 w-full max-w-md shadow-2xl relative border" style="background:var(--modal-bg);border-color:var(--border)">
             <button onclick="closeItemModal()" class="absolute top-4 right-4 p-2 rounded-xl transition-colors bg-gray-100 hover:bg-gray-200 text-gray-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
@@ -708,8 +728,8 @@
 
     <div id="toast-container"></div>
 
-    <!-- Credit Watermark -->
-    <div id="credit-watermark" class="fixed z-[990] pointer-events-none px-3 py-1.5 rounded-full border flex items-center gap-1.5 opacity-40 bg-white dark:bg-slate-800" style="border-color:var(--border)">
+    <!-- Credit Watermark (fixed bottom-left) -->
+    <div id="credit-watermark" class="fixed bottom-4 left-4 z-[990] pointer-events-none px-3 py-1.5 rounded-full shadow-sm border flex items-center gap-1.5 opacity-40 bg-white dark:bg-slate-800 transition-opacity duration-300" style="border-color:var(--border)">
         <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
         <span class="text-[10px] font-bold tracking-wider" style="color:var(--text)">Developed By AArm 2026</span>
     </div>
@@ -725,9 +745,11 @@
             logTitle:"ประวัติการทำงาน",logEmpty:"ยังไม่มีประวัติ",logBy:"บันทึกโดย",
             repTitle:"รายงาน",repType:"ประเภทรายงาน",repOptSum:"1. สรุปยอดรวมสินค้า",repOpt1:"2. แจกแจงตามช่อง",repOpt2:"3. รายงานรับสินค้าเข้า",repOpt3:"4. รายงานเบิกสินค้าออก",repStart:"ตั้งแต่วันที่",repEnd:"ถึงวันที่",repFilterLoc:"กรองช่อง",repBtnGen:"ดึงข้อมูล",repExcel:"Excel (CSV)",repPdf:"พิมพ์ / PDF",repWait:'คลิก "ดึงข้อมูล" เพื่อแสดงผล',repEmpty:"ไม่พบข้อมูล",
             helpTitle:"คู่มือการใช้งานระบบ",helpDev:"ผู้พัฒนา AArm -- v2.0 -- 16/05/2026",
-            help3DHeader:"1. การควบคุม 3D",helpRotate:"หมุนกล้อง:",helpRotateDesc:"คลิกซ้ายค้างแล้วลาก",helpPan:"เลื่อนกล้อง:",helpPanDesc:"คลิกขวาค้างแล้วลาก",helpZoom:"ซูม:",helpZoomDesc:"เลื่อน Scroll",helpTouch:"มือถือ:",helpTouchDesc:"1 นิ้วหมุน, 2 นิ้วซูม",
-            helpSysHeader:"2. การจัดการคลัง",helpSys1:"เช็คสต็อก:",helpSys1Desc:"ดูสินค้า กด 👁 ดู 3D",helpSys2:"รับเข้า/เบิกออก:",helpSys2Desc:"บันทึกการเคลื่อนไหว",helpSys3:"รายงาน:",helpSys3Desc:"ส่งออก CSV/PDF",helpSys4:"ผังคลัง:",helpSys4Desc:"ต้องใส่รหัสผ่าน",
-            cfgTitle:"ตั้งค่าชั้นวาง (ซม.)",cfgPrefix:"Prefix แถว",cfgBatch:"สร้างแบบกลุ่ม",cfgSlots:"จำนวนช่อง",cfgOrder:"ทิศทาง",cfgDir:"แกน 3D",cfgDirX:"แกน X (ซ้าย-ขวา)",cfgDirZ:"แกน Y (ลึก)",cfgRot:"การหันหน้า",cfgRot0:"0 องศา",cfgRot90:"90 องศา",cfgX:"X",cfgZ:"Y",cfgSize:"ขนาดต่อช่อง (ซม.)",heightPerLvl:"สูง/ชั้น",cfgLevels:"จำนวนชั้น",cfgBtn:"บันทึก",cfgList:"ชั้นวางปัจจุบัน",lblRow:"แถว",delRow:"ลบแถว",confDelRowTitle:"ยืนยันการลบ",confDelRowMsg:"ลบแถว {0} ทั้งหมดใช่ไหม?",btnCancel:"ยกเลิก",btnOk:"ยืนยัน",delBtn:"ลบ",
+            manH1:"การนำทางและมุมมอง 3D",manP1:"ดูสภาพจริงของคลังสินค้าใน 3D เรียลไทม์",manP1L1:"PC/Mouse",manP1L2:"Mobile/Touch",manP1L3:"คลิกที่กล่อง",
+            manH2:"การจัดการสต็อก",manP2A:"นำสินค้าเข้าคลัง ระบุชื่อ ขนาด ระบบจะจัดวาง 3D ทันที",manP2B:"ค้นหาสินค้า (จัดเรียงของเก่าขึ้นก่อน แบบ FIFO) เพื่อหักออกจากคลัง",
+            manH3:"ค้นหาและรายงาน",manP3L1:"ค้นหา",manP3L2:"ประวัติ (Logs)",manP3L3:"ส่งออก Report",manAlert:"เตือนสินค้าเหลือน้อยกว่า 10 ชิ้น",
+            manH4:"ตั้งค่าผังคลังสินค้า",manP4A:"โหมด Admin รหัสผ่าน สำหรับสร้างชั้นวาง",manP4L1:"สร้างแบบกลุ่ม",manP4L2:"ขนาด/มิติ",manP4L3:"ดูตัวอย่าง 3D สีฟ้า",
+            cfgTitle:"ตั้งค่าชั้นวาง (ซม.)",cfgPrefix:"Prefix แถว",cfgBatch:"สร้างแบบกลุ่ม",cfgSlots:"จำนวนช่อง",cfgOrder:"ทิศทาง",cfgDir:"แกน 3D",cfgDirX:"แกน X (ซ้าย-ขวา)",cfgDirZ:"แกน Y (ลึก)",cfgRot:"การหันหน้า",cfgRot0:"0 องศา",cfgRot90:"90 องศา",cfgX:"X",cfgZ:"Y",cfgSize:"ขนาดต่อช่อง (ซม.)",heightPerLvl:"สูง/ชั้น",cfgLevels:"จำนวนชั้น",cfgBtn:"บันทึกผังคลังสินค้า",cfgList:"รายการชั้นวางปัจจุบัน",lblRow:"แถว",delRow:"ลบแถว",confDelRowTitle:"ยืนยันการลบ",confDelRowMsg:"ลบแถว {0} ทั้งหมดใช่ไหม?",btnCancel:"ยกเลิก",btnOk:"ยืนยัน",delBtn:"ลบ",
             setMenu:"การตั้งค่า",setLang:"เลือกภาษา",
             mdlLoc:"ตำแหน่ง:",mdlQty:"จำนวนคงเหลือ:",mdlSize:"ขนาด (กxลxส):",mdlUpdate:"อัปเดตล่าสุด:",mdlBtnOut:"นำไปเบิกออก",btnViewMap:"ดูตำแหน่งบน 3D",
             toastSuccess:"สำเร็จ",toastError:"เกิดข้อผิดพลาด",toastNoStock:"จำนวนไม่พอ",toastDateReq:"กรุณาเลือกวันที่",toastNoExport:"ไม่มีข้อมูลส่งออก",
@@ -735,7 +757,7 @@
             lblSlot:"ช่อง",lblLevel:"ชั้น",lblPage:"หน้า",btnPrev:"ก่อนหน้า",btnNext:"ถัดไป",
             lowStockAlert:"⚠ ใกล้หมด", fifoBadge:"แนะนำ (FIFO)",
             pwdTitle:"ยืนยันตัวตนผู้ดูแล",pwdDesc:"กรอกรหัสผ่านเพื่อเข้าจัดการผังคลังสินค้า",pwdPh:"รหัสผ่าน",pwdErr:"รหัสผ่านไม่ถูกต้อง",pwdForgot:"หากลืมรหัสผ่าน กรุณาติดต่อ ",pwdDev:"นักพัฒนา",
-            eeTitle:"🌙 ยินดีต้อนรับสู่ดวงจันทร์",eeDesc:"คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... เรามีคลังสินค้าบนดวงจันทร์ด้วยนะ!",eeBack:"🚀 กลับโลก"
+            eeTitle:"🌙 ยินดีต้อนรับสู่ดวงจันทร์",eeDesc:"คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... เรามีคลังสินค้าบนอวกาศด้วยนะ!",eeBack:"🚀 กลับโลก"
         },
         en: {
             loading:"Loading 3D Warehouse...",menuOverview:"Overview",menuSearch:"Check Stock / Search",menuIn:"Stock In",menuOut:"Stock Out",menuLogs:"Logs",menuReports:"Reports",menuHelp:"User Manual",menuSettings:"Settings",
@@ -745,15 +767,17 @@
             logTitle:"Operation Logs",logEmpty:"No logs yet",logBy:"Logged by",
             repTitle:"Reports",repType:"Report Type",repOptSum:"1. Summary by Item",repOpt1:"2. Detailed by Slot",repOpt2:"3. Stock In Report",repOpt3:"4. Stock Out Report",repStart:"From",repEnd:"To",repFilterLoc:"Filter by Slot",repBtnGen:"Generate",repExcel:"Excel (CSV)",repPdf:"Print / PDF",repWait:"Click Generate to view",repEmpty:"No data found",
             helpTitle:"System Guide",helpDev:"Developer: AArm -- v2.0 -- 16/05/2026",
-            help3DHeader:"1. 3D Controls",helpRotate:"Rotate:",helpRotateDesc:"Left click & drag",helpPan:"Pan:",helpPanDesc:"Right click & drag",helpZoom:"Zoom:",helpZoomDesc:"Scroll wheel",helpTouch:"Mobile:",helpTouchDesc:"1 finger rotate, 2 fingers zoom",
-            helpSysHeader:"2. Warehouse Mgmt",helpSys1:"Stock Check:",helpSys1Desc:"View all items, 👁 to locate in 3D",helpSys2:"In/Out:",helpSys2Desc:"Record inventory movement",helpSys3:"Reports:",helpSys3Desc:"Export CSV/PDF",helpSys4:"Layout:",helpSys4Desc:"Requires admin password",
+            manH1:"3D Navigation",manP1:"Real-time 3D warehouse view.",manP1L1:"PC/Mouse",manP1L2:"Mobile/Touch",manP1L3:"Click objects",
+            manH2:"Inventory Mgmt",manP2A:"Stock in goods, system renders 3D immediately.",manP2B:"Stock out goods (FIFO sorted).",
+            manH3:"Search & Reports",manP3L1:"Search",manP3L2:"Logs",manP3L3:"Export CSV/PDF",manAlert:"Low stock alert (<10 pcs)",
+            manH4:"Warehouse Config",manP4A:"Admin mode for racks",manP4L1:"Batch create",manP4L2:"Dimensions",manP4L3:"Blue 3D Preview",
             cfgTitle:"Rack Config (cm)",cfgPrefix:"Row Prefix",cfgBatch:"Batch Create",cfgSlots:"Slots",cfgOrder:"Order",cfgDir:"3D Axis",cfgDirX:"X Axis (L-R)",cfgDirZ:"Y Axis (Depth)",cfgRot:"Orientation",cfgRot0:"0 deg",cfgRot90:"90 deg",cfgX:"X",cfgZ:"Y",cfgSize:"Size per Slot (cm)",heightPerLvl:"H/Lvl",cfgLevels:"Levels",cfgBtn:"Save Layout",cfgList:"Current Racks",lblRow:"Row",delRow:"Delete Row",confDelRowTitle:"Confirm Delete",confDelRowMsg:"Delete entire row {0}?",btnCancel:"Cancel",btnOk:"Confirm",delBtn:"Del",
             setMenu:"Settings",setLang:"Language",
             mdlLoc:"Location:",mdlQty:"Remaining:",mdlSize:"Size (WxDxH):",mdlUpdate:"Updated:",mdlBtnOut:"Take Out",btnViewMap:"View in 3D",
             toastSuccess:"Success",toastError:"Error occurred",toastNoStock:"Insufficient qty",toastDateReq:"Select dates",toastNoExport:"No data to export",
             colDate:"Date",colName:"Item",colQty:"Qty",colSlot:"Slot",colSize:"Size",colLogDate:"DateTime",colDetails:"Details",colUser:"User",
             lblSlot:"Slot",lblLevel:"Lvl",lblPage:"Page",btnPrev:"Prev",btnNext:"Next",
-            lowStockAlert:"⚠ Low", fifoBadge:"Suggest (FIFO)",
+            lowStockAlert:"⚠ Low", fifoBadge:"Oldest (FIFO)",
             pwdTitle:"Admin Login",pwdDesc:"Enter password to config warehouse",pwdPh:"Password",pwdErr:"Invalid password",pwdForgot:"Forgot password? Contact ",pwdDev:"Developer",
             eeTitle:"🌙 Welcome to the Moon",eeDesc:"You zoomed out incredibly far... We have space warehouses too!",eeBack:"🚀 Back to Earth"
         },
@@ -765,15 +789,17 @@
             logTitle:"操作履歴",logEmpty:"履歴なし",logBy:"記録者",
             repTitle:"レポート",repType:"種類",repOptSum:"1. 商品別合計",repOpt1:"2. 場所別詳細",repOpt2:"3. 入庫レポート",repOpt3:"4. 出庫レポート",repStart:"開始日",repEnd:"終了日",repFilterLoc:"場所絞込",repBtnGen:"作成",repExcel:"Excel (CSV)",repPdf:"印刷 / PDF",repWait:"「作成」をクリック",repEmpty:"データなし",
             helpTitle:"操作ガイド",helpDev:"開発者: AArm -- v2.0 -- 16/05/2026",
-            help3DHeader:"1. 3D操作",helpRotate:"回転:",helpRotateDesc:"左クリック+ドラッグ",helpPan:"移動:",helpPanDesc:"右クリック+ドラッグ",helpZoom:"ズーム:",helpZoomDesc:"ホイール",helpTouch:"モバイル:",helpTouchDesc:"1本指回転、2本指ズーム",
-            helpSysHeader:"2. 倉庫管理",helpSys1:"在庫確認:",helpSys1Desc:"👁で3D位置確認",helpSys2:"入出庫:",helpSys2Desc:"在庫移動記録",helpSys3:"レポート:",helpSys3Desc:"CSV/PDF出力",helpSys4:"レイアウト:",helpSys4Desc:"管理者パスワード必要",
+            manH1:"3D操作",manP1:"リアルタイム3D倉庫ビュー",manP1L1:"PC/マウス",manP1L2:"モバイル/タッチ",manP1L3:"オブジェクトをクリック",
+            manH2:"在庫管理",manP2A:"入庫 (3D即時反映)",manP2B:"出庫 (先入先出ソート)",
+            manH3:"検索とレポート",manP3L1:"検索",manP3L2:"履歴",manP3L3:"CSV/PDF出力",manAlert:"在庫少アラート (10個未満)",
+            manH4:"倉庫設定",manP4A:"ラック作成(管理者)",manP4L1:"一括作成",manP4L2:"寸法",manP4L3:"青い3Dプレビュー",
             cfgTitle:"ラック設定 (cm)",cfgPrefix:"行プレフィックス",cfgBatch:"一括作成",cfgSlots:"枠数",cfgOrder:"順番",cfgDir:"3D軸",cfgDirX:"X軸 (左右)",cfgDirZ:"Y軸 (奥行)",cfgRot:"向き",cfgRot0:"0度",cfgRot90:"90度",cfgX:"X",cfgZ:"Y",cfgSize:"1枠サイズ (cm)",heightPerLvl:"高さ/段",cfgLevels:"段数",cfgBtn:"保存",cfgList:"現在のラック",lblRow:"行",delRow:"行削除",confDelRowTitle:"削除確認",confDelRowMsg:"行 {0} をすべて削除?",btnCancel:"キャンセル",btnOk:"確認",delBtn:"削除",
             setMenu:"設定",setLang:"言語",
             mdlLoc:"場所:",mdlQty:"残量:",mdlSize:"サイズ:",mdlUpdate:"更新:",mdlBtnOut:"出庫する",btnViewMap:"3Dで見る",
             toastSuccess:"成功",toastError:"エラー",toastNoStock:"数量不足",toastDateReq:"日付選択",toastNoExport:"データなし",
             colDate:"日付",colName:"商品名",colQty:"数量",colSlot:"場所",colSize:"サイズ",colLogDate:"日時",colDetails:"詳細",colUser:"ユーザー",
             lblSlot:"枠",lblLevel:"段",lblPage:"ページ",btnPrev:"前へ",btnNext:"次へ",
-            lowStockAlert:"⚠ 残少", fifoBadge:"推奨 (FIFO)",
+            lowStockAlert:"⚠ 残少", fifoBadge:"最古(FIFO)",
             pwdTitle:"管理者ログイン",pwdDesc:"パスワードを入力",pwdPh:"パスワード",pwdErr:"無効なパスワード",pwdForgot:"忘れた場合は連絡 ",pwdDev:"開発者",
             eeTitle:"🌙 月へようこそ",eeDesc:"ここまでズームするとは... 宇宙倉庫もありますよ！",eeBack:"🚀 地球に戻る"
         }
@@ -823,7 +849,11 @@
 
     window.setFontSize = function(size){
         localStorage.setItem('stocky_font', size);
-        document.body.setAttribute('data-font', size);
+        const htmlDoc = document.documentElement;
+        if(size==='small') htmlDoc.style.fontSize = '12px';
+        else if(size==='large') htmlDoc.style.fontSize = '16px';
+        else htmlDoc.style.fontSize = '14px';
+        
         ['small','normal','large'].forEach(s=>{
             const btn=document.getElementById(`btn-font-${s}`);
             if(btn) btn.style.borderColor = s===size ? '#10b981' : 'var(--border)';
@@ -865,11 +895,11 @@
         if(mode==='list'){
             listBtn.classList.add('bg-indigo-100','text-indigo-600'); listBtn.classList.remove('text-gray-500');
             gridBtn.classList.remove('bg-indigo-100','text-indigo-600'); gridBtn.classList.add('text-gray-500');
-            container.className = 'flex-1 overflow-y-auto pr-2 pb-10 flex flex-col items-list-view';
+            container.className = 'flex-1 overflow-y-auto pr-2 pb-24 flex flex-col items-list-view list-mode';
         } else {
             gridBtn.classList.add('bg-indigo-100','text-indigo-600'); gridBtn.classList.remove('text-gray-500');
             listBtn.classList.remove('bg-indigo-100','text-indigo-600'); listBtn.classList.add('text-gray-500');
-            container.className = 'flex-1 overflow-y-auto pr-2 pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 content-start';
+            container.className = 'flex-1 overflow-y-auto pr-2 pb-24 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 content-start';
         }
         if(tab==='search') handleSearch(); else filterOutItems();
     };
@@ -942,7 +972,7 @@
 
     // Easter egg state
     let easterEggShown=false; let moonScene,moonRenderer,moonCamera,ufoMesh;
-    const MAX_ZOOM_DIST=300000; 
+    const MAX_ZOOM_DIST=100000; 
 
     function showToast(msg,type='success'){
         const c=document.getElementById('toast-container');
@@ -985,7 +1015,6 @@
         const mainModal=document.getElementById('main-modal');
         const mainOverlay=document.getElementById('main-overlay');
         const credit=document.getElementById('credit-watermark');
-        const base="absolute z-[60] rounded-2xl flex flex-col pointer-events-none transition-all duration-300 overflow-hidden border";
 
         if(tabId==='home'){
             mainOverlay.classList.remove('opacity-100');
@@ -1000,15 +1029,18 @@
 
             if(tabId==='config'){
                 mainOverlay.classList.add('hidden');
-                mainModal.className=`${base} top-3 right-3 bottom-3 w-11/12 md:w-[22rem] modal-show`;
                 mainModal.style.borderColor='var(--border)';
+                mainModal.classList.add('top-3','right-3','bottom-3','w-11/12','md:w-[24rem]');
+                mainModal.classList.remove('inset-2','md:inset-4','lg:inset-y-6','lg:inset-x-8');
             } else {
                 mainOverlay.classList.remove('hidden');
                 setTimeout(()=>mainOverlay.classList.add('opacity-100'),10);
-                mainModal.className=`${base} inset-1 md:inset-3 modal-show`;
-                mainModal.style.borderColor='var(--border)';
+                mainModal.style.borderColor='';
+                mainModal.classList.remove('top-3','right-3','bottom-3','w-11/12','md:w-[24rem]');
+                mainModal.classList.add('inset-2','md:inset-4','lg:inset-y-6','lg:inset-x-8');
             }
-
+            
+            setTimeout(() => { mainModal.classList.add('modal-show'); }, 10);
             document.querySelectorAll('.tab-content').forEach(el=>el.classList.add('hidden'));
             const tabEl=document.getElementById(`tab-${tabId}`);
             if(tabEl){ tabEl.classList.remove('hidden'); tabEl.classList.add('flex'); }
@@ -1066,7 +1098,7 @@
             if(log.action==='OUT'){color='text-orange-500';bg='bg-orange-100';icon='-';}
             if(log.action==='CONFIG'){color='text-slate-600';bg='bg-slate-100';icon='⚙';}
             cont.innerHTML+=`
-            <div class="p-4 border rounded-xl text-sm transition-shadow card">
+            <div class="p-4 border rounded-xl text-sm shadow-sm hover:shadow transition-shadow card">
                 <div class="flex justify-between items-center mb-2">
                     <span class="font-bold ${color} ${bg} px-2.5 py-1 rounded-lg tracking-wider text-xs">${icon} ${log.action}</span>
                     <span class="text-xs" style="color:var(--text-muted)">${date}</span>
@@ -1111,7 +1143,7 @@
         controls=new THREE.OrbitControls(camera,renderer.domElement);
         controls.enableDamping=true; controls.dampingFactor=0.05;
         controls.maxPolarAngle=Math.PI/2-0.02;
-        controls.maxDistance=MAX_ZOOM_DIST;
+        controls.maxDistance=MAX_ZOOM_DIST; // Force limit to prevent Safari glitch
 
         controls.addEventListener('start',()=>{
             const m=document.getElementById('main-modal');
@@ -1119,11 +1151,12 @@
         });
         controls.addEventListener('end',()=>{ document.getElementById('main-modal').style.opacity=''; });
 
+        // Easter egg threshold - Trigger slightly before Safari's elastic scroll fights us
         controls.addEventListener('change',()=>{
             const dist=camera.position.distanceTo(controls.target);
             if(dist >= MAX_ZOOM_DIST * 0.95 && !easterEggShown){
                 easterEggShown = true;
-                controls.enabled = false;
+                controls.enabled = false; // Lock controls to stop safari bouncing
                 showEasterEgg();
             }
         });
@@ -1156,30 +1189,22 @@
         // Single listener for clicking 3D Objects on both Touch and Mouse
         renderer.domElement.addEventListener('pointerdown', (event) => {
             if(!document.getElementById('main-modal').classList.contains('hidden') && document.getElementById('tab-config').classList.contains('hidden')) return;
-            if(!event.isPrimary) return; 
+            if(!event.isPrimary) return; // Prevent multi-touch bugs
 
             const rect=renderer.domElement.getBoundingClientRect();
             mouse.x=((event.clientX-rect.left)/rect.width)*2-1; 
             mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
             raycaster.setFromCamera(mouse,camera);
-            
             const hits=raycaster.intersectObjects(warehouseGroup.children,false);
-            
-            // Loop through hits to find the first actual ITEM, ignoring labels and legs
-            let targetItemMesh = null;
-            for(let i=0; i<hits.length; i++){
-                if(hits[i].object.userData && hits[i].object.userData.type === 'item') {
-                    targetItemMesh = hits[i].object;
-                    break;
+            if(hits.length>0){
+                const hit=hits[0].object;
+                if(hit.userData&&hit.userData.type==='item'){ 
+                    highlightLocation(hit.userData.data.locationId,hit.userData.data.id); 
+                    showItemDetails(hit.userData.data, true); 
                 }
-            }
-
-            if(targetItemMesh){
-                highlightLocation(targetItemMesh.userData.data.locationId, targetItemMesh.userData.data.id); 
-                showItemDetails(targetItemMesh.userData.data, true); // true = clicked from 3D
             } else {
                 closeItemModal();
-                if(highlightBox) highlightBox.visible=false;
+                highlightBox.visible=false;
             }
         });
 
@@ -1189,22 +1214,17 @@
 
     // ===== EASTER EGG (Cinematic) =====
     function showEasterEgg(){
-        const tl = document.createElement('div');
-        tl.id = 'transition-layer';
-        tl.style.position = 'fixed'; tl.style.inset = '0'; tl.style.zIndex = '9985'; tl.style.pointerEvents = 'none';
-        tl.style.opacity = '0'; tl.style.transition = 'opacity 1.5s ease-in-out, background-color 1.5s ease-in-out';
-        document.body.appendChild(tl);
-
-        setTimeout(()=> { tl.style.backgroundColor = '#ffffff'; tl.style.opacity = '1'; }, 50);
+        const tl = document.getElementById('transition-layer');
+        tl.style.backgroundColor = '#ffffff'; // White Cloud Flash
+        tl.style.opacity = '1';
         
         setTimeout(() => {
-            tl.style.backgroundColor = '#020B18'; 
+            tl.style.backgroundColor = '#020B18'; // Dark Space
             setTimeout(() => {
-                tl.style.opacity = '0'; 
+                tl.style.opacity = '0'; // Reveal Moon
                 document.getElementById('easter-egg').classList.add('show');
                 initMoonScene();
                 startTypewriter();
-                setTimeout(()=>tl.remove(), 1500);
             }, 1000);
         }, 1500);
     }
@@ -1212,8 +1232,9 @@
     function hideEasterEgg(){
         document.getElementById('easter-egg').classList.remove('show');
         easterEggShown=false;
-        controls.enabled=true;
+        controls.enabled=true; // Unlock controls
         
+        // Force camera back immediately to avoid Safari re-triggering bounce loop
         camera.position.set(2000, 2000, 2000);
         controls.target.set(0, 0, 0);
         controls.update();
@@ -1398,6 +1419,7 @@
         openTab('home');
     };
 
+    // Modified to receive from3D boolean
     function showItemDetails(item, from3D = false){
         document.getElementById('modal-name').innerText=item.name;
         document.getElementById('modal-loc').innerText=formatLocation(item.locationId);
@@ -1407,7 +1429,7 @@
         
         const btnViewMap = document.getElementById('btn-view-map');
         if(from3D) {
-            btnViewMap.style.display = 'none';
+            btnViewMap.style.display = 'none'; // Hide if already viewed in 3D
         } else {
             btnViewMap.style.display = 'flex';
             btnViewMap.onclick=()=>{ openTab('home'); highlightLocation(item.locationId,item.id); closeItemModal(); };
@@ -1456,8 +1478,7 @@
             const div=document.createElement('div');
             
             if(viewModes.search==='list'){
-                div.className='group cursor-pointer transition-colors border-b last:border-b-0';
-                div.style.borderColor='var(--border)';
+                div.className='group cursor-pointer transition-colors';
                 div.innerHTML=`
                 <div class="flex-1 min-w-0 pr-4 flex flex-col justify-center">
                     <div class="font-bold text-base md:text-sm flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
@@ -1479,7 +1500,7 @@
                     </div>
                 </div>`;
             } else {
-                div.className='p-4 border rounded-2xl hover:border-primary cursor-pointer transition-all card flex-col justify-between';
+                div.className='p-4 border rounded-2xl shadow-sm hover:border-primary cursor-pointer hover:shadow-md transition-all card flex-col justify-between';
                 div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
                 div.innerHTML=`
                 <div class="w-full">
@@ -1639,8 +1660,7 @@
             const div=document.createElement('div');
             
             if(viewModes.out==='list'){
-                div.className='group cursor-pointer transition-colors border-b last:border-b-0';
-                div.style.borderColor='var(--border)';
+                div.className='group cursor-pointer transition-colors';
                 div.innerHTML=`
                 <div class="flex-1 min-w-0 pr-2">
                     <div class="font-bold text-base md:text-sm mb-1.5 flex items-center gap-2 flex-wrap truncate" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
@@ -1648,7 +1668,7 @@
                 </div>
                 <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg whitespace-nowrap border border-green-100 mt-2 sm:mt-0 ml-auto shrink-0">${item.qty} ${t('pcsText')}</div>`;
             } else {
-                div.className='p-4 border rounded-2xl hover:border-orange-300 cursor-pointer transition-all card flex-col justify-between';
+                div.className='p-4 border rounded-2xl shadow-sm hover:border-orange-300 cursor-pointer transition-all card flex-col justify-between';
                 div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
                 div.innerHTML=`
                 <div class="w-full text-center">
