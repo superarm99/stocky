@@ -62,16 +62,25 @@
 
         * { box-sizing: border-box; }
 
-        html { font-size: 14px; transition: font-size 0.3s; }
-        
         body {
             font-family: 'Inter', 'Sarabun', sans-serif;
             overflow: hidden;
             background: var(--bg);
             color: var(--text);
+            font-size: var(--font-scale, 14px);
             transition: background 0.3s, color 0.3s;
-            height: 100dvh; width: 100vw; margin: 0; padding: 0;
+            height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overscroll-behavior: none; /* Fix safari bounce */
+            touch-action: none; /* Fix safari pinch-to-zoom jumping */
         }
+
+        /* Font scale utility */
+        body[data-font="small"]  { --font-scale: 12px; }
+        body[data-font="normal"] { --font-scale: 14px; }
+        body[data-font="large"]  { --font-scale: 16px; }
 
         #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 1; outline: none; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100dvh; z-index: 10; pointer-events: none; display: flex; }
@@ -88,7 +97,8 @@
             background: var(--sidebar-bg);
             border-right-color: var(--border);
             transition: transform 0.3s ease-in-out, background 0.3s;
-            height: 100dvh; padding-bottom: env(safe-area-inset-bottom);
+            height: 100dvh;
+            padding-bottom: env(safe-area-inset-bottom);
         }
         @media (max-width: 768px) {
             #sidebar { position: fixed; height: 100dvh; transform: translateX(-100%); }
@@ -100,8 +110,10 @@
         #main-modal {
             background: var(--modal-bg);
             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
-            top: max(8px, env(safe-area-inset-top)); bottom: max(8px, env(safe-area-inset-bottom));
-            left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right));
+            top: max(8px, env(safe-area-inset-top));
+            bottom: max(8px, env(safe-area-inset-bottom));
+            left: max(8px, env(safe-area-inset-left));
+            right: max(8px, env(safe-area-inset-right));
             max-height: calc(100dvh - 16px);
         }
         @media (min-width: 768px) {
@@ -113,7 +125,7 @@
         #item-modal { display: none; opacity: 0; transition: opacity 0.2s; z-index: 70; }
         #item-modal.show { display: flex; opacity: 1; }
 
-        /* ===== CARDS ===== */
+        /* ===== CARDS & INPUTS ===== */
         .card { background: var(--card-bg); border-color: var(--border); color: var(--text); transition: background 0.3s, border-color 0.3s; }
         .input-style { background: var(--input-bg); border-color: var(--input-border); color: var(--text); transition: background 0.3s, border-color 0.3s, color 0.3s; }
         @media screen and (max-width: 768px) { input, select, textarea { font-size: 16px !important; } }
@@ -141,7 +153,6 @@
         .grid-view-btn.active { background: #e0e7ff; color: #4f46e5; border-color: #c7d2fe; }
         html.dark .grid-view-btn.active { background: #3730a3; color: #a5b4fc; }
         
-        /* True List View CSS */
         .items-list-view.list-mode > div { 
             display: flex; flex-direction: row; align-items: center; justify-content: space-between; 
             padding: 12px 0; border: none; border-bottom: 1px solid var(--border);
@@ -159,7 +170,7 @@
 
         /* ===== EASTER EGG (TRANSITION & MOON) ===== */
         #transition-layer { position: fixed; inset: 0; z-index: 9985; pointer-events: none; opacity: 0; transition: opacity 1.5s ease-in-out, background-color 1.5s ease-in-out; }
-        #easter-egg { position: fixed; inset: 0; z-index: 9990; display: none; flex-direction: column; align-items: center; justify-content: center; background: #020B18; color: white; font-family: 'Inter', sans-serif; text-align: center; pointer-events: auto; }
+        #easter-egg { position: fixed; inset: 0; z-index: 9990; display: none; flex-direction: column; align-items: center; justify-content: center; background: #020B18; color: white; font-family: 'Inter', sans-serif; text-align: center; pointer-events: auto; touch-action: none; overscroll-behavior: none; }
         #easter-egg.show { display: flex; }
         #moon-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
         .easter-text { position: relative; z-index: 2; text-align: center; padding: 20px; }
@@ -185,7 +196,7 @@
             h2 { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 4px; }
         }
 
-        /* Dark mode text overrides */
+        /* Dark mode overrides */
         html.dark .text-slate-800 { color: #e2e8f0 !important; }
         html.dark .text-gray-700 { color: #cbd5e1 !important; }
         html.dark .text-gray-600 { color: #94a3b8 !important; }
@@ -195,8 +206,6 @@
         html.dark .bg-white { background: #1e293b !important; }
         html.dark .border-gray-100 { border-color: #334155 !important; }
         html.dark .border-gray-200 { border-color: #334155 !important; }
-        html.dark .text-slate-600 { color: #94a3b8 !important; }
-        html.dark .text-slate-700 { color: #cbd5e1 !important; }
         html.dark .bg-slate-50 { background: #1e293b !important; }
         html.dark .bg-slate-100 { background: #334155 !important; }
         html.dark select, html.dark input[type="text"], html.dark input[type="number"], html.dark input[type="datetime-local"], html.dark input[type="date"] {
@@ -209,7 +218,7 @@
         html.dark .fifo-badge { background: #713f12; border-color: #a16207; color: #fef08a; }
     </style>
 </head>
-<body>
+<body data-font="normal">
 
     <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center" style="background:var(--modal-bg)">
         <div class="mb-5 relative">
@@ -324,7 +333,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </button>
                 <button onclick="resetCamera()" title="กลับมุมมองเริ่มต้น" class="pointer-events-auto p-4 rounded-xl shadow-xl transition-all relative z-10 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 001 1m-6 0h6"></path></svg>
                 </button>
             </div>
 
@@ -719,8 +728,8 @@
 
     <div id="toast-container"></div>
 
-    <!-- Credit Watermark (home only) -->
-    <div id="credit-watermark" class="absolute z-[990] pointer-events-none px-3 py-1.5 rounded-full shadow-sm border flex items-center gap-1.5 opacity-40 bg-white dark:bg-slate-800" style="border-color:var(--border)">
+    <!-- Credit Watermark (fixed bottom-left) -->
+    <div id="credit-watermark" class="fixed bottom-4 left-4 z-[990] pointer-events-none px-3 py-1.5 rounded-full shadow-sm border flex items-center gap-1.5 opacity-40 bg-white dark:bg-slate-800 transition-opacity duration-300" style="border-color:var(--border)">
         <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
         <span class="text-[10px] font-bold tracking-wider" style="color:var(--text)">Developed By AArm 2026</span>
     </div>
@@ -746,7 +755,7 @@
             toastSuccess:"สำเร็จ",toastError:"เกิดข้อผิดพลาด",toastNoStock:"จำนวนไม่พอ",toastDateReq:"กรุณาเลือกวันที่",toastNoExport:"ไม่มีข้อมูลส่งออก",
             colDate:"วันที่",colName:"ชื่อสินค้า",colQty:"จำนวน",colSlot:"ช่อง",colSize:"ขนาด",colLogDate:"วันเวลา",colDetails:"รายละเอียด",colUser:"ผู้ทำรายการ",
             lblSlot:"ช่อง",lblLevel:"ชั้น",lblPage:"หน้า",btnPrev:"ก่อนหน้า",btnNext:"ถัดไป",
-            lowStockAlert:"⚠ ใกล้หมด", fifoBadge:"แนะนำ (เก่าสุด)",
+            lowStockAlert:"⚠ ใกล้หมด", fifoBadge:"แนะนำ (FIFO)",
             pwdTitle:"ยืนยันตัวตนผู้ดูแล",pwdDesc:"กรอกรหัสผ่านเพื่อเข้าจัดการผังคลังสินค้า",pwdPh:"รหัสผ่าน",pwdErr:"รหัสผ่านไม่ถูกต้อง",pwdForgot:"หากลืมรหัสผ่าน กรุณาติดต่อ ",pwdDev:"นักพัฒนา",
             eeTitle:"🌙 ยินดีต้อนรับสู่ดวงจันทร์",eeDesc:"คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... เรามีคลังสินค้าบนอวกาศด้วยนะ!",eeBack:"🚀 กลับโลก"
         },
@@ -790,7 +799,7 @@
             toastSuccess:"成功",toastError:"エラー",toastNoStock:"数量不足",toastDateReq:"日付選択",toastNoExport:"データなし",
             colDate:"日付",colName:"商品名",colQty:"数量",colSlot:"場所",colSize:"サイズ",colLogDate:"日時",colDetails:"詳細",colUser:"ユーザー",
             lblSlot:"枠",lblLevel:"段",lblPage:"ページ",btnPrev:"前へ",btnNext:"次へ",
-            lowStockAlert:"⚠ 残少", fifoBadge:"最古(推奨)",
+            lowStockAlert:"⚠ 残少", fifoBadge:"最古(FIFO)",
             pwdTitle:"管理者ログイン",pwdDesc:"パスワードを入力",pwdPh:"パスワード",pwdErr:"無効なパスワード",pwdForgot:"忘れた場合は連絡 ",pwdDev:"開発者",
             eeTitle:"🌙 月へようこそ",eeDesc:"ここまでズームするとは... 宇宙倉庫もありますよ！",eeBack:"🚀 地球に戻る"
         }
@@ -852,7 +861,7 @@
     };
 
     /* ===== PASSWORD ===== */
-    const _pwdCodes = [65,100,109,105,110,64,50,48,50,54]; // Admin@2026
+    const _pwdCodes = [65,100,109,105,110,64,50,48,50,54];
     const _correctPwd = () => _pwdCodes.map(c=>String.fromCharCode(c)).join('');
 
     window.openConfigWithPassword = function(){
@@ -940,7 +949,7 @@
             if(window.initializeAppLogic) window.initializeAppLogic();
         }catch(e){
             const loader=document.getElementById('loader'); if(loader) loader.remove();
-            document.body.innerHTML+=`<div class="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4 pointer-events-auto"><div class="bg-white rounded-2xl p-6 max-w-sm w-full"><h3 class="text-lg font-bold text-red-500 mb-2">Auth Error</h3><p class="text-sm text-gray-600 mb-4">Enable Anonymous Auth in Firebase</p><button onclick="location.reload()" class="w-full bg-slate-800 text-white py-2 rounded-lg text-sm">Retry</button></div></div>`;
+            document.body.innerHTML+=`<div class="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4 pointer-events-auto"><div class="bg-white rounded-2xl p-6 max-w-sm w-full"><h3 class="text-lg font-bold text-red-500 mb-2">Auth Error</h3><p class="text-sm text-gray-600 mb-4">Enable Anonymous Auth in Firebase</p><button onclick="location.reload()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-sm font-bold">Retry</button></div></div>`;
         }
     }
     initAuth();
@@ -963,7 +972,7 @@
 
     // Easter egg state
     let easterEggShown=false; let moonScene,moonRenderer,moonCamera,ufoMesh;
-    const MAX_ZOOM_DIST=300000; // Super Far
+    const MAX_ZOOM_DIST=300000; 
 
     function showToast(msg,type='success'){
         const c=document.getElementById('toast-container');
@@ -1119,12 +1128,11 @@
         const sceneBg=isDark?0x0a1628:0xf8fafc;
         scene.background=new THREE.Color(sceneBg);
         
-        // Very Far for Easter Egg
-        camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,10,600000);
+        camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,10,200000);
         camera.position.set(2000,2000,2000);
         camera.lookAt(0,0,0);
         
-        scene.fog=new THREE.Fog(sceneBg,1000,300000);
+        scene.fog=new THREE.Fog(sceneBg,1000,120000);
 
         renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
         renderer.setSize(window.innerWidth,window.innerHeight);
@@ -1135,7 +1143,7 @@
         controls=new THREE.OrbitControls(camera,renderer.domElement);
         controls.enableDamping=true; controls.dampingFactor=0.05;
         controls.maxPolarAngle=Math.PI/2-0.02;
-        controls.maxDistance=MAX_ZOOM_DIST + 50000; 
+        controls.maxDistance=MAX_ZOOM_DIST; // Force limit to prevent Safari glitch
 
         controls.addEventListener('start',()=>{
             const m=document.getElementById('main-modal');
@@ -1143,10 +1151,12 @@
         });
         controls.addEventListener('end',()=>{ document.getElementById('main-modal').style.opacity=''; });
 
-        // Easter egg threshold
+        // Easter egg threshold - Trigger slightly before Safari's elastic scroll fights us
         controls.addEventListener('change',()=>{
             const dist=camera.position.distanceTo(controls.target);
-            if(dist>=MAX_ZOOM_DIST*0.98&&!easterEggShown){
+            if(dist >= MAX_ZOOM_DIST * 0.95 && !easterEggShown){
+                easterEggShown = true;
+                controls.enabled = false; // Lock controls to stop safari bouncing
                 showEasterEgg();
             }
         });
@@ -1160,11 +1170,11 @@
         dl.shadow.camera.left=-sd; dl.shadow.camera.right=sd; dl.shadow.camera.top=sd; dl.shadow.camera.bottom=-sd;
         scene.add(dl);
 
-        const floorGeo=new THREE.PlaneGeometry(300000,300000); 
+        const floorGeo=new THREE.PlaneGeometry(150000,150000); 
         const floorMat=new THREE.MeshStandardMaterial({color:isDark?0x0f172a:0xffffff,roughness:0.9});
         const floor=new THREE.Mesh(floorGeo,floorMat);
         floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
-        const grid=new THREE.GridHelper(300000,600,0x10b981,isDark?0x1e3a5f:0xe2e8f0);
+        const grid=new THREE.GridHelper(150000,300,0x10b981,isDark?0x1e3a5f:0xe2e8f0);
         grid.position.y=0.5; scene.add(grid);
 
         highlightBox=new THREE.Mesh(
@@ -1175,20 +1185,35 @@
         scene.add(warehouseGroup); scene.add(previewGroup);
 
         raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
-        renderer.domElement.addEventListener('pointerdown',onPointerDown);
-        renderer.domElement.addEventListener('touchstart',(e)=>{
-            if(e.touches.length>1) return; e.clientX=e.touches[0].clientX; e.clientY=e.touches[0].clientY; onPointerDown(e);
-        },{passive:false});
-        renderer.domElement.addEventListener('pointerdown',()=>{ const m=document.getElementById('main-modal'); if(m.classList.contains('modal-show')&&!document.getElementById('tab-config').classList.contains('hidden')) m.style.opacity='0.15'; });
-        renderer.domElement.addEventListener('pointerup',()=>{ document.getElementById('main-modal').style.opacity=''; });
-        renderer.domElement.addEventListener('pointerleave',()=>{ document.getElementById('main-modal').style.opacity=''; });
+        
+        // Single listener for clicking 3D Objects on both Touch and Mouse
+        renderer.domElement.addEventListener('pointerdown', (event) => {
+            if(!document.getElementById('main-modal').classList.contains('hidden') && document.getElementById('tab-config').classList.contains('hidden')) return;
+            if(!event.isPrimary) return; // Prevent multi-touch bugs
+
+            const rect=renderer.domElement.getBoundingClientRect();
+            mouse.x=((event.clientX-rect.left)/rect.width)*2-1; 
+            mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
+            raycaster.setFromCamera(mouse,camera);
+            const hits=raycaster.intersectObjects(warehouseGroup.children,false);
+            if(hits.length>0){
+                const hit=hits[0].object;
+                if(hit.userData&&hit.userData.type==='item'){ 
+                    highlightLocation(hit.userData.data.locationId,hit.userData.data.id); 
+                    showItemDetails(hit.userData.data, true); 
+                }
+            } else {
+                closeItemModal();
+                highlightBox.visible=false;
+            }
+        });
+
         window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
         animate();
     }
 
     // ===== EASTER EGG (Cinematic) =====
     function showEasterEgg(){
-        easterEggShown=true;
         const tl = document.getElementById('transition-layer');
         tl.style.backgroundColor = '#ffffff'; // White Cloud Flash
         tl.style.opacity = '1';
@@ -1207,6 +1232,13 @@
     function hideEasterEgg(){
         document.getElementById('easter-egg').classList.remove('show');
         easterEggShown=false;
+        controls.enabled=true; // Unlock controls
+        
+        // Force camera back immediately to avoid Safari re-triggering bounce loop
+        camera.position.set(2000, 2000, 2000);
+        controls.target.set(0, 0, 0);
+        controls.update();
+        
         resetCamera();
     }
     document.getElementById('btn-back-earth').addEventListener('click',hideEasterEgg);
@@ -1293,7 +1325,7 @@
                 const maxDim=Math.max(size.x,size.y,size.z);
                 let camDist=maxDim/(2*Math.tan(Math.PI*camera.fov/360))*1.8;
                 if(camDist<1000) camDist=1000;
-                if(camDist>MAX_ZOOM_DIST*0.8) camDist=MAX_ZOOM_DIST*0.8;
+                if(camDist>MAX_ZOOM_DIST*0.6) camDist=MAX_ZOOM_DIST*0.6;
                 const offset=new THREE.Vector3(1,1,1).normalize().multiplyScalar(camDist);
                 targetPos.copy(targetCenter).add(offset);
             }
@@ -1387,25 +1419,22 @@
         openTab('home');
     };
 
-    function onPointerDown(event){
-        if(!document.getElementById('main-modal').classList.contains('hidden')&&document.getElementById('tab-config').classList.contains('hidden')) return;
-        const rect=renderer.domElement.getBoundingClientRect();
-        mouse.x=((event.clientX-rect.left)/rect.width)*2-1; mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
-        raycaster.setFromCamera(mouse,camera);
-        const hits=raycaster.intersectObjects(warehouseGroup.children,false);
-        if(hits.length>0){
-            const hit=hits[0].object;
-            if(hit.userData&&hit.userData.type==='item'){ highlightLocation(hit.userData.data.locationId,hit.userData.data.id); showItemDetails(hit.userData.data); }
-        } else closeItemModal();
-    }
-
-    function showItemDetails(item){
+    // Modified to receive from3D boolean
+    function showItemDetails(item, from3D = false){
         document.getElementById('modal-name').innerText=item.name;
         document.getElementById('modal-loc').innerText=formatLocation(item.locationId);
         document.getElementById('modal-qty').innerText=`${item.qty} ${t('pcsText')}`;
         document.getElementById('modal-size').innerText=`${item.w||'?'}x${item.d||'?'}x${item.h||'?'} cm`;
         document.getElementById('modal-date').innerText=new Date(item.timestamp).toLocaleString('th-TH');
-        document.getElementById('btn-view-map').onclick=()=>{ openTab('home'); highlightLocation(item.locationId,item.id); closeItemModal(); };
+        
+        const btnViewMap = document.getElementById('btn-view-map');
+        if(from3D) {
+            btnViewMap.style.display = 'none'; // Hide if already viewed in 3D
+        } else {
+            btnViewMap.style.display = 'flex';
+            btnViewMap.onclick=()=>{ openTab('home'); highlightLocation(item.locationId,item.id); closeItemModal(); };
+        }
+
         document.getElementById('btn-modal-out').onclick=()=>{
             closeItemModal(); openTab('out'); document.getElementById('out-search').value=item.name; filterOutItems();
             setTimeout(()=>{ const outList=document.getElementById('out-items-list').children; for(let i=0;i<outList.length;i++) if(outList[i].innerText.includes(item.name)){ outList[i].click(); break; } },100);
@@ -1415,7 +1444,7 @@
 
     window.closeItemModal=function(){ document.getElementById('item-modal').classList.remove('show'); };
 
-    // --- SORTING (FIFO logic applied) ---
+    // --- SORTING (FIFO logic applied properly) ---
     window.handleSearch=function(){
         const q=document.getElementById('searchInput').value.toLowerCase().trim();
         const res=document.getElementById('search-results'); res.innerHTML='';
@@ -1431,25 +1460,28 @@
 
         if(results.length===0) return res.innerHTML=`<div class="text-center py-8 text-sm col-span-full w-full" style="color:#ef4444">${t('notFound')}</div>`;
 
+        // Check for duplicates to display badge only when needed
+        const nameCounts = {};
+        results.forEach(i => { nameCounts[i.name] = (nameCounts[i.name] || 0) + 1; });
         const seenNames = new Set();
 
         results.forEach(item=>{
             const isLow=item.qty<LOW_STOCK_THRESHOLD;
             const lowBadge=isLow?`<span class="low-stock-badge">${t('lowStockAlert')}</span>`:'';
             
-            // Mark the oldest item of each name
+            const hasMultiple = nameCounts[item.name] > 1;
             const isOldest = !seenNames.has(item.name);
             seenNames.add(item.name);
-            const oldestBadge = isOldest ? `<span class="fifo-badge">⭐ ${t('fifoBadge')}</span>` : '';
+            // Show badge only if it's the oldest AND there are duplicates
+            const oldestBadge = (isOldest && hasMultiple) ? `<span class="fifo-badge">⭐ ${t('fifoBadge')}</span>` : '';
 
             const div=document.createElement('div');
             
             if(viewModes.search==='list'){
-                // TRUE LIST VIEW (Clean rows)
                 div.className='group cursor-pointer transition-colors';
                 div.innerHTML=`
                 <div class="flex-1 min-w-0 pr-4 flex flex-col justify-center">
-                    <div class="font-bold text-base md:text-sm flex items-center flex-wrap" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
+                    <div class="font-bold text-base md:text-sm flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
                     <div class="flex items-center gap-2 flex-wrap text-sm md:text-xs mt-1" style="color:var(--text-muted)">
                         <span><b style="color:var(--text)">${formatLocation(item.locationId)}</b></span>
                         <span class="text-gray-300">|</span>
@@ -1468,12 +1500,12 @@
                     </div>
                 </div>`;
             } else {
-                // CARD VIEW
                 div.className='p-4 border rounded-2xl shadow-sm hover:border-primary cursor-pointer hover:shadow-md transition-all card flex-col justify-between';
                 div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
                 div.innerHTML=`
                 <div class="w-full">
-                    <div class="font-bold text-base md:text-sm mb-2 flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
+                    <div class="font-bold text-base md:text-sm mb-2 flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge}</div>
+                    ${oldestBadge ? `<div class="mb-2">${oldestBadge}</div>` : ''}
                     <div class="text-sm md:text-xs mb-3" style="color:var(--text-muted)">${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</div>
                     <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block mb-3" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
                 </div>
@@ -1603,7 +1635,7 @@
         let filtered=[...inventory];
         if(q) filtered=filtered.filter(i=>i.name.toLowerCase().includes(q));
         
-        // FIFO sort: Name asc, then Timestamp asc
+        // FIFO sort
         filtered.sort((a,b)=>{
             const nameCmp = a.name.localeCompare(b.name,undefined,{numeric:true});
             if(nameCmp!==0) return nameCmp;
@@ -1612,14 +1644,18 @@
 
         if(filtered.length===0){ list.innerHTML=`<div class="text-center py-8 text-sm col-span-full w-full" style="color:#ef4444">${t('notFound')}</div>`; return; }
 
+        const nameCounts = {};
+        filtered.forEach(i => { nameCounts[i.name] = (nameCounts[i.name] || 0) + 1; });
         const seenNames = new Set();
 
         filtered.forEach(item=>{
             const isLow=item.qty<LOW_STOCK_THRESHOLD;
             const lowBadge=isLow?`<span class="low-stock-badge">${t('lowStockAlert')}</span>`:'';
+            
+            const hasMultiple = nameCounts[item.name] > 1;
             const isOldest = !seenNames.has(item.name);
             seenNames.add(item.name);
-            const oldestBadge = isOldest ? `<span class="fifo-badge">⭐ ${t('fifoBadge')}</span>` : '';
+            const oldestBadge = (isOldest && hasMultiple) ? `<span class="fifo-badge">⭐ ${t('fifoBadge')}</span>` : '';
 
             const div=document.createElement('div');
             
