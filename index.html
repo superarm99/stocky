@@ -73,11 +73,10 @@
             width: 100vw;
             margin: 0;
             padding: 0;
-            overscroll-behavior: none; /* Fix safari bounce */
-            touch-action: none; /* Fix safari pinch-to-zoom jumping */
+            overscroll-behavior: none; 
+            touch-action: none; 
         }
 
-        /* Font scale utility */
         body[data-font="small"]  { --font-scale: 12px; }
         body[data-font="normal"] { --font-scale: 14px; }
         body[data-font="large"]  { --font-scale: 16px; }
@@ -195,7 +194,6 @@
             h2 { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 4px; }
         }
 
-        /* Dark mode overrides */
         html.dark .text-slate-800 { color: #e2e8f0 !important; }
         html.dark .text-gray-700 { color: #cbd5e1 !important; }
         html.dark .text-gray-600 { color: #94a3b8 !important; }
@@ -283,7 +281,7 @@
 
             <nav class="flex-1 overflow-y-auto p-3 space-y-1 pb-10">
                 <button onclick="openTab('home')" class="tab-btn w-full flex items-center gap-3 px-3 py-3 text-left rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all bg-indigo-50 text-indigo-600" data-tab="home" style="color:var(--text-muted)">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span class="font-medium text-sm" data-i18n="menuOverview">ภาพรวมคลังสินค้า</span>
                 </button>
                 <hr class="my-2" style="border-color:var(--border)">
@@ -326,7 +324,6 @@
                 </button>
             </div>
 
-            <!-- Reset Camera & Config -->
             <div class="absolute z-20 flex items-center justify-end group pointer-events-none floating-actions">
                 <button onclick="openConfigWithPassword()" title="จัดการผังคลังสินค้า" class="pointer-events-auto p-3 rounded-xl shadow-lg transition-all duration-300 opacity-0 translate-x-8 group-hover:opacity-100 group-hover:translate-x-0 mr-3 border" style="background:var(--card-bg);color:var(--text-muted);border-color:var(--border)">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -336,11 +333,10 @@
                 </button>
             </div>
 
-            <!-- Modal Overlay: FIXED ใช้ fixed เพื่อให้คลุมมิดถึงขอบล่าง 100dvh จริงๆใน Safari/Mobile -->
+            <!-- Modal Overlay -->
             <div id="main-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] hidden opacity-0 pointer-events-none transition-opacity duration-300" onclick="openTab('home')"></div>
 
             <div id="main-modal" class="absolute z-[60] rounded-2xl flex flex-col modal-hidden pointer-events-none overflow-hidden border" style="background:var(--modal-bg); border-color:var(--border)">
-                <!-- Modal Header -->
                 <div class="flex justify-end p-2 border-b shrink-0 pointer-events-auto" style="border-color:var(--border);background:var(--modal-bg)">
                     <button onclick="openTab('home')" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-xl transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -382,12 +378,13 @@
                                 <div id="in-autocomplete" class="autocomplete-list"></div>
                             </div>
                             <div class="p-5 rounded-2xl border" style="background:var(--hover-bg);border-color:var(--border)">
-                                <label class="block font-bold text-sm mb-4" style="color:var(--text)" data-i18n="inSize">ขนาดแพ็กเกจรวมต่อการนำเข้า (cm)</label>
+                                <label class="block font-bold text-sm mb-4" style="color:var(--text)" data-i18n="inSize">ขนาดแพ็กเกจ เพื่อจำลองใน 3D (cm)</label>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="in-w" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="in-d" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
-                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="height">สูง</label><input type="number" id="in-h" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="in-w" min="1" placeholder="ค่าเริ่มต้น 40" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="in-d" min="1" placeholder="ค่าเริ่มต้น 40" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
+                                    <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="height">สูง</label><input type="number" id="in-h" min="1" placeholder="ค่าเริ่มต้น 15" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                                 </div>
+                                <p class="text-xs mt-3" style="color:var(--text-muted)" data-i18n="inSizeHint">* หากไม่กรอก ระบบจะใช้ขนาดมาตรฐาน 40x40x15</p>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
@@ -402,7 +399,7 @@
                                 </div>
                             </div>
                             <div class="pt-2">
-                                <button type="submit" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3.5 rounded-xl transition-colors text-base shadow-lg" data-i18n="inBtn">บันทึกรับเข้า</button>
+                                <button type="submit" id="btn-submit-in" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3.5 rounded-xl transition-colors text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="inBtn">บันทึกรับเข้า</button>
                             </div>
                         </form>
                     </div>
@@ -451,7 +448,7 @@
                                         <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outQty">จำนวน</label>
                                         <div class="flex gap-2">
                                             <input type="number" id="out-qty" min="1" required data-i18n-ph="outQtyPh" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm flex-1 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
-                                            <button type="submit" class="px-5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-base md:text-sm whitespace-nowrap shadow-md" data-i18n="outBtn">ยืนยัน</button>
+                                            <button type="submit" id="btn-submit-out" class="px-5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-base md:text-sm whitespace-nowrap shadow-md disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="outBtn">ยืนยัน</button>
                                         </div>
                                     </div>
                                 </div>
@@ -482,7 +479,6 @@
                             <span data-i18n="repTitle">ส่งออกรายงาน</span>
                         </h2>
                         <div class="p-4 md:p-5 rounded-2xl border mb-5 shrink-0" style="background:var(--hover-bg);border-color:var(--border)">
-                            <!-- FIXED: เปลี่ยนการจัด Grid เพื่อให้ช่องวันที่บนมือถือ/แท็บเล็ต ไม่ล้นจอ -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                                 <div class="sm:col-span-2 lg:col-span-2">
                                     <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="repType">ประเภทรายงาน</label>
@@ -514,7 +510,6 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
                                     <span data-i18n="repExcel">Excel (CSV)</span>
                                 </button>
-                                <!-- FIXED: เพิ่ม ID สำหรับจัดการ Loading State ให้ปุ่ม Print -->
                                 <button id="btn-print-pdf" onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     <span data-i18n="repPdf">พิมพ์ / PDF</span>
@@ -608,7 +603,6 @@
                             <span data-i18n="setMenu">การตั้งค่า</span>
                         </h2>
                         <div class="space-y-5 max-w-xl mx-auto w-full">
-                            <!-- Language -->
                             <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
                                 <label class="block font-bold text-base md:text-sm mb-3" style="color:var(--text)" data-i18n="setLang">เลือกภาษา (Language)</label>
                                 <select id="lang-select" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onchange="setLanguage(this.value)">
@@ -619,21 +613,21 @@
                             </div>
                             <!-- Theme -->
                             <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
-                                <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)">🎨 Theme</label>
+                                <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)" data-i18n="setTheme">🎨 ธีมหน้าจอ (Theme)</label>
                                 <div class="flex gap-4">
-                                    <button onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-primary bg-white text-slate-800 shadow-sm">☀️ Light</button>
-                                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-transparent bg-slate-800 text-white shadow-sm">🌙 Dark</button>
+                                    <button onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-primary bg-white text-slate-800 shadow-sm" data-i18n="setThemeL">☀️ สว่าง</button>
+                                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-3.5 rounded-xl text-base md:text-sm font-bold border-2 transition-all border-transparent bg-slate-800 text-white shadow-sm" data-i18n="setThemeD">🌙 มืด</button>
                                 </div>
                             </div>
                             <!-- Font Size -->
                             <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
-                                <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)">🔡 ขนาดตัวหนังสือ</label>
+                                <label class="block font-bold text-base md:text-sm mb-4" style="color:var(--text)" data-i18n="setFont">🔡 ขนาดตัวหนังสือ</label>
                                 <div class="flex gap-4">
-                                    <button onclick="setFontSize('small')" id="btn-font-small" class="flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all shadow-sm" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">เล็ก</button>
-                                    <button onclick="setFontSize('normal')" id="btn-font-normal" class="flex-1 py-3 rounded-xl text-base font-bold border-2 transition-all border-primary shadow-sm" style="background:var(--input-bg);color:var(--text)">ปกติ</button>
-                                    <button onclick="setFontSize('large')" id="btn-font-large" class="flex-1 py-3 rounded-xl text-lg font-bold border-2 transition-all shadow-sm" style="border-color:var(--border);background:var(--input-bg);color:var(--text)">ใหญ่</button>
+                                    <button onclick="setFontSize('small')" id="btn-font-small" class="flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all shadow-sm" style="border-color:var(--border);background:var(--input-bg);color:var(--text)" data-i18n="setFontS">เล็ก</button>
+                                    <button onclick="setFontSize('normal')" id="btn-font-normal" class="flex-1 py-3 rounded-xl text-base font-bold border-2 transition-all border-primary shadow-sm" style="background:var(--input-bg);color:var(--text)" data-i18n="setFontN">ปกติ</button>
+                                    <button onclick="setFontSize('large')" id="btn-font-large" class="flex-1 py-3 rounded-xl text-lg font-bold border-2 transition-all shadow-sm" style="border-color:var(--border);background:var(--input-bg);color:var(--text)" data-i18n="setFontL">ใหญ่</button>
                                 </div>
-                                <p class="text-sm md:text-xs mt-4 text-center" style="color:var(--text-muted)">ระบบจดจำการตั้งค่าสำหรับครั้งต่อไปอัตโนมัติ</p>
+                                <p class="text-sm md:text-xs mt-4 text-center" style="color:var(--text-muted)" data-i18n="setFontDesc">ระบบจดจำการตั้งค่าสำหรับครั้งต่อไปอัตโนมัติ</p>
                             </div>
                         </div>
                     </div>
@@ -708,12 +702,22 @@
                 </div>
                 <h3 id="modal-name" class="font-bold text-lg md:text-xl truncate" style="color:var(--text)">Name</h3>
             </div>
+            
             <div class="space-y-4 text-base md:text-sm" style="color:var(--text-muted)">
                 <div class="flex justify-between items-center"><span data-i18n="mdlLoc">ตำแหน่ง:</span> <span id="modal-loc" class="font-bold px-3 py-1.5 rounded-lg" style="background:var(--hover-bg);color:var(--text)"></span></div>
-                <div class="flex justify-between items-center"><span data-i18n="mdlQty">จำนวน:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-3 py-1.5 rounded-lg text-lg border border-green-100"></span></div>
-                <div class="flex justify-between items-center"><span data-i18n="mdlSize">ขนาด:</span> <span id="modal-size" class="font-medium" style="color:var(--text)"></span></div>
-                <div class="flex justify-between items-center"><span data-i18n="mdlUpdate">อัปเดต:</span> <span id="modal-date" class="text-xs font-medium" style="color:var(--text)"></span></div>
+                <div class="flex justify-between items-center"><span data-i18n="mdlQty">จำนวนคงเหลือ:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-3 py-1.5 rounded-lg text-lg border border-green-100"></span></div>
+                <div class="flex justify-between items-center"><span data-i18n="mdlUpdate">นำเข้า/อัปเดตล่าสุด:</span> <span id="modal-date" class="text-xs font-medium" style="color:var(--text)"></span></div>
+                
+                <div class="border-t pt-4 mt-2 space-y-3" style="border-color:var(--border)">
+                    <div class="flex justify-between items-start gap-4">
+                        <span data-i18n="mdlLastOut" class="shrink-0 text-orange-600 font-bold flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> เบิกล่าสุด:</span> 
+                        <div id="modal-last-out" class="text-right">
+                            <span class="text-xs italic" data-i18n="mdlNone">ยังไม่มีการเบิก</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+
             <div class="mt-8 flex flex-col gap-3">
                 <button id="btn-view-map" class="w-full bg-blue-50 text-blue-600 font-bold py-3.5 rounded-xl hover:bg-blue-100 transition-colors text-base flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -729,7 +733,6 @@
 
     <div id="toast-container"></div>
 
-    <!-- Credit Watermark (fixed bottom-left) -->
     <div id="credit-watermark" class="fixed bottom-4 left-4 z-[990] pointer-events-none px-3 py-1.5 rounded-full shadow-sm border flex items-center gap-1.5 opacity-40 bg-white dark:bg-slate-800 transition-opacity duration-300" style="border-color:var(--border)">
         <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
         <span class="text-[10px] font-bold tracking-wider" style="color:var(--text)">Developed By AArm 2026</span>
@@ -740,8 +743,8 @@
     const i18nData = {
         th: {
             loading:"กำลังโหลดระบบ 3D คลังสินค้า...",menuOverview:"ภาพรวมคลังสินค้า",menuSearch:"เช็คสต็อก / ค้นหา",menuIn:"รับสินค้าเข้า",menuOut:"เบิกสินค้าออก",menuLogs:"ประวัติการทำงาน",menuReports:"รายงาน",menuHelp:"วิธีการใช้งาน",menuSettings:"การตั้งค่า",
-            searchTitle:"สต็อกทั้งหมด / ค้นหา",searchPlaceholder:"พิมพ์ชื่อสินค้า...",notFound:"ไม่พบสินค้าในสต็อก",sizeText:"ขนาด",slotText:"ช่อง",pcsText:"ชิ้น",
-            inTitle:"รับสินค้าเข้า",inItemName:"ชื่อสินค้า",inSize:"ขนาดแพ็กเกจ (cm)",width:"กว้าง",depth:"ลึก",height:"สูง",inQty:"จำนวน (ชิ้น)",inSelectSlot:"เลือกช่องเก็บ",selectDash:"-- เลือก --",inBtn:"บันทึกรับเข้า",
+            searchTitle:"สต็อกทั้งหมด / ค้นหา",searchPlaceholder:"พิมพ์ชื่อสินค้า...",notFound:"ไม่พบสินค้าในสต็อก",slotText:"ช่อง",pcsText:"ชิ้น",
+            inTitle:"รับสินค้าเข้า",inItemName:"ชื่อสินค้า",inSize:"ขนาดแพ็กเกจ เพื่อจำลองใน 3D (cm)",inSizeHint:"* หากไม่กรอก ระบบจะใช้ขนาดมาตรฐาน 40x40x15",width:"กว้าง",depth:"ลึก",height:"สูง",inQty:"จำนวน (ชิ้น)",inSelectSlot:"เลือกช่องเก็บ",selectDash:"-- เลือก --",inBtn:"บันทึกรับเข้า",
             outTitle:"เบิกสินค้าออก",outSearch:"ค้นหาสินค้า",outFrom:"เบิกจาก:",outWho:"ชื่อผู้เบิก",outWhoPh:"เช่น นาย A แผนก B",outDate:"เวลาที่เบิก",outQty:"จำนวน",outQtyPh:"จำนวนชิ้น",outBtn:"ยืนยัน",
             logTitle:"ประวัติการทำงาน",logEmpty:"ยังไม่มีประวัติ",logBy:"บันทึกโดย",
             repTitle:"รายงาน",repType:"ประเภทรายงาน",repOptSum:"1. สรุปยอดรวมสินค้า",repOpt1:"2. แจกแจงตามช่อง",repOpt2:"3. รายงานรับสินค้าเข้า",repOpt3:"4. รายงานเบิกสินค้าออก",repStart:"ตั้งแต่วันที่",repEnd:"ถึงวันที่",repFilterLoc:"กรองช่อง",repBtnGen:"ดึงข้อมูล",repExcel:"Excel (CSV)",repPdf:"พิมพ์ / PDF",repWait:'คลิก "ดึงข้อมูล" เพื่อแสดงผล',repEmpty:"ไม่พบข้อมูล",
@@ -751,10 +754,11 @@
             manH3:"ค้นหาและรายงาน",manP3L1:"ค้นหา",manP3L2:"ประวัติ (Logs)",manP3L3:"ส่งออก Report",manAlert:"เตือนสินค้าเหลือน้อยกว่า 10 ชิ้น",
             manH4:"ตั้งค่าผังคลังสินค้า",manP4A:"โหมด Admin รหัสผ่าน สำหรับสร้างชั้นวาง",manP4L1:"สร้างแบบกลุ่ม",manP4L2:"ขนาด/มิติ",manP4L3:"ดูตัวอย่าง 3D สีฟ้า",
             cfgTitle:"ตั้งค่าชั้นวาง (ซม.)",cfgPrefix:"Prefix แถว",cfgBatch:"สร้างแบบกลุ่ม",cfgSlots:"จำนวนช่อง",cfgOrder:"ทิศทาง",cfgDir:"แกน 3D",cfgDirX:"แกน X (ซ้าย-ขวา)",cfgDirZ:"แกน Y (ลึก)",cfgRot:"การหันหน้า",cfgRot0:"0 องศา",cfgRot90:"90 องศา",cfgX:"X",cfgZ:"Y",cfgSize:"ขนาดต่อช่อง (ซม.)",heightPerLvl:"สูง/ชั้น",cfgLevels:"จำนวนชั้น",cfgBtn:"บันทึกผังคลังสินค้า",cfgList:"รายการชั้นวางปัจจุบัน",lblRow:"แถว",delRow:"ลบแถว",confDelRowTitle:"ยืนยันการลบ",confDelRowMsg:"ลบแถว {0} ทั้งหมดใช่ไหม?",btnCancel:"ยกเลิก",btnOk:"ยืนยัน",delBtn:"ลบ",
-            setMenu:"การตั้งค่า",setLang:"เลือกภาษา",
-            mdlLoc:"ตำแหน่ง:",mdlQty:"จำนวนคงเหลือ:",mdlSize:"ขนาด (กxลxส):",mdlUpdate:"อัปเดตล่าสุด:",mdlBtnOut:"นำไปเบิกออก",btnViewMap:"ดูตำแหน่งบน 3D",
+            setMenu:"การตั้งค่า",setLang:"เลือกภาษา", setTheme:"🎨 ธีมหน้าจอ (Theme)", setThemeL:"☀️ สว่าง", setThemeD:"🌙 มืด",
+            setFont:"🔡 ขนาดตัวหนังสือ", setFontS:"เล็ก", setFontN:"ปกติ", setFontL:"ใหญ่", setFontDesc:"ระบบจดจำการตั้งค่าสำหรับครั้งต่อไปอัตโนมัติ",
+            mdlLoc:"ตำแหน่ง:",mdlQty:"จำนวนคงเหลือ:",mdlUpdate:"นำเข้า/อัปเดตล่าสุด:",mdlLastOut:"เบิกล่าสุด:",mdlNone:"ยังไม่มีการเบิก",mdlBy:"โดย:",mdlBtnOut:"นำไปเบิกออก",btnViewMap:"ดูตำแหน่งบน 3D",
             toastSuccess:"สำเร็จ",toastError:"เกิดข้อผิดพลาด",toastNoStock:"จำนวนไม่พอ",toastDateReq:"กรุณาเลือกวันที่",toastNoExport:"ไม่มีข้อมูลส่งออก",
-            colDate:"วันที่",colName:"ชื่อสินค้า",colQty:"จำนวน",colSlot:"ช่อง",colSize:"ขนาด",colLogDate:"วันเวลา",colDetails:"รายละเอียด",colUser:"ผู้ทำรายการ",
+            colDate:"วันที่",colName:"ชื่อสินค้า",colQty:"จำนวน",colSlot:"ช่อง",colLogDate:"วันเวลา",colDetails:"รายละเอียด",colUser:"ผู้ทำรายการ",
             lblSlot:"ช่อง",lblLevel:"ชั้น",lblPage:"หน้า",btnPrev:"ก่อนหน้า",btnNext:"ถัดไป",
             lowStockAlert:"⚠ ใกล้หมด", fifoBadge:"แนะนำ (FIFO)",
             pwdTitle:"ยืนยันตัวตนผู้ดูแล",pwdDesc:"กรอกรหัสผ่านเพื่อเข้าจัดการผังคลังสินค้า",pwdPh:"รหัสผ่าน",pwdErr:"รหัสผ่านไม่ถูกต้อง",pwdForgot:"หากลืมรหัสผ่าน กรุณาติดต่อ ",pwdDev:"นักพัฒนา",
@@ -762,8 +766,8 @@
         },
         en: {
             loading:"Loading 3D Warehouse...",menuOverview:"Overview",menuSearch:"Check Stock / Search",menuIn:"Stock In",menuOut:"Stock Out",menuLogs:"Logs",menuReports:"Reports",menuHelp:"User Manual",menuSettings:"Settings",
-            searchTitle:"All Stock / Search",searchPlaceholder:"Type item name...",notFound:"No items found",sizeText:"Size",slotText:"Slot",pcsText:"pcs",
-            inTitle:"Stock In",inItemName:"Item Name",inSize:"Package Size (cm)",width:"Width",depth:"Depth",height:"Height",inQty:"Total Qty (pcs)",inSelectSlot:"Select Slot",selectDash:"-- Select --",inBtn:"Save Stock In",
+            searchTitle:"All Stock / Search",searchPlaceholder:"Type item name...",notFound:"No items found",slotText:"Slot",pcsText:"pcs",
+            inTitle:"Stock In",inItemName:"Item Name",inSize:"3D Simulation Size (cm)",inSizeHint:"* Default is 40x40x15 if left blank",width:"Width",depth:"Depth",height:"Height",inQty:"Total Qty (pcs)",inSelectSlot:"Select Slot",selectDash:"-- Select --",inBtn:"Save Stock In",
             outTitle:"Stock Out",outSearch:"Search item",outFrom:"From:",outWho:"Recipient",outWhoPh:"e.g., John Doe",outDate:"Date & Time",outQty:"Quantity",outQtyPh:"pcs",outBtn:"Confirm",
             logTitle:"Operation Logs",logEmpty:"No logs yet",logBy:"Logged by",
             repTitle:"Reports",repType:"Report Type",repOptSum:"1. Summary by Item",repOpt1:"2. Detailed by Slot",repOpt2:"3. Stock In Report",repOpt3:"4. Stock Out Report",repStart:"From",repEnd:"To",repFilterLoc:"Filter by Slot",repBtnGen:"Generate",repExcel:"Excel (CSV)",repPdf:"Print / PDF",repWait:"Click Generate to view",repEmpty:"No data found",
@@ -773,10 +777,11 @@
             manH3:"Search & Reports",manP3L1:"Search",manP3L2:"Logs",manP3L3:"Export CSV/PDF",manAlert:"Low stock alert (<10 pcs)",
             manH4:"Warehouse Config",manP4A:"Admin mode for racks",manP4L1:"Batch create",manP4L2:"Dimensions",manP4L3:"Blue 3D Preview",
             cfgTitle:"Rack Config (cm)",cfgPrefix:"Row Prefix",cfgBatch:"Batch Create",cfgSlots:"Slots",cfgOrder:"Order",cfgDir:"3D Axis",cfgDirX:"X Axis (L-R)",cfgDirZ:"Y Axis (Depth)",cfgRot:"Orientation",cfgRot0:"0 deg",cfgRot90:"90 deg",cfgX:"X",cfgZ:"Y",cfgSize:"Size per Slot (cm)",heightPerLvl:"H/Lvl",cfgLevels:"Levels",cfgBtn:"Save Layout",cfgList:"Current Racks",lblRow:"Row",delRow:"Delete Row",confDelRowTitle:"Confirm Delete",confDelRowMsg:"Delete entire row {0}?",btnCancel:"Cancel",btnOk:"Confirm",delBtn:"Del",
-            setMenu:"Settings",setLang:"Language",
-            mdlLoc:"Location:",mdlQty:"Remaining:",mdlSize:"Size (WxDxH):",mdlUpdate:"Updated:",mdlBtnOut:"Take Out",btnViewMap:"View in 3D",
+            setMenu:"Settings",setLang:"Language", setTheme:"🎨 Theme", setThemeL:"☀️ Light", setThemeD:"🌙 Dark",
+            setFont:"🔡 Font Size", setFontS:"Small", setFontN:"Normal", setFontL:"Large", setFontDesc:"Preferences are saved automatically",
+            mdlLoc:"Location:",mdlQty:"Remaining Qty:",mdlUpdate:"Stock In/Updated:",mdlLastOut:"Last Out:",mdlNone:"No records",mdlBy:"By:",mdlBtnOut:"Take Out",btnViewMap:"View in 3D",
             toastSuccess:"Success",toastError:"Error occurred",toastNoStock:"Insufficient qty",toastDateReq:"Select dates",toastNoExport:"No data to export",
-            colDate:"Date",colName:"Item",colQty:"Qty",colSlot:"Slot",colSize:"Size",colLogDate:"DateTime",colDetails:"Details",colUser:"User",
+            colDate:"Date",colName:"Item",colQty:"Qty",colSlot:"Slot",colLogDate:"DateTime",colDetails:"Details",colUser:"User",
             lblSlot:"Slot",lblLevel:"Lvl",lblPage:"Page",btnPrev:"Prev",btnNext:"Next",
             lowStockAlert:"⚠ Low", fifoBadge:"Oldest (FIFO)",
             pwdTitle:"Admin Login",pwdDesc:"Enter password to config warehouse",pwdPh:"Password",pwdErr:"Invalid password",pwdForgot:"Forgot password? Contact ",pwdDev:"Developer",
@@ -784,8 +789,8 @@
         },
         ja: {
             loading:"3D倉庫を読み込み中...",menuOverview:"概要",menuSearch:"在庫確認・検索",menuIn:"入庫",menuOut:"出庫",menuLogs:"操作履歴",menuReports:"レポート",menuHelp:"マニュアル",menuSettings:"設定",
-            searchTitle:"全在庫・検索",searchPlaceholder:"商品名を入力...",notFound:"在庫なし",sizeText:"サイズ",slotText:"場所",pcsText:"個",
-            inTitle:"入庫",inItemName:"商品名",inSize:"サイズ (cm)",width:"幅",depth:"奥行",height:"高さ",inQty:"数量",inSelectSlot:"場所選択",selectDash:"-- 選択 --",inBtn:"入庫保存",
+            searchTitle:"全在庫・検索",searchPlaceholder:"商品名を入力...",notFound:"在庫なし",slotText:"場所",pcsText:"個",
+            inTitle:"入庫",inItemName:"商品名",inSize:"3D用サイズ (cm)",inSizeHint:"* 空白の場合はデフォルト 40x40x15",width:"幅",depth:"奥行",height:"高さ",inQty:"数量",inSelectSlot:"場所選択",selectDash:"-- 選択 --",inBtn:"入庫保存",
             outTitle:"出庫",outSearch:"検索",outFrom:"出庫元:",outWho:"出庫者",outWhoPh:"例: 太郎",outDate:"日時",outQty:"数量",outQtyPh:"個",outBtn:"確定",
             logTitle:"操作履歴",logEmpty:"履歴なし",logBy:"記録者",
             repTitle:"レポート",repType:"種類",repOptSum:"1. 商品別合計",repOpt1:"2. 場所別詳細",repOpt2:"3. 入庫レポート",repOpt3:"4. 出庫レポート",repStart:"開始日",repEnd:"終了日",repFilterLoc:"場所絞込",repBtnGen:"作成",repExcel:"Excel (CSV)",repPdf:"印刷 / PDF",repWait:"「作成」をクリック",repEmpty:"データなし",
@@ -795,10 +800,11 @@
             manH3:"検索とレポート",manP3L1:"検索",manP3L2:"履歴",manP3L3:"CSV/PDF出力",manAlert:"在庫少アラート (10個未満)",
             manH4:"倉庫設定",manP4A:"ラック作成(管理者)",manP4L1:"一括作成",manP4L2:"寸法",manP4L3:"青い3Dプレビュー",
             cfgTitle:"ラック設定 (cm)",cfgPrefix:"行プレフィックス",cfgBatch:"一括作成",cfgSlots:"枠数",cfgOrder:"順番",cfgDir:"3D軸",cfgDirX:"X軸 (左右)",cfgDirZ:"Y軸 (奥行)",cfgRot:"向き",cfgRot0:"0度",cfgRot90:"90度",cfgX:"X",cfgZ:"Y",cfgSize:"1枠サイズ (cm)",heightPerLvl:"高さ/段",cfgLevels:"段数",cfgBtn:"保存",cfgList:"現在のラック",lblRow:"行",delRow:"行削除",confDelRowTitle:"削除確認",confDelRowMsg:"行 {0} をすべて削除?",btnCancel:"キャンセル",btnOk:"確認",delBtn:"削除",
-            setMenu:"設定",setLang:"言語",
-            mdlLoc:"場所:",mdlQty:"残量:",mdlSize:"サイズ:",mdlUpdate:"更新:",mdlBtnOut:"出庫する",btnViewMap:"3Dで見る",
+            setMenu:"設定",setLang:"言語", setTheme:"🎨 テーマ", setThemeL:"☀️ ライト", setThemeD:"🌙 ダーク",
+            setFont:"🔡 フォントサイズ", setFontS:"小", setFontN:"標準", setFontL:"大", setFontDesc:"設定は自動的に保存されます",
+            mdlLoc:"場所:",mdlQty:"残量:",mdlUpdate:"入庫/更新日時:",mdlLastOut:"最終出庫:",mdlNone:"記録なし",mdlBy:"担当:",mdlBtnOut:"出庫する",btnViewMap:"3Dで見る",
             toastSuccess:"成功",toastError:"エラー",toastNoStock:"数量不足",toastDateReq:"日付選択",toastNoExport:"データなし",
-            colDate:"日付",colName:"商品名",colQty:"数量",colSlot:"場所",colSize:"サイズ",colLogDate:"日時",colDetails:"詳細",colUser:"ユーザー",
+            colDate:"日付",colName:"商品名",colQty:"数量",colSlot:"場所",colLogDate:"日時",colDetails:"詳細",colUser:"ユーザー",
             lblSlot:"枠",lblLevel:"段",lblPage:"ページ",btnPrev:"前へ",btnNext:"次へ",
             lowStockAlert:"⚠ 残少", fifoBadge:"最古(FIFO)",
             pwdTitle:"管理者ログイン",pwdDesc:"パスワードを入力",pwdPh:"パスワード",pwdErr:"無効なパスワード",pwdForgot:"忘れた場合は連絡 ",pwdDev:"開発者",
@@ -970,6 +976,7 @@
     let scene,camera,renderer,controls,raycaster,mouse;
     let warehouseGroup=new THREE.Group(); let previewGroup=new THREE.Group();
     let itemMeshes={}; let highlightBox=null;
+    let clickableMeshes=[]; // [FIXED] Array เก็บเฉพาะกล่องสินค้า เพื่อให้จิ้มทะลุเหล็กได้
 
     // Easter egg state
     let easterEggShown=false; let moonScene,moonRenderer,moonCamera,ufoMesh;
@@ -1145,7 +1152,7 @@
         controls=new THREE.OrbitControls(camera,renderer.domElement);
         controls.enableDamping=true; controls.dampingFactor=0.05;
         controls.maxPolarAngle=Math.PI/2-0.02;
-        controls.maxDistance=MAX_ZOOM_DIST; // Force limit to prevent Safari glitch
+        controls.maxDistance=MAX_ZOOM_DIST; 
 
         controls.addEventListener('start',()=>{
             const m=document.getElementById('main-modal');
@@ -1153,12 +1160,11 @@
         });
         controls.addEventListener('end',()=>{ document.getElementById('main-modal').style.opacity=''; });
 
-        // Easter egg threshold - Trigger slightly before Safari's elastic scroll fights us
         controls.addEventListener('change',()=>{
             const dist=camera.position.distanceTo(controls.target);
             if(dist >= MAX_ZOOM_DIST * 0.95 && !easterEggShown){
                 easterEggShown = true;
-                controls.enabled = false; // Lock controls to stop safari bouncing
+                controls.enabled = false; 
                 showEasterEgg();
             }
         });
@@ -1188,22 +1194,21 @@
 
         raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
         
-        // Single listener for clicking 3D Objects on both Touch and Mouse
+        // [FIXED] Single listener for clicking. Pass only clickableMeshes to raycaster.
         renderer.domElement.addEventListener('pointerdown', (event) => {
             if(!document.getElementById('main-modal').classList.contains('hidden') && document.getElementById('tab-config').classList.contains('hidden')) return;
-            if(!event.isPrimary) return; // Prevent multi-touch bugs
+            if(!event.isPrimary) return; 
 
             const rect=renderer.domElement.getBoundingClientRect();
             mouse.x=((event.clientX-rect.left)/rect.width)*2-1; 
             mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
             raycaster.setFromCamera(mouse,camera);
-            const hits=raycaster.intersectObjects(warehouseGroup.children,false);
             
-            // FILTER ONLY ITEMS (Ignore text sprites, shelf bases, shelf legs)
-            const itemHits = hits.filter(h => h.object.userData && h.object.userData.type === 'item');
+            // ใช้เช็คเฉพาะ array ของกล่องสินค้า เลเซอร์จะทะลุโครงเหล็กไปโดนกล่องด้านในแน่นอน
+            const hits=raycaster.intersectObjects(clickableMeshes, false);
 
-            if(itemHits.length>0){
-                const hit=itemHits[0].object;
+            if(hits.length>0){
+                const hit=hits[0].object;
                 highlightLocation(hit.userData.data.locationId,hit.userData.data.id); 
                 showItemDetails(hit.userData.data, true); 
             } else {
@@ -1236,13 +1241,10 @@
     function hideEasterEgg(){
         document.getElementById('easter-egg').classList.remove('show');
         easterEggShown=false;
-        controls.enabled=true; // Unlock controls
-        
-        // Force camera back immediately to avoid Safari re-triggering bounce loop
+        controls.enabled=true; 
         camera.position.set(2000, 2000, 2000);
         controls.target.set(0, 0, 0);
         controls.update();
-        
         resetCamera();
     }
     document.getElementById('btn-back-earth').addEventListener('click',hideEasterEgg);
@@ -1361,40 +1363,56 @@
     function rebuild3DWarehouse(){
         while(warehouseGroup.children.length>0) warehouseGroup.remove(warehouseGroup.children[0]);
         itemMeshes={};
-        const rackMat=new THREE.MeshStandardMaterial({color:0x94a3b8,metalness:0.3,roughness:0.7});
-        const legMat=new THREE.MeshStandardMaterial({color:0x475569,metalness:0.6});
+        clickableMeshes=[]; // ล้างอาร์เรย์กล่องสินค้า
+        // [FIXED] ปรับสีชั้นวางให้อ่อนลง ลดความเงา เพิ่มความสว่าง
+        const rackMat=new THREE.MeshStandardMaterial({color:0xe2e8f0,metalness:0.1,roughness:0.8});
+        const legMat=new THREE.MeshStandardMaterial({color:0xcbd5e1,metalness:0.2,roughness:0.8});
+        
         locations.forEach(loc=>{
             const rot=parseInt(loc.rot)||0;
             const dispW=rot===90?parseFloat(loc.d):parseFloat(loc.w); const dispD=rot===90?parseFloat(loc.w):parseFloat(loc.d);
             const h=parseFloat(loc.h)||150; const levels=parseInt(loc.levels)||1;
             const x=parseFloat(loc.x), z=parseFloat(loc.z); const legT=5, shelfT=2;
             let totalH=(levels-1)*h+shelfT; if(levels===1) totalH=shelfT;
+            
+            // สร้างเสา
             if(levels>1){
                 const legGeo=new THREE.BoxGeometry(legT,totalH,legT);
                 [[x-dispW/2+legT/2,z-dispD/2+legT/2],[x+dispW/2-legT/2,z-dispD/2+legT/2],[x-dispW/2+legT/2,z+dispD/2-legT/2],[x+dispW/2-legT/2,z+dispD/2-legT/2]].forEach(pos=>{
                     const leg=new THREE.Mesh(legGeo,legMat); leg.position.set(pos[0],totalH/2,pos[1]); leg.castShadow=true; warehouseGroup.add(leg);
                 });
             }
+            // ป้ายชื่อแถว
             const label=createTextSprite(loc.id,(rot===90?dispD:dispW)/4);
             label.position.set(x,totalH+(levels>1?50:30),z); warehouseGroup.add(label);
+            
             for(let l=0;l<levels;l++){
                 const baseY=l*h;
+                // แผ่นชั้นวาง
                 const shelf=new THREE.Mesh(new THREE.BoxGeometry(dispW,shelfT,dispD),rackMat);
                 shelf.position.set(x,baseY+shelfT/2,z); shelf.receiveShadow=true; shelf.castShadow=true; warehouseGroup.add(shelf);
-                if(levels>1){ const ll=createTextSprite(`L${l+1}`,20); ll.position.set(x,baseY+20,z+dispD/2+5); warehouseGroup.add(ll); }
+                
+                // [FIXED] นำบรรทัดที่สร้างป้าย L1 L2 ออกตามความต้องการ
+
                 const slotId=`${loc.id}L${l+1}`;
                 const itemsInSlot=inventory.filter(i=>i.locationId===slotId);
                 if(itemsInSlot.length>0){
                     let stackY=baseY+shelfT;
                     itemsInSlot.forEach(item=>{
-                        const iW=parseFloat(item.w)||50, iD=parseFloat(item.d)||50, iH=parseFloat(item.h)||50;
+                        const iW=parseFloat(item.w)||40, iD=parseFloat(item.d)||40, iH=parseFloat(item.h)||15;
                         if(stackY+iH>baseY+h) return;
                         const hue=(item.name.split('').reduce((a,b)=>a+b.charCodeAt(0),0)%360)/360;
                         const mat=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(hue,0.7,0.5),roughness:0.4});
                         const box=new THREE.Mesh(new THREE.BoxGeometry(iW,iH,iD),mat);
                         if(rot===90) box.rotation.y=Math.PI/2;
                         box.position.set(x,stackY+iH/2,z); box.castShadow=true; box.receiveShadow=true;
-                        box.userData={type:'item',data:item}; warehouseGroup.add(box); itemMeshes[item.id]=box; stackY+=iH;
+                        box.userData={type:'item',data:item}; 
+                        
+                        warehouseGroup.add(box); 
+                        itemMeshes[item.id]=box; 
+                        clickableMeshes.push(box); // เพิ่มใส่ array สำหรับกดคลิก
+                        
+                        stackY+=iH;
                     });
                 }
             }
@@ -1423,17 +1441,28 @@
         openTab('home');
     };
 
-    // Modified to receive from3D boolean
     function showItemDetails(item, from3D = false){
         document.getElementById('modal-name').innerText=item.name;
         document.getElementById('modal-loc').innerText=formatLocation(item.locationId);
         document.getElementById('modal-qty').innerText=`${item.qty} ${t('pcsText')}`;
-        document.getElementById('modal-size').innerText=`${item.w||'?'}x${item.d||'?'}x${item.h||'?'} cm`;
         document.getElementById('modal-date').innerText=new Date(item.timestamp).toLocaleString('th-TH');
         
+        // [FIXED] โชว์ประวัติการเบิกล่าสุด
+        const loContainer = document.getElementById('modal-last-out');
+        if(item.lastOutDate && item.lastOutBy){
+            const loDate = new Date(item.lastOutDate).toLocaleString('th-TH');
+            loContainer.innerHTML = `
+                <div class="font-bold text-sm" style="color:var(--text)">${item.lastOutQty} ${t('pcsText')}</div>
+                <div class="text-xs mt-0.5" style="color:var(--text-muted)">${t('mdlBy')} ${item.lastOutBy}</div>
+                <div class="text-[10px]" style="color:var(--text-muted)">${loDate}</div>
+            `;
+        } else {
+            loContainer.innerHTML = `<span class="text-xs italic" data-i18n="mdlNone">${t('mdlNone')}</span>`;
+        }
+
         const btnViewMap = document.getElementById('btn-view-map');
         if(from3D) {
-            btnViewMap.style.display = 'none'; // Hide if already viewed in 3D
+            btnViewMap.style.display = 'none'; 
         } else {
             btnViewMap.style.display = 'flex';
             btnViewMap.onclick=()=>{ openTab('home'); highlightLocation(item.locationId,item.id); closeItemModal(); };
@@ -1455,7 +1484,6 @@
         let results=[...inventory];
         if(q) results=results.filter(i=>i.name.toLowerCase().includes(q));
         
-        // FIFO sort: Name asc, then Timestamp asc (oldest first)
         results.sort((a,b)=>{
             const nameCmp = a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'});
             if(nameCmp!==0) return nameCmp;
@@ -1464,7 +1492,6 @@
 
         if(results.length===0) return res.innerHTML=`<div class="text-center py-8 text-sm col-span-full w-full" style="color:#ef4444">${t('notFound')}</div>`;
 
-        // Check for duplicates to display badge only when needed
         const nameCounts = {};
         results.forEach(i => { nameCounts[i.name] = (nameCounts[i.name] || 0) + 1; });
         const seenNames = new Set();
@@ -1476,7 +1503,6 @@
             const hasMultiple = nameCounts[item.name] > 1;
             const isOldest = !seenNames.has(item.name);
             seenNames.add(item.name);
-            // Show badge only if it's the oldest AND there are duplicates
             const oldestBadge = (isOldest && hasMultiple) ? `<span class="fifo-badge">⭐ ${t('fifoBadge')}</span>` : '';
 
             const div=document.createElement('div');
@@ -1488,8 +1514,6 @@
                     <div class="font-bold text-base md:text-sm flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
                     <div class="flex items-center gap-2 flex-wrap text-sm md:text-xs mt-1" style="color:var(--text-muted)">
                         <span><b style="color:var(--text)">${formatLocation(item.locationId)}</b></span>
-                        <span class="text-gray-300">|</span>
-                        <span>${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
@@ -1510,7 +1534,6 @@
                 <div class="w-full">
                     <div class="font-bold text-base md:text-sm mb-2 flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge}</div>
                     ${oldestBadge ? `<div class="mb-2">${oldestBadge}</div>` : ''}
-                    <div class="text-sm md:text-xs mb-3" style="color:var(--text-muted)">${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</div>
                     <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block mb-3" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
                 </div>
                 <div class="flex items-center justify-between w-full border-t pt-3 mt-auto" style="border-color:var(--border)">
@@ -1533,7 +1556,7 @@
         if(!mesh) for(let k in itemMeshes) if(itemMeshes[k].userData.data.locationId===slotId){ mesh=itemMeshes[k]; break; }
         if(mesh){
             const pos=new THREE.Vector3(); mesh.getWorldPosition(pos); const item=mesh.userData.data;
-            highlightBox.geometry=new THREE.BoxGeometry((item.w||50)*1.1,(item.h||50)*1.1,(item.d||50)*1.1); highlightBox.position.copy(pos); highlightBox.visible=true;
+            highlightBox.geometry=new THREE.BoxGeometry((item.w||40)*1.1,(item.h||15)*1.1,(item.d||40)*1.1); highlightBox.position.copy(pos); highlightBox.visible=true;
             const targetPos=new THREE.Vector3(pos.x+400,pos.y+300,pos.z+500);
             let tStep=0; const startPos=camera.position.clone(); const startTar=controls.target.clone();
             const anim=setInterval(()=>{ tStep+=0.05; if(tStep>=1){ clearInterval(anim); tStep=1; } camera.position.lerpVectors(startPos,targetPos,tStep); controls.target.lerpVectors(startTar,pos,tStep); },16);
@@ -1623,14 +1646,41 @@
 
     window.handleStockIn=async function(e){
         e.preventDefault();
-        const data={name:document.getElementById('in-name').value.trim(),w:parseFloat(document.getElementById('in-w').value),d:parseFloat(document.getElementById('in-d').value),h:parseFloat(document.getElementById('in-h').value),qty:parseInt(document.getElementById('in-qty').value),locationId:document.getElementById('in-location').value,timestamp:Date.now()};
+        
+        // [FIXED] Block button to prevent double submit
+        const btn = document.getElementById('btn-submit-in');
+        btn.disabled = true;
+
+        // [FIXED] Default size logic: 40x40x15 if empty
+        const wVal = parseFloat(document.getElementById('in-w').value);
+        const dVal = parseFloat(document.getElementById('in-d').value);
+        const hVal = parseFloat(document.getElementById('in-h').value);
+
+        const data={
+            name: document.getElementById('in-name').value.trim(),
+            w: isNaN(wVal) || wVal <= 0 ? 40 : wVal,
+            d: isNaN(dVal) || dVal <= 0 ? 40 : dVal,
+            h: isNaN(hVal) || hVal <= 0 ? 15 : hVal,
+            qty: parseInt(document.getElementById('in-qty').value, 10),
+            locationId: document.getElementById('in-location').value,
+            timestamp: Date.now()
+        };
         try{
             const existing=inventory.find(i=>i.name===data.name&&i.locationId===data.locationId);
             if(existing) await setDoc(doc(db,firestorePath('inventory'),existing.id),{qty:existing.qty+data.qty,timestamp:Date.now()},{merge:true});
             else await addDoc(collection(db,firestorePath('inventory')),data);
-            const hid=data.name.replace(/[\/\\]/g,'_'); await setDoc(doc(db,firestorePath('itemHistory'),hid),{name:data.name,w:data.w,d:data.d,h:data.h});
-            writeLog('IN',`[IN] ${data.name} (+${data.qty}) -> ${formatLocation(data.locationId)}`); showToast(t('toastSuccess')); document.getElementById('form-in').reset();
-        }catch(e){ showToast(t('toastError'),'error'); }
+            
+            const hid=data.name.replace(/[\/\\]/g,'_'); 
+            await setDoc(doc(db,firestorePath('itemHistory'),hid),{name:data.name,w:data.w,d:data.d,h:data.h});
+            
+            writeLog('IN',`[IN] ${data.name} (+${data.qty}) -> ${formatLocation(data.locationId)}`); 
+            showToast(t('toastSuccess')); 
+            document.getElementById('form-in').reset();
+        }catch(e){ 
+            showToast(t('toastError'),'error'); 
+        } finally {
+            btn.disabled = false; // Restore button
+        }
     };
 
     window.filterOutItems=function(){
@@ -1639,7 +1689,6 @@
         let filtered=[...inventory];
         if(q) filtered=filtered.filter(i=>i.name.toLowerCase().includes(q));
         
-        // FIFO sort
         filtered.sort((a,b)=>{
             const nameCmp = a.name.localeCompare(b.name,undefined,{numeric:true});
             if(nameCmp!==0) return nameCmp;
@@ -1689,16 +1738,46 @@
 
     window.handleStockOut=async function(e){
         e.preventDefault(); if(!selectedOutItem) return;
-        const outQty=parseInt(document.getElementById('out-qty').value); const who=document.getElementById('out-who').value.trim(); const dt=document.getElementById('out-datetime').value;
-        if(outQty>selectedOutItem.qty) return showToast(t('toastNoStock'),'error');
+        
+        // [FIXED] Block button
+        const btn = document.getElementById('btn-submit-out');
+        btn.disabled = true;
+
+        const outQty=parseInt(document.getElementById('out-qty').value, 10); 
+        const who=document.getElementById('out-who').value.trim(); 
+        const dt=document.getElementById('out-datetime').value;
+        const dtMs = new Date(dt).getTime();
+
+        if(outQty>selectedOutItem.qty) {
+            btn.disabled = false;
+            return showToast(t('toastNoStock'),'error');
+        }
+
         try{
             const newQty=selectedOutItem.qty-outQty;
-            if(newQty===0) await deleteDoc(doc(db,firestorePath('inventory'),selectedOutItem.id));
-            else await setDoc(doc(db,firestorePath('inventory'),selectedOutItem.id),{qty:newQty},{merge:true});
+            
+            // [FIXED] Update doc with last out details instead of just deleting
+            if(newQty===0) {
+                await deleteDoc(doc(db,firestorePath('inventory'),selectedOutItem.id));
+            } else {
+                await setDoc(doc(db,firestorePath('inventory'),selectedOutItem.id),{
+                    qty: newQty,
+                    lastOutQty: outQty,
+                    lastOutBy: who,
+                    lastOutDate: dtMs
+                },{merge:true});
+            }
+
             writeLog('OUT',`[OUT] ${selectedOutItem.name} (-${outQty}) <- ${formatLocation(selectedOutItem.locationId)} (By:${who} @ ${new Date(dt).toLocaleString('th-TH')})`);
-            showToast(t('toastSuccess')); document.getElementById('out-action-area').classList.add('hidden'); document.getElementById('out-search').value='';
+            showToast(t('toastSuccess')); 
+            document.getElementById('out-action-area').classList.add('hidden'); 
+            document.getElementById('out-search').value='';
             selectedOutItem=null; filterOutItems();
-        }catch(e){ showToast(t('toastError'),'error'); }
+        }catch(e){ 
+            showToast(t('toastError'),'error'); 
+        } finally {
+            btn.disabled = false;
+        }
     };
 
     window.toggleReportFilters=function(){ document.querySelector('.loc-filter').classList.toggle('hidden',document.getElementById('rep-type').value!=='INV'); };
@@ -1714,13 +1793,13 @@
             if(type==='SUM'){
                 const summaryMap={};
                 inventory.forEach(i=>{
-                    if(!summaryMap[i.name]) summaryMap[i.name]={totalQty:0,locations:[],size:`${i.w}x${i.d}x${i.h} cm`,timestamp:i.timestamp};
+                    if(!summaryMap[i.name]) summaryMap[i.name]={totalQty:0,locations:[],timestamp:i.timestamp};
                     summaryMap[i.name].totalQty+=i.qty; summaryMap[i.name].locations.push(`${formatLocation(i.locationId)} (${i.qty})`);
                     if(i.timestamp>summaryMap[i.name].timestamp) summaryMap[i.name].timestamp=i.timestamp;
                 });
-                data=Object.keys(summaryMap).map(name=>{ let o={}; o[t('colName')]=name; o[t('colQty')]=summaryMap[name].totalQty; o[t('colSlot')]=summaryMap[name].locations.join(', '); o[t('colSize')]=summaryMap[name].size; o[t('colDate')]=new Date(summaryMap[name].timestamp).toLocaleString('th-TH'); return o; });
+                data=Object.keys(summaryMap).map(name=>{ let o={}; o[t('colName')]=name; o[t('colQty')]=summaryMap[name].totalQty; o[t('colSlot')]=summaryMap[name].locations.join(', '); o[t('colDate')]=new Date(summaryMap[name].timestamp).toLocaleString('th-TH'); return o; });
             } else if(type==='INV'){
-                data=inventory.filter(i=>(i.timestamp>=sTs&&i.timestamp<=eTs)&&(locFilter===''||i.locationId===locFilter)).sort((a,b)=>b.timestamp-a.timestamp).map(i=>{ let o={}; o[t('colDate')]=new Date(i.timestamp).toLocaleString('th-TH'); o[t('colName')]=i.name; o[t('colQty')]=i.qty; o[t('colSlot')]=formatLocation(i.locationId); o[t('colSize')]=`${i.w}x${i.d}x${i.h} cm`; return o; });
+                data=inventory.filter(i=>(i.timestamp>=sTs&&i.timestamp<=eTs)&&(locFilter===''||i.locationId===locFilter)).sort((a,b)=>b.timestamp-a.timestamp).map(i=>{ let o={}; o[t('colDate')]=new Date(i.timestamp).toLocaleString('th-TH'); o[t('colName')]=i.name; o[t('colQty')]=i.qty; o[t('colSlot')]=formatLocation(i.locationId); return o; });
             } else {
                 const snap=await window.getDocs(collection(db,firestorePath('logs'))); let allLogs=[]; snap.forEach(d=>allLogs.push(d.data()));
                 data=allLogs.filter(l=>l.action===type&&l.timestamp>=sTs&&l.timestamp<=eTs).sort((a,b)=>b.timestamp-a.timestamp).map(l=>{ let o={}; o[t('colLogDate')]=new Date(l.timestamp).toLocaleString('th-TH'); o[t('colDetails')]=l.details; o[t('colUser')]=l.user; return o; });
@@ -1741,17 +1820,15 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 
-    // FIXED: อัปเดตฟังก์ชันนี้ ให้มี Loading Spinner และ Delay หลีกเลี่ยง UI ค้าง
+    // [FIXED] ใช้ onafterprint เพื่อจัดการสถานะปุ่ม ให้แม่นยำขึ้น
     window.printPDF=function(){
         if(!window.currentReportData||window.currentReportData.length===0) return showToast(t('toastNoExport'),'error');
         
         const btn = document.getElementById('btn-print-pdf');
         const originalHtml = btn.innerHTML;
-        // เปลี่ยนปุ่มเป็นสถานะโหลด
         btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>กำลังเตรียม...</span>`;
         btn.disabled = true;
 
-        // หน่วงเวลาเล็กน้อยเพื่อให้เบราว์เซอร์โชว์อนิเมชันปุ่มโหลดก่อนค่อยเรียกหน้าจอ Print 
         setTimeout(() => {
             const pa=document.getElementById('print-area'); 
             const sel=document.getElementById('rep-type'); 
@@ -1769,14 +1846,20 @@
             html+=`</tbody></table>`;
             pa.innerHTML=html; 
 
-            // เรียกคำสั่ง Print
-            window.print();
-
-            // คืนค่าปุ่มกลับเป็นเหมือนเดิมหลังจากกดปิดหน้าต่าง Print
-            setTimeout(() => {
+            // ฟังก์ชันคืนค่าปุ่ม
+            const restoreBtn = () => {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
-            }, 500);
+                window.removeEventListener('afterprint', restoreBtn);
+            };
+
+            // เมื่อปิดหน้าต่าง Print ให้คืนค่าปุ่ม (เวิร์ค 90% ของเบราว์เซอร์)
+            window.addEventListener('afterprint', restoreBtn);
+            
+            window.print();
+            
+            // Fallback เผื่อเบราว์เซอร์ไหนไม่รองรับ afterprint แบบเนียนๆ (เช่น iOS บางเวอร์ชัน)
+            setTimeout(restoreBtn, 3000); 
 
         }, 150);
     };
