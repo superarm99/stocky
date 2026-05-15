@@ -62,25 +62,16 @@
 
         * { box-sizing: border-box; }
 
+        html { font-size: 14px; transition: font-size 0.3s; }
+        
         body {
             font-family: 'Inter', 'Sarabun', sans-serif;
             overflow: hidden;
             background: var(--bg);
             color: var(--text);
-            /* Font Size Scale */
-            font-size: var(--font-scale, 14px);
             transition: background 0.3s, color 0.3s;
-            /* Use dvh for mobile browser compatibility */
-            height: 100dvh;
-            width: 100vw;
-            margin: 0;
-            padding: 0;
+            height: 100dvh; width: 100vw; margin: 0; padding: 0;
         }
-
-        /* Font scale utility */
-        body[data-font="small"]  { --font-scale: 12px; }
-        body[data-font="normal"] { --font-scale: 14px; }
-        body[data-font="large"]  { --font-scale: 16px; }
 
         #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 1; outline: none; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100dvh; z-index: 10; pointer-events: none; display: flex; }
@@ -97,8 +88,7 @@
             background: var(--sidebar-bg);
             border-right-color: var(--border);
             transition: transform 0.3s ease-in-out, background 0.3s;
-            height: 100dvh;
-            padding-bottom: env(safe-area-inset-bottom);
+            height: 100dvh; padding-bottom: env(safe-area-inset-bottom);
         }
         @media (max-width: 768px) {
             #sidebar { position: fixed; height: 100dvh; transform: translateX(-100%); }
@@ -110,11 +100,8 @@
         #main-modal {
             background: var(--modal-bg);
             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
-            /* Better mobile spacing */
-            top: max(8px, env(safe-area-inset-top));
-            bottom: max(8px, env(safe-area-inset-bottom));
-            left: max(8px, env(safe-area-inset-left));
-            right: max(8px, env(safe-area-inset-right));
+            top: max(8px, env(safe-area-inset-top)); bottom: max(8px, env(safe-area-inset-bottom));
+            left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right));
             max-height: calc(100dvh - 16px);
         }
         @media (min-width: 768px) {
@@ -127,22 +114,9 @@
         #item-modal.show { display: flex; opacity: 1; }
 
         /* ===== CARDS ===== */
-        .card {
-            background: var(--card-bg);
-            border-color: var(--border);
-            color: var(--text);
-            transition: background 0.3s, border-color 0.3s;
-        }
-        .input-style {
-            background: var(--input-bg);
-            border-color: var(--input-border);
-            color: var(--text);
-            transition: background 0.3s, border-color 0.3s, color 0.3s;
-        }
-        /* Fix iOS Zoom on input */
-        @media screen and (max-width: 768px) {
-            input, select, textarea { font-size: 16px !important; }
-        }
+        .card { background: var(--card-bg); border-color: var(--border); color: var(--text); transition: background 0.3s, border-color 0.3s; }
+        .input-style { background: var(--input-bg); border-color: var(--input-border); color: var(--text); transition: background 0.3s, border-color 0.3s, color 0.3s; }
+        @media screen and (max-width: 768px) { input, select, textarea { font-size: 16px !important; } }
         .input-style:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); }
 
         /* ===== LOADER ===== */
@@ -166,28 +140,32 @@
         /* ===== LIST / GRID VIEW ===== */
         .grid-view-btn.active { background: #e0e7ff; color: #4f46e5; border-color: #c7d2fe; }
         html.dark .grid-view-btn.active { background: #3730a3; color: #a5b4fc; }
-        .items-list-view > div { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 16px; }
-        .items-list-view .item-details { display: flex; flex-direction: row; align-items: center; gap: 12px; flex-wrap: wrap; }
-        @media (max-width: 640px) {
-            .items-list-view > div { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .items-list-view > div > div:last-child { width: 100%; justify-content: space-between; }
+        
+        /* True List View CSS */
+        .items-list-view.list-mode > div { 
+            display: flex; flex-direction: row; align-items: center; justify-content: space-between; 
+            padding: 12px 0; border: none; border-bottom: 1px solid var(--border);
+            border-radius: 0; background: transparent; shadow: none;
         }
-
-        /* ===== CREDIT WATERMARK — shows only on home ===== */
-        #credit-watermark { transition: opacity 0.4s; bottom: max(12px, env(safe-area-inset-bottom)); left: max(12px, env(safe-area-inset-left)); }
+        .items-list-view.list-mode > div:hover { background: var(--hover-bg); padding-left: 8px; padding-right: 8px; }
+        @media (max-width: 640px) {
+            .items-list-view.list-mode > div { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .items-list-view.list-mode > div > div:last-child { width: 100%; justify-content: space-between; }
+        }
 
         /* ===== LOW STOCK BADGE ===== */
         .low-stock-badge { display: inline-flex; align-items: center; gap: 4px; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.65; } }
 
-        /* ===== EASTER EGG — Moon ===== */
+        /* ===== EASTER EGG (TRANSITION & MOON) ===== */
+        #transition-layer { position: fixed; inset: 0; z-index: 9985; pointer-events: none; opacity: 0; transition: opacity 1.5s ease-in-out, background-color 1.5s ease-in-out; }
         #easter-egg { position: fixed; inset: 0; z-index: 9990; display: none; flex-direction: column; align-items: center; justify-content: center; background: #020B18; color: white; font-family: 'Inter', sans-serif; text-align: center; pointer-events: auto; }
         #easter-egg.show { display: flex; }
         #moon-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .easter-text { position: relative; z-index: 2; }
-        .easter-text h1 { font-size: clamp(1.5rem, 5vw, 3rem); font-weight: 800; letter-spacing: 0.1em; color: #e2e8f0; margin-bottom: 0.5rem; text-shadow: 0 0 30px rgba(148,210,255,0.5); }
-        .easter-text p { font-size: clamp(0.8rem, 2vw, 1.1rem); color: #94a3b8; margin-bottom: 2rem; }
-        #btn-back-earth { padding: 12px 32px; background: #10b981; color: white; border: none; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; z-index: 2; position: relative; transition: background 0.2s; box-shadow: 0 4px 15px rgba(16,185,129,0.4); }
+        .easter-text { position: relative; z-index: 2; text-align: center; padding: 20px; }
+        .easter-text h1 { font-size: clamp(1.5rem, 5vw, 3rem); font-weight: 800; letter-spacing: 0.1em; color: #ffffff; margin-bottom: 0.5rem; text-shadow: 0 0 15px rgba(255,255,255,0.8), 0 0 30px rgba(148,210,255,0.6); min-height: 4rem; }
+        .easter-text p { font-size: clamp(0.8rem, 2vw, 1.1rem); color: #e2e8f0; margin-bottom: 2rem; min-height: 2rem; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        #btn-back-earth { padding: 12px 32px; background: #10b981; color: white; border: none; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; z-index: 2; position: relative; transition: background 0.2s; box-shadow: 0 4px 15px rgba(16,185,129,0.4); display: none; }
         #btn-back-earth:hover { background: #059669; transform: translateY(-2px); }
 
         /* ===== PASSWORD MODAL ===== */
@@ -198,14 +176,13 @@
         /* Print */
         #print-area { display: none; }
         @media print {
-            #canvas-container, #ui-layer, #toast-container, .fixed, #item-modal, #main-overlay, #main-modal, #confirm-modal, #easter-egg, #pwd-modal { display: none !important; }
+            #canvas-container, #ui-layer, #toast-container, .fixed, #item-modal, #main-overlay, #main-modal, #confirm-modal, #easter-egg, #pwd-modal, #transition-layer { display: none !important; }
             body { background: white !important; overflow: visible !important; font-size: 12px; height: auto; }
             #print-area { display: block !important; padding: 20px; color: black; }
             table { width: 100%; border-collapse: collapse; margin-top: 16px; }
             th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; font-size: 12px; }
             th { background: #f8fafc !important; -webkit-print-color-adjust: exact; }
             h2 { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 4px; }
-            p.print-date { text-align: center; color: #64748b; font-size: 12px; margin-bottom: 16px; }
         }
 
         /* Dark mode text overrides */
@@ -222,23 +199,17 @@
         html.dark .text-slate-700 { color: #cbd5e1 !important; }
         html.dark .bg-slate-50 { background: #1e293b !important; }
         html.dark .bg-slate-100 { background: #334155 !important; }
-        html.dark .bg-indigo-50 { background: #1e1b4b !important; }
-        html.dark .text-indigo-600 { color: #818cf8 !important; }
         html.dark select, html.dark input[type="text"], html.dark input[type="number"], html.dark input[type="datetime-local"], html.dark input[type="date"] {
-            background: var(--input-bg) !important;
-            border-color: var(--input-border) !important;
-            color: var(--text) !important;
+            background: var(--input-bg) !important; border-color: var(--input-border) !important; color: var(--text) !important;
         }
         html.dark #sidebar { background: rgba(15,23,42,0.98); border-right-color: #334155; }
         
-        /* Floating action buttons */
-        .floating-actions {
-            bottom: max(20px, env(safe-area-inset-bottom));
-            right: max(20px, env(safe-area-inset-right));
-        }
+        .floating-actions { bottom: max(20px, env(safe-area-inset-bottom)); right: max(20px, env(safe-area-inset-right)); }
+        .fifo-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; border: 1px solid #fde047; background: #fef9c3; color: #854d0e; font-weight: bold; margin-left: 6px; white-space: nowrap; }
+        html.dark .fifo-badge { background: #713f12; border-color: #a16207; color: #fef08a; }
     </style>
 </head>
-<body data-font="normal">
+<body>
 
     <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center" style="background:var(--modal-bg)">
         <div class="mb-5 relative">
@@ -252,13 +223,14 @@
         <p class="mt-1 text-sm" style="color:var(--text-muted)" data-i18n="loading">กำลังโหลดระบบ 3D คลังสินค้า...</p>
     </div>
 
-    <!-- Easter Egg Moon -->
+    <!-- Transition & Easter Egg -->
+    <div id="transition-layer"></div>
     <div id="easter-egg">
         <canvas id="moon-canvas"></canvas>
         <div class="easter-text">
-            <h1>🌙 ยินดีต้อนรับสู่ดวงจันทร์</h1>
-            <p>คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... มีคลังสินค้าบนดวงจันทร์ด้วยนะ!</p>
-            <button id="btn-back-earth">🚀 กลับโลก</button>
+            <h1 id="ee-title"></h1>
+            <p id="ee-desc"></p>
+            <button id="btn-back-earth" data-i18n="eeBack">🚀 กลับโลก</button>
         </div>
     </div>
 
@@ -270,17 +242,17 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
                 <div>
-                    <h3 class="font-bold text-base" style="color:var(--text)">ยืนยันตัวตนผู้ดูแล</h3>
-                    <p class="text-xs" style="color:var(--text-muted)">กรอกรหัสผ่านเพื่อเข้าจัดการผังคลังสินค้า</p>
+                    <h3 class="font-bold text-base" style="color:var(--text)" data-i18n="pwdTitle">ยืนยันตัวตนผู้ดูแล</h3>
+                    <p class="text-xs" style="color:var(--text-muted)" data-i18n="pwdDesc">กรอกรหัสผ่านเพื่อเข้าจัดการผังคลังสินค้า</p>
                 </div>
             </div>
-            <input type="password" id="pwd-input" placeholder="รหัสผ่าน" class="w-full px-4 py-3 border rounded-xl text-sm mb-3 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onkeydown="if(event.key==='Enter') checkPassword()">
-            <div id="pwd-error" class="text-red-500 text-xs mb-3 hidden">รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่หรือติดต่อนักพัฒนา</div>
+            <input type="password" id="pwd-input" data-i18n-ph="pwdPh" class="w-full px-4 py-3 border rounded-xl text-sm mb-3 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onkeydown="if(event.key==='Enter') checkPassword()">
+            <div id="pwd-error" class="text-red-500 text-xs mb-3 hidden" data-i18n="pwdErr">รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่หรือติดต่อนักพัฒนา</div>
             <div class="flex gap-3">
-                <button onclick="closePwdModal()" class="flex-1 py-3 rounded-xl text-sm font-medium" style="background:var(--hover-bg);color:var(--text)">ยกเลิก</button>
-                <button onclick="checkPassword()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors">ยืนยัน</button>
+                <button onclick="closePwdModal()" class="flex-1 py-3 rounded-xl text-sm font-medium" style="background:var(--hover-bg);color:var(--text)" data-i18n="btnCancel">ยกเลิก</button>
+                <button onclick="checkPassword()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors" data-i18n="btnOk">ยืนยัน</button>
             </div>
-            <p class="text-xs mt-4 text-center" style="color:var(--text-muted)">หากลืมรหัสผ่าน กรุณาติดต่อ <a href="mailto:velken_arm_@hotmail.com" class="text-primary hover:underline">นักพัฒนา</a></p>
+            <p class="text-xs mt-4 text-center" style="color:var(--text-muted)"><span data-i18n="pwdForgot">หากลืมรหัสผ่าน กรุณาติดต่อ </span><a href="mailto:velken_arm_@hotmail.com" class="text-primary hover:underline" data-i18n="pwdDev">นักพัฒนา</a></p>
         </div>
     </div>
 
@@ -385,17 +357,17 @@
                                 </button>
                             </div>
                         </div>
-                        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อสินค้า..." class="w-full md:max-w-md px-4 py-3 border rounded-xl mb-4 text-base md:text-sm shrink-0 shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="handleSearch()">
-                        <div id="search-results" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start items-list-view"></div>
+                        <input type="text" id="searchInput" data-i18n-ph="searchPlaceholder" class="w-full md:max-w-md px-4 py-3 border rounded-xl mb-4 text-base md:text-sm shrink-0 shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="handleSearch()">
+                        <div id="search-results" class="flex-1 overflow-y-auto pr-2 pb-24 flex flex-col gap-3 content-start items-list-view"></div>
                     </div>
 
                     <!-- Tab: In -->
-                    <div id="tab-in" class="tab-content hidden relative max-w-3xl mx-auto w-full overflow-y-auto pr-2">
+                    <div id="tab-in" class="tab-content hidden flex-col relative max-w-3xl mx-auto w-full h-full">
                         <h2 class="text-xl font-bold text-primary mb-5 flex items-center gap-2 shrink-0">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
                             <span data-i18n="inTitle">รับสินค้าเข้า</span>
                         </h2>
-                        <form id="form-in" onsubmit="handleStockIn(event)" class="space-y-5 pb-24">
+                        <form id="form-in" onsubmit="handleStockIn(event)" class="flex-1 overflow-y-auto pr-2 space-y-6 pb-24">
                             <div class="relative">
                                 <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="inItemName">ชื่อสินค้า</label>
                                 <input type="text" id="in-name" required class="w-full px-4 py-3 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" autocomplete="off" oninput="showAutocomplete('in-name','in-autocomplete')">
@@ -403,7 +375,7 @@
                             </div>
                             <div class="p-5 rounded-2xl border" style="background:var(--hover-bg);border-color:var(--border)">
                                 <label class="block font-bold text-sm mb-4" style="color:var(--text)" data-i18n="inSize">ขนาดแพ็กเกจรวมต่อการนำเข้า (cm)</label>
-                                <div class="grid grid-cols-3 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="width">กว้าง</label><input type="number" id="in-w" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                                     <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="depth">ลึก</label><input type="number" id="in-d" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
                                     <div><label class="block text-xs mb-1.5" style="color:var(--text-muted)" data-i18n="height">สูง</label><input type="number" id="in-h" min="1" required class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)"></div>
@@ -421,7 +393,9 @@
                                     </select>
                                 </div>
                             </div>
-                            <button type="submit" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3.5 rounded-xl transition-colors text-base shadow-lg" data-i18n="inBtn">บันทึกรับเข้า</button>
+                            <div class="pt-2">
+                                <button type="submit" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3.5 rounded-xl transition-colors text-base shadow-lg" data-i18n="inBtn">บันทึกรับเข้า</button>
+                            </div>
                         </form>
                     </div>
 
@@ -444,21 +418,22 @@
                         <form id="form-out" onsubmit="handleStockOut(event)" class="flex flex-col h-full overflow-hidden relative">
                             <div class="relative shrink-0 mb-4 md:max-w-md w-full">
                                 <label class="block font-medium text-sm mb-2" style="color:var(--text)" data-i18n="outSearch">ค้นหาสินค้าที่จะเบิก</label>
-                                <input type="text" id="out-search" placeholder="พิมพ์ชื่อสินค้า..." class="w-full px-4 py-3 border rounded-xl text-base md:text-sm shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="filterOutItems()">
+                                <input type="text" id="out-search" data-i18n-ph="searchPlaceholder" class="w-full px-4 py-3 border rounded-xl text-base md:text-sm shadow-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" oninput="filterOutItems()">
                             </div>
-                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start items-list-view"></div>
+                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-2 pb-24 flex flex-col gap-3 content-start items-list-view"></div>
                             
-                            <div id="out-action-area" class="hidden absolute bottom-0 left-0 right-0 p-4 border-t shadow-[0_-10px_20px_rgba(0,0,0,0.05)] shrink-0 z-20 rounded-t-2xl" style="border-color:var(--border);background:var(--modal-bg)">
+                            <div id="out-action-area" class="hidden absolute bottom-0 left-0 right-0 p-4 border-t shadow-[0_-10px_20px_rgba(0,0,0,0.05)] shrink-0 z-20 rounded-t-2xl pb-[max(16px,env(safe-area-inset-bottom))]" style="border-color:var(--border);background:var(--modal-bg)">
                                 <div class="flex justify-between items-center mb-3">
                                     <div class="text-sm truncate" style="color:var(--text-muted)"><span data-i18n="outFrom">เบิกจาก:</span> <span id="out-selected-label" class="font-bold text-base bg-orange-100 text-orange-700 px-2.5 py-1 rounded-lg ml-1"></span></div>
-                                    <button type="button" onclick="cancelOut()" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg shrink-0">
+                                    <button type="button" onclick="cancelOut()" class="p-2 text-gray-400 hover:text-red-500 rounded-lg shrink-0 transition-colors bg-gray-50 dark:bg-gray-800">
+                                        <span class="sr-only">Cancel</span>
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outWho">ชื่อผู้เบิก</label>
-                                        <input type="text" id="out-who" required placeholder="นาย A แผนก B" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                        <input type="text" id="out-who" required data-i18n-ph="outWhoPh" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                     </div>
                                     <div class="hidden md:block">
                                         <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outDate">เวลาที่เบิก</label>
@@ -467,7 +442,7 @@
                                     <div>
                                         <label class="block font-medium text-sm mb-1.5" style="color:var(--text)" data-i18n="outQty">จำนวน</label>
                                         <div class="flex gap-2">
-                                            <input type="number" id="out-qty" min="1" required placeholder="ชิ้น" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm flex-1 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
+                                            <input type="number" id="out-qty" min="1" required data-i18n-ph="outQtyPh" class="w-full px-3 py-2.5 border rounded-xl text-base md:text-sm flex-1 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)">
                                             <button type="submit" class="px-5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-base md:text-sm whitespace-nowrap shadow-md" data-i18n="outBtn">ยืนยัน</button>
                                         </div>
                                     </div>
@@ -482,7 +457,7 @@
                             <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span data-i18n="logTitle">ประวัติการทำงานล่าสุด</span>
                         </h2>
-                        <div id="logs-container" class="flex-1 overflow-y-auto pr-2 pb-10 flex flex-col gap-3 content-start">
+                        <div id="logs-container" class="flex-1 overflow-y-auto pr-2 pb-24 flex flex-col gap-3 content-start">
                             <div class="text-center py-8" style="color:var(--text-muted)" data-i18n="loading">กำลังโหลด...</div>
                         </div>
                         <div id="log-pagination" class="hidden flex justify-between items-center mt-4 pt-4 border-t shrink-0 mb-2" style="border-color:var(--border)">
@@ -536,8 +511,8 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="flex-1 overflow-auto border rounded-2xl relative min-h-[200px]" style="border-color:var(--border)">
-                            <div class="block w-full overflow-x-auto">
+                        <div class="flex-1 overflow-auto border rounded-2xl relative min-h-[200px] mb-8" style="border-color:var(--border)">
+                            <div class="block w-full overflow-x-auto h-full">
                                 <table class="w-full text-sm text-left whitespace-nowrap">
                                     <thead id="rep-thead" class="sticky top-0 border-b z-10 text-xs uppercase" style="background:var(--hover-bg);border-color:var(--border);color:var(--text-muted)"></thead>
                                     <tbody id="rep-tbody"><tr><td class="text-center py-10 text-sm" colspan="100%" style="color:var(--text-muted)" data-i18n="repWait">คลิก "ดึงข้อมูลรายงาน" เพื่อแสดงผล</td></tr></tbody>
@@ -553,25 +528,59 @@
                             <span data-i18n="helpTitle">คู่มือการใช้งานระบบ</span>
                         </h2>
                         <div class="border rounded-2xl p-5 md:p-8 space-y-8 max-w-3xl mx-auto w-full" style="background:var(--hover-bg);border-color:var(--border)">
+                            
                             <section>
-                                <h3 class="text-lg font-bold mb-4 border-b pb-2" style="color:var(--text);border-color:var(--border)" data-i18n="help3DHeader">1. การควบคุมมุมมอง 3D</h3>
-                                <ul class="space-y-4 text-base md:text-sm" style="color:var(--text)">
-                                    <li class="flex items-start gap-3"><span class="text-blue-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpRotate">หมุนมุมกล้อง:</strong> <span data-i18n="helpRotateDesc">คลิกซ้ายค้างแล้วลาก</span></div></li>
-                                    <li class="flex items-start gap-3"><span class="text-green-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpPan">เลื่อนกล้อง:</strong> <span data-i18n="helpPanDesc">คลิกขวาค้างแล้วลาก</span></div></li>
-                                    <li class="flex items-start gap-3"><span class="text-purple-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpZoom">ซูมเข้า/ออก:</strong> <span data-i18n="helpZoomDesc">เลื่อน Scroll Wheel</span></div></li>
-                                    <li class="flex items-start gap-3"><span class="text-orange-500 mt-0.5 shrink-0">●</span><div><strong data-i18n="helpTouch">มือถือ:</strong> <span data-i18n="helpTouchDesc">1 นิ้วหมุน, 2 นิ้วเลื่อน/ซูม</span></div></li>
-                                </ul>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-primary" style="border-color:var(--border)" data-i18n="manH1">การนำทางและมุมมอง 3D (Overview)</h3>
+                                <div class="space-y-3 text-base md:text-sm" style="color:var(--text)">
+                                    <p data-i18n="manP1">หน้าภาพรวมคลังสินค้าเป็นจุดเริ่มต้น เพื่อดูสภาพจริงของคลังสินค้าในรูปแบบ 3D แบบเรียลไทม์</p>
+                                    <ul class="list-disc pl-5 space-y-2 mt-2 text-gray-600 dark:text-gray-400">
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP1L1">PC/Mouse:</strong> คลิกซ้ายเพื่อหมุนกล้อง, คลิกขวาเพื่อเลื่อน(Pan), ลูกกลิ้งเมาส์เพื่อซูมเข้า-ออก</li>
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP1L2">Mobile/Touch:</strong> ใช้ 1 นิ้วลากเพื่อหมุนกล้อง, ใช้ 2 นิ้วถ่างเพื่อซูม หรือเลื่อนเพื่อ Pan</li>
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP1L3">Click วัตถุ:</strong> คลิกที่กล่องสินค้าบนชั้นวาง เพื่อดูรายละเอียดชื่อ จำนวน และช่องเก็บ พร้อมปุ่มลัดเพื่อ "เบิกออก" ทันที</li>
+                                    </ul>
+                                </div>
                             </section>
+
                             <section>
-                                <h3 class="text-lg font-bold mb-4 border-b pb-2" style="color:var(--text);border-color:var(--border)" data-i18n="helpSysHeader">2. การจัดการคลังสินค้า</h3>
-                                <ul class="space-y-3.5 text-base md:text-sm" style="color:var(--text)">
-                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys1">เช็คสต็อก:</strong> <span data-i18n="helpSys1Desc">ดูสินค้าทั้งหมด กด 👁 เพื่อดูใน 3D</span></div></li>
-                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys2">รับเข้า / เบิกออก:</strong> <span data-i18n="helpSys2Desc">บันทึกการเคลื่อนไหวสินค้า</span></div></li>
-                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys3">รายงาน:</strong> <span data-i18n="helpSys3Desc">ส่งออก CSV / PDF</span></div></li>
-                                    <li class="flex items-start gap-2.5"><span class="text-primary mt-1 shrink-0">●</span><div><strong data-i18n="helpSys4">ผังคลัง:</strong> <span data-i18n="helpSys4Desc">ต้องใส่รหัสผ่านผู้ดูแล (⚙️ ขวาล่าง)</span></div></li>
-                                    <li class="flex items-start gap-2.5"><span class="text-red-500 mt-1 shrink-0">●</span><div><strong>Low Stock Alert:</strong> สินค้าต่ำกว่า 10 ชิ้น จะแสดงป้ายเตือนสีแดงอัตโนมัติ</div></li>
-                                </ul>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-primary" style="border-color:var(--border)" data-i18n="manH2">การจัดการสต็อกสินค้า (In / Out)</h3>
+                                <div class="space-y-4 text-base md:text-sm" style="color:var(--text)">
+                                    <div>
+                                        <h4 class="font-bold flex items-center gap-2 mb-1"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">IN</span> รับเข้า (Stock In)</h4>
+                                        <p class="text-gray-600 dark:text-gray-400" data-i18n="manP2A">ใช้สำหรับนำสินค้าเข้าคลัง ระบุชื่อ ขนาด จำนวน และ "เลือกช่องเก็บ (Slot)" ระบบจะวาดกล่องใน 3D ให้ทันที หากพิมพ์ชื่อสินค้าเดิม ระบบจะเดาขนาดให้อัตโนมัติ (Autocomplete)</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold flex items-center gap-2 mb-1"><span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">OUT</span> เบิกออก (Stock Out)</h4>
+                                        <p class="text-gray-600 dark:text-gray-400" data-i18n="manP2B">ค้นหาสินค้าที่ต้องการเบิก <b>(ระบบจะเรียงสินค้าล็อตที่เข้าคลังก่อนขึ้นมาบนสุดเสมอแบบ FIFO พร้อมติดป้าย ⭐)</b> เลือกล็อตที่ต้องการ ระบุชื่อผู้เบิก จำนวน และกดยืนยัน จำนวนจะถูกหักออกจากระบบและ 3D ทันที</p>
+                                    </div>
+                                </div>
                             </section>
+
+                            <section>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-primary" style="border-color:var(--border)" data-i18n="manH3">การค้นหาและรายงาน (Search & Reports)</h3>
+                                <div class="space-y-3 text-base md:text-sm" style="color:var(--text)">
+                                    <ul class="list-disc pl-5 space-y-3 text-gray-600 dark:text-gray-400">
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP3L1">เมนูค้นหา:</strong> พิมพ์ชื่อสินค้าเพื่อเช็คสต็อกทันที สามารถกดไอคอน 👁️ เพื่อกระโดดไปดูตำแหน่งกล่องนั้นในโกดัง 3D ได้ทันที (กล่องจะกระพริบสีเหลือง)</li>
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP3L2">ประวัติการทำงาน:</strong> ดู Log ย้อนหลังว่าใคร รับเข้า/เบิกออก อะไรไปบ้าง เวลาไหน</li>
+                                        <li><strong class="text-gray-800 dark:text-gray-200" data-i18n="manP3L3">ส่งออกรายงาน:</strong> สร้าง Report ได้ 4 แบบ เลือกช่วงวันที่ แล้วกดปุ่มเขียวเพื่อโหลดไฟล์ Excel (CSV) ไปทำข้อมูลต่อ หรือกดปุ่มดำเพื่อปริ้น/เซฟเป็น PDF</li>
+                                    </ul>
+                                    <div class="bg-red-50 text-red-700 p-3 rounded-xl border border-red-200 mt-2 text-xs">
+                                        <b data-i18n="manAlert">⚠ สินค้าใกล้หมด (Low Stock Alert):</b> สินค้าที่มีจำนวนต่ำกว่า 10 ชิ้น จะมีป้ายสีแดงกระพริบเตือนในหน้าค้นหาและหน้าเบิกออกอัตโนมัติ
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-primary" style="border-color:var(--border)" data-i18n="manH4">การตั้งค่าผังคลังสินค้า (Admin Config)</h3>
+                                <div class="space-y-3 text-base md:text-sm text-gray-600 dark:text-gray-400">
+                                    <p data-i18n="manP4A">กดที่ปุ่ม ⚙️ (เฟือง) มุมขวาล่างในหน้า 3D (ต้องใส่รหัสผ่าน) เพื่อเข้าสู่โหมดสร้างชั้นวางสินค้า</p>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li data-i18n="manP4L1"><b>สร้างแบบกลุ่ม:</b> กำหนดอักษรนำ (เช่น A), จำนวนช่อง (เช่น 10), แกน (แนวนอน X, แนวตั้ง Y) ระบบจะสร้างชั้นวาง A1 ถึง A10 เรียงต่อกันให้อัตโนมัติ</li>
+                                        <li data-i18n="manP4L2"><b>ขนาด:</b> ใส่ขนาดกว้าง ลึก สูง(ต่อชั้น) ของชั้นวางเหล็ก เพื่อให้สัดส่วน 3D สมจริง</li>
+                                        <li data-i18n="manP4L3"><b>Preview:</b> ระบบจะแสดงเส้นประสีน้ำเงินให้ดูก่อนกดยืนยันบันทึกผัง</li>
+                                    </ul>
+                                </div>
+                            </section>
+
                             <div class="border-t pt-5 text-center" style="border-color:var(--border)">
                                 <div class="text-xs mb-3" style="color:var(--text-muted)" data-i18n="helpDev">ผู้พัฒนา AArm -- version 2.0.0 -- 16/05/2026</div>
                                 <a href="mailto:velken_arm_@hotmail.com" class="inline-flex items-center gap-2 text-primary hover:text-primaryHover font-bold transition-colors text-sm bg-green-50 px-4 py-2 rounded-xl">
@@ -723,49 +732,67 @@
             loading:"กำลังโหลดระบบ 3D คลังสินค้า...",menuOverview:"ภาพรวมคลังสินค้า",menuSearch:"เช็คสต็อก / ค้นหา",menuIn:"รับสินค้าเข้า",menuOut:"เบิกสินค้าออก",menuLogs:"ประวัติการทำงาน",menuReports:"รายงาน",menuHelp:"วิธีการใช้งาน",menuSettings:"การตั้งค่า",
             searchTitle:"สต็อกทั้งหมด / ค้นหา",searchPlaceholder:"พิมพ์ชื่อสินค้า...",notFound:"ไม่พบสินค้าในสต็อก",sizeText:"ขนาด",slotText:"ช่อง",pcsText:"ชิ้น",
             inTitle:"รับสินค้าเข้า",inItemName:"ชื่อสินค้า",inSize:"ขนาดแพ็กเกจ (cm)",width:"กว้าง",depth:"ลึก",height:"สูง",inQty:"จำนวน (ชิ้น)",inSelectSlot:"เลือกช่องเก็บ",selectDash:"-- เลือก --",inBtn:"บันทึกรับเข้า",
-            outTitle:"เบิกสินค้าออก",outSearch:"ค้นหาสินค้า",outFrom:"เบิกจาก:",outWho:"ชื่อผู้เบิก",outDate:"เวลาที่เบิก",outQty:"จำนวน",outBtn:"ยืนยัน",
+            outTitle:"เบิกสินค้าออก",outSearch:"ค้นหาสินค้า",outFrom:"เบิกจาก:",outWho:"ชื่อผู้เบิก",outWhoPh:"เช่น นาย A แผนก B",outDate:"เวลาที่เบิก",outQty:"จำนวน",outQtyPh:"จำนวนชิ้น",outBtn:"ยืนยัน",
             logTitle:"ประวัติการทำงาน",logEmpty:"ยังไม่มีประวัติ",logBy:"บันทึกโดย",
             repTitle:"รายงาน",repType:"ประเภทรายงาน",repOptSum:"1. สรุปยอดรวมสินค้า",repOpt1:"2. แจกแจงตามช่อง",repOpt2:"3. รายงานรับสินค้าเข้า",repOpt3:"4. รายงานเบิกสินค้าออก",repStart:"ตั้งแต่วันที่",repEnd:"ถึงวันที่",repFilterLoc:"กรองช่อง",repBtnGen:"ดึงข้อมูล",repExcel:"Excel (CSV)",repPdf:"พิมพ์ / PDF",repWait:'คลิก "ดึงข้อมูล" เพื่อแสดงผล',repEmpty:"ไม่พบข้อมูล",
-            helpTitle:"คู่มือการใช้งาน",help3DHeader:"1. การควบคุม 3D",helpRotate:"หมุนกล้อง:",helpRotateDesc:"คลิกซ้ายค้างแล้วลาก",helpPan:"เลื่อนกล้อง:",helpPanDesc:"คลิกขวาค้างแล้วลาก",helpZoom:"ซูม:",helpZoomDesc:"เลื่อน Scroll",helpTouch:"มือถือ:",helpTouchDesc:"1 นิ้วหมุน, 2 นิ้วซูม",helpSysHeader:"2. การจัดการคลัง",helpSys1:"เช็คสต็อก:",helpSys1Desc:"ดูสินค้า กด 👁 ดู 3D",helpSys2:"รับเข้า/เบิกออก:",helpSys2Desc:"บันทึกการเคลื่อนไหว",helpSys3:"รายงาน:",helpSys3Desc:"ส่งออก CSV/PDF",helpSys4:"ผังคลัง:",helpSys4Desc:"ต้องใส่รหัสผ่าน",helpDev:"ผู้พัฒนา AArm -- v2.0 -- 16/05/2026",
-            cfgTitle:"ตั้งค่าชั้นวาง (ซม.)",cfgPrefix:"Prefix แถว",cfgBatch:"สร้างแบบกลุ่ม",cfgSlots:"จำนวนช่อง",cfgOrder:"ทิศทาง",cfgDir:"แกน 3D",cfgDirX:"แกน X (ซ้าย-ขวา)",cfgDirZ:"แกน Y (ลึก)",cfgRot:"การหันหน้า",cfgRot0:"0 องศา",cfgRot90:"90 องศา",cfgX:"X",cfgZ:"Y",cfgSize:"ขนาดต่อช่อง (ซม.)",heightPerLvl:"สูง/ชั้น",cfgLevels:"จำนวนชั้น",cfgBtn:"บันทึก",cfgList:"ชั้นวางปัจจุบัน",lblRow:"แถว",delRow:"ลบแถว",confDelRowTitle:"ยืนยันการลบ",confDelRowMsg:"ลบแถว {0} ทั้งหมดใช่ไหม?",btnCancel:"ยกเลิก",btnOk:"ยืนยัน",delBtn:"ลบ",
+            helpTitle:"คู่มือการใช้งานระบบ",helpDev:"ผู้พัฒนา AArm -- v2.0 -- 16/05/2026",
+            manH1:"การนำทางและมุมมอง 3D",manP1:"ดูสภาพจริงของคลังสินค้าใน 3D เรียลไทม์",manP1L1:"PC/Mouse",manP1L2:"Mobile/Touch",manP1L3:"คลิกที่กล่อง",
+            manH2:"การจัดการสต็อก",manP2A:"นำสินค้าเข้าคลัง ระบุชื่อ ขนาด ระบบจะจัดวาง 3D ทันที",manP2B:"ค้นหาสินค้า (จัดเรียงของเก่าขึ้นก่อน แบบ FIFO) เพื่อหักออกจากคลัง",
+            manH3:"ค้นหาและรายงาน",manP3L1:"ค้นหา",manP3L2:"ประวัติ (Logs)",manP3L3:"ส่งออก Report",manAlert:"เตือนสินค้าเหลือน้อยกว่า 10 ชิ้น",
+            manH4:"ตั้งค่าผังคลังสินค้า",manP4A:"โหมด Admin รหัสผ่าน สำหรับสร้างชั้นวาง",manP4L1:"สร้างแบบกลุ่ม",manP4L2:"ขนาด/มิติ",manP4L3:"ดูตัวอย่าง 3D สีฟ้า",
+            cfgTitle:"ตั้งค่าชั้นวาง (ซม.)",cfgPrefix:"Prefix แถว",cfgBatch:"สร้างแบบกลุ่ม",cfgSlots:"จำนวนช่อง",cfgOrder:"ทิศทาง",cfgDir:"แกน 3D",cfgDirX:"แกน X (ซ้าย-ขวา)",cfgDirZ:"แกน Y (ลึก)",cfgRot:"การหันหน้า",cfgRot0:"0 องศา",cfgRot90:"90 องศา",cfgX:"X",cfgZ:"Y",cfgSize:"ขนาดต่อช่อง (ซม.)",heightPerLvl:"สูง/ชั้น",cfgLevels:"จำนวนชั้น",cfgBtn:"บันทึกผังคลังสินค้า",cfgList:"รายการชั้นวางปัจจุบัน",lblRow:"แถว",delRow:"ลบแถว",confDelRowTitle:"ยืนยันการลบ",confDelRowMsg:"ลบแถว {0} ทั้งหมดใช่ไหม?",btnCancel:"ยกเลิก",btnOk:"ยืนยัน",delBtn:"ลบ",
             setMenu:"การตั้งค่า",setLang:"เลือกภาษา",
             mdlLoc:"ตำแหน่ง:",mdlQty:"จำนวนคงเหลือ:",mdlSize:"ขนาด (กxลxส):",mdlUpdate:"อัปเดตล่าสุด:",mdlBtnOut:"นำไปเบิกออก",btnViewMap:"ดูตำแหน่งบน 3D",
             toastSuccess:"สำเร็จ",toastError:"เกิดข้อผิดพลาด",toastNoStock:"จำนวนไม่พอ",toastDateReq:"กรุณาเลือกวันที่",toastNoExport:"ไม่มีข้อมูลส่งออก",
             colDate:"วันที่",colName:"ชื่อสินค้า",colQty:"จำนวน",colSlot:"ช่อง",colSize:"ขนาด",colLogDate:"วันเวลา",colDetails:"รายละเอียด",colUser:"ผู้ทำรายการ",
             lblSlot:"ช่อง",lblLevel:"ชั้น",lblPage:"หน้า",btnPrev:"ก่อนหน้า",btnNext:"ถัดไป",
-            lowStockAlert:"⚠ สินค้าใกล้หมด"
+            lowStockAlert:"⚠ ใกล้หมด", fifoBadge:"แนะนำ (เก่าสุด)",
+            pwdTitle:"ยืนยันตัวตนผู้ดูแล",pwdDesc:"กรอกรหัสผ่านเพื่อเข้าจัดการผังคลังสินค้า",pwdPh:"รหัสผ่าน",pwdErr:"รหัสผ่านไม่ถูกต้อง",pwdForgot:"หากลืมรหัสผ่าน กรุณาติดต่อ ",pwdDev:"นักพัฒนา",
+            eeTitle:"🌙 ยินดีต้อนรับสู่ดวงจันทร์",eeDesc:"คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... เรามีคลังสินค้าบนอวกาศด้วยนะ!",eeBack:"🚀 กลับโลก"
         },
         en: {
-            loading:"Loading 3D Warehouse...",menuOverview:"Overview",menuSearch:"Check Stock / Search",menuIn:"Stock In",menuOut:"Stock Out",menuLogs:"Operation Logs",menuReports:"Reports",menuHelp:"How to Use",menuSettings:"Settings",
+            loading:"Loading 3D Warehouse...",menuOverview:"Overview",menuSearch:"Check Stock / Search",menuIn:"Stock In",menuOut:"Stock Out",menuLogs:"Logs",menuReports:"Reports",menuHelp:"User Manual",menuSettings:"Settings",
             searchTitle:"All Stock / Search",searchPlaceholder:"Type item name...",notFound:"No items found",sizeText:"Size",slotText:"Slot",pcsText:"pcs",
             inTitle:"Stock In",inItemName:"Item Name",inSize:"Package Size (cm)",width:"Width",depth:"Depth",height:"Height",inQty:"Total Qty (pcs)",inSelectSlot:"Select Slot",selectDash:"-- Select --",inBtn:"Save Stock In",
-            outTitle:"Stock Out",outSearch:"Search item",outFrom:"From:",outWho:"Recipient",outDate:"Date & Time",outQty:"Quantity",outBtn:"Confirm",
+            outTitle:"Stock Out",outSearch:"Search item",outFrom:"From:",outWho:"Recipient",outWhoPh:"e.g., John Doe",outDate:"Date & Time",outQty:"Quantity",outQtyPh:"pcs",outBtn:"Confirm",
             logTitle:"Operation Logs",logEmpty:"No logs yet",logBy:"Logged by",
             repTitle:"Reports",repType:"Report Type",repOptSum:"1. Summary by Item",repOpt1:"2. Detailed by Slot",repOpt2:"3. Stock In Report",repOpt3:"4. Stock Out Report",repStart:"From",repEnd:"To",repFilterLoc:"Filter by Slot",repBtnGen:"Generate",repExcel:"Excel (CSV)",repPdf:"Print / PDF",repWait:"Click Generate to view",repEmpty:"No data found",
-            helpTitle:"System Guide",help3DHeader:"1. 3D Controls",helpRotate:"Rotate:",helpRotateDesc:"Left click & drag",helpPan:"Pan:",helpPanDesc:"Right click & drag",helpZoom:"Zoom:",helpZoomDesc:"Scroll wheel",helpTouch:"Mobile:",helpTouchDesc:"1 finger rotate, 2 fingers zoom",helpSysHeader:"2. Warehouse Mgmt",helpSys1:"Stock Check:",helpSys1Desc:"View all items, 👁 to locate in 3D",helpSys2:"In/Out:",helpSys2Desc:"Record inventory movement",helpSys3:"Reports:",helpSys3Desc:"Export CSV/PDF",helpSys4:"Layout:",helpSys4Desc:"Requires admin password",helpDev:"Developer: AArm -- v2.0 -- 2026/05/16",
+            helpTitle:"System Guide",helpDev:"Developer: AArm -- v2.0 -- 16/05/2026",
+            manH1:"3D Navigation",manP1:"Real-time 3D warehouse view.",manP1L1:"PC/Mouse",manP1L2:"Mobile/Touch",manP1L3:"Click objects",
+            manH2:"Inventory Mgmt",manP2A:"Stock in goods, system renders 3D immediately.",manP2B:"Stock out goods (FIFO sorted).",
+            manH3:"Search & Reports",manP3L1:"Search",manP3L2:"Logs",manP3L3:"Export CSV/PDF",manAlert:"Low stock alert (<10 pcs)",
+            manH4:"Warehouse Config",manP4A:"Admin mode for racks",manP4L1:"Batch create",manP4L2:"Dimensions",manP4L3:"Blue 3D Preview",
             cfgTitle:"Rack Config (cm)",cfgPrefix:"Row Prefix",cfgBatch:"Batch Create",cfgSlots:"Slots",cfgOrder:"Order",cfgDir:"3D Axis",cfgDirX:"X Axis (L-R)",cfgDirZ:"Y Axis (Depth)",cfgRot:"Orientation",cfgRot0:"0 deg",cfgRot90:"90 deg",cfgX:"X",cfgZ:"Y",cfgSize:"Size per Slot (cm)",heightPerLvl:"H/Lvl",cfgLevels:"Levels",cfgBtn:"Save Layout",cfgList:"Current Racks",lblRow:"Row",delRow:"Delete Row",confDelRowTitle:"Confirm Delete",confDelRowMsg:"Delete entire row {0}?",btnCancel:"Cancel",btnOk:"Confirm",delBtn:"Del",
             setMenu:"Settings",setLang:"Language",
-            mdlLoc:"Location:",mdlQty:"Remaining:",mdlSize:"Size (WxDxH):",mdlUpdate:"Updated:",mdlBtnOut:"Take Out",btnViewMap:"View on 3D",
+            mdlLoc:"Location:",mdlQty:"Remaining:",mdlSize:"Size (WxDxH):",mdlUpdate:"Updated:",mdlBtnOut:"Take Out",btnViewMap:"View in 3D",
             toastSuccess:"Success",toastError:"Error occurred",toastNoStock:"Insufficient qty",toastDateReq:"Select dates",toastNoExport:"No data to export",
             colDate:"Date",colName:"Item",colQty:"Qty",colSlot:"Slot",colSize:"Size",colLogDate:"DateTime",colDetails:"Details",colUser:"User",
             lblSlot:"Slot",lblLevel:"Lvl",lblPage:"Page",btnPrev:"Prev",btnNext:"Next",
-            lowStockAlert:"⚠ Low Stock"
+            lowStockAlert:"⚠ Low", fifoBadge:"Oldest (FIFO)",
+            pwdTitle:"Admin Login",pwdDesc:"Enter password to config warehouse",pwdPh:"Password",pwdErr:"Invalid password",pwdForgot:"Forgot password? Contact ",pwdDev:"Developer",
+            eeTitle:"🌙 Welcome to the Moon",eeDesc:"You zoomed out incredibly far... We have space warehouses too!",eeBack:"🚀 Back to Earth"
         },
         ja: {
-            loading:"3D倉庫を読み込み中...",menuOverview:"概要",menuSearch:"在庫確認・検索",menuIn:"入庫",menuOut:"出庫",menuLogs:"操作履歴",menuReports:"レポート",menuHelp:"使い方",menuSettings:"設定",
+            loading:"3D倉庫を読み込み中...",menuOverview:"概要",menuSearch:"在庫確認・検索",menuIn:"入庫",menuOut:"出庫",menuLogs:"操作履歴",menuReports:"レポート",menuHelp:"マニュアル",menuSettings:"設定",
             searchTitle:"全在庫・検索",searchPlaceholder:"商品名を入力...",notFound:"在庫なし",sizeText:"サイズ",slotText:"場所",pcsText:"個",
             inTitle:"入庫",inItemName:"商品名",inSize:"サイズ (cm)",width:"幅",depth:"奥行",height:"高さ",inQty:"数量",inSelectSlot:"場所選択",selectDash:"-- 選択 --",inBtn:"入庫保存",
-            outTitle:"出庫",outSearch:"検索",outFrom:"出庫元:",outWho:"出庫者",outDate:"日時",outQty:"数量",outBtn:"確定",
+            outTitle:"出庫",outSearch:"検索",outFrom:"出庫元:",outWho:"出庫者",outWhoPh:"例: 太郎",outDate:"日時",outQty:"数量",outQtyPh:"個",outBtn:"確定",
             logTitle:"操作履歴",logEmpty:"履歴なし",logBy:"記録者",
             repTitle:"レポート",repType:"種類",repOptSum:"1. 商品別合計",repOpt1:"2. 場所別詳細",repOpt2:"3. 入庫レポート",repOpt3:"4. 出庫レポート",repStart:"開始日",repEnd:"終了日",repFilterLoc:"場所絞込",repBtnGen:"作成",repExcel:"Excel (CSV)",repPdf:"印刷 / PDF",repWait:"「作成」をクリック",repEmpty:"データなし",
-            helpTitle:"操作ガイド",help3DHeader:"1. 3D操作",helpRotate:"回転:",helpRotateDesc:"左クリック+ドラッグ",helpPan:"移動:",helpPanDesc:"右クリック+ドラッグ",helpZoom:"ズーム:",helpZoomDesc:"ホイール",helpTouch:"モバイル:",helpTouchDesc:"1本指回転、2本指ズーム",helpSysHeader:"2. 倉庫管理",helpSys1:"在庫確認:",helpSys1Desc:"👁で3D位置確認",helpSys2:"入出庫:",helpSys2Desc:"在庫移動記録",helpSys3:"レポート:",helpSys3Desc:"CSV/PDF出力",helpSys4:"レイアウト:",helpSys4Desc:"管理者パスワード必要",helpDev:"開発者: AArm -- v2.0 -- 2026/05/16",
+            helpTitle:"操作ガイド",helpDev:"開発者: AArm -- v2.0 -- 16/05/2026",
+            manH1:"3D操作",manP1:"リアルタイム3D倉庫ビュー",manP1L1:"PC/マウス",manP1L2:"モバイル/タッチ",manP1L3:"オブジェクトをクリック",
+            manH2:"在庫管理",manP2A:"入庫 (3D即時反映)",manP2B:"出庫 (先入先出ソート)",
+            manH3:"検索とレポート",manP3L1:"検索",manP3L2:"履歴",manP3L3:"CSV/PDF出力",manAlert:"在庫少アラート (10個未満)",
+            manH4:"倉庫設定",manP4A:"ラック作成(管理者)",manP4L1:"一括作成",manP4L2:"寸法",manP4L3:"青い3Dプレビュー",
             cfgTitle:"ラック設定 (cm)",cfgPrefix:"行プレフィックス",cfgBatch:"一括作成",cfgSlots:"枠数",cfgOrder:"順番",cfgDir:"3D軸",cfgDirX:"X軸 (左右)",cfgDirZ:"Y軸 (奥行)",cfgRot:"向き",cfgRot0:"0度",cfgRot90:"90度",cfgX:"X",cfgZ:"Y",cfgSize:"1枠サイズ (cm)",heightPerLvl:"高さ/段",cfgLevels:"段数",cfgBtn:"保存",cfgList:"現在のラック",lblRow:"行",delRow:"行削除",confDelRowTitle:"削除確認",confDelRowMsg:"行 {0} をすべて削除?",btnCancel:"キャンセル",btnOk:"確認",delBtn:"削除",
             setMenu:"設定",setLang:"言語",
             mdlLoc:"場所:",mdlQty:"残量:",mdlSize:"サイズ:",mdlUpdate:"更新:",mdlBtnOut:"出庫する",btnViewMap:"3Dで見る",
             toastSuccess:"成功",toastError:"エラー",toastNoStock:"数量不足",toastDateReq:"日付選択",toastNoExport:"データなし",
             colDate:"日付",colName:"商品名",colQty:"数量",colSlot:"場所",colSize:"サイズ",colLogDate:"日時",colDetails:"詳細",colUser:"ユーザー",
             lblSlot:"枠",lblLevel:"段",lblPage:"ページ",btnPrev:"前へ",btnNext:"次へ",
-            lowStockAlert:"⚠ 在庫少"
+            lowStockAlert:"⚠ 残少", fifoBadge:"最古(推奨)",
+            pwdTitle:"管理者ログイン",pwdDesc:"パスワードを入力",pwdPh:"パスワード",pwdErr:"無効なパスワード",pwdForgot:"忘れた場合は連絡 ",pwdDev:"開発者",
+            eeTitle:"🌙 月へようこそ",eeDesc:"ここまでズームするとは... 宇宙倉庫もありますよ！",eeBack:"🚀 地球に戻る"
         }
     };
     let currentLang = localStorage.getItem('stocky_lang') || 'th';
@@ -781,7 +808,7 @@
     window.setLanguage = function(lang){
         currentLang=lang; localStorage.setItem('stocky_lang',lang);
         document.getElementById('lang-select').value=lang;
-        document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(i18nData[lang][k]) el.innerText=i18nData[lang][k]; });
+        document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(i18nData[lang][k]) el.innerHTML=i18nData[lang][k]; });
         document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ const k=el.getAttribute('data-i18n-ph'); if(i18nData[lang][k]) el.setAttribute('placeholder',i18nData[lang][k]); });
         updateSelects();
         if(!document.getElementById('tab-search').classList.contains('hidden')) handleSearch();
@@ -813,7 +840,11 @@
 
     window.setFontSize = function(size){
         localStorage.setItem('stocky_font', size);
-        document.body.setAttribute('data-font', size);
+        const htmlDoc = document.documentElement;
+        if(size==='small') htmlDoc.style.fontSize = '12px';
+        else if(size==='large') htmlDoc.style.fontSize = '16px';
+        else htmlDoc.style.fontSize = '14px';
+        
         ['small','normal','large'].forEach(s=>{
             const btn=document.getElementById(`btn-font-${s}`);
             if(btn) btn.style.borderColor = s===size ? '#10b981' : 'var(--border)';
@@ -834,12 +865,9 @@
         document.getElementById('pwd-modal').classList.add('show');
         setTimeout(()=>document.getElementById('pwd-input').focus(), 100);
     };
-    window.closePwdModal = function(){
-        document.getElementById('pwd-modal').classList.remove('show');
-    };
+    window.closePwdModal = function(){ document.getElementById('pwd-modal').classList.remove('show'); };
     window.checkPassword = function(){
-        const val = document.getElementById('pwd-input').value;
-        if(val === _correctPwd()){
+        if(document.getElementById('pwd-input').value === _correctPwd()){
             sessionStorage.setItem('stocky_unlocked','1');
             document.getElementById('pwd-modal').classList.remove('show');
             openTab('config');
@@ -858,13 +886,11 @@
         if(mode==='list'){
             listBtn.classList.add('bg-indigo-100','text-indigo-600'); listBtn.classList.remove('text-gray-500');
             gridBtn.classList.remove('bg-indigo-100','text-indigo-600'); gridBtn.classList.add('text-gray-500');
-            container.classList.remove('grid','grid-cols-1','md:grid-cols-2','lg:grid-cols-3');
-            container.classList.add('flex','flex-col','items-list-view');
+            container.className = 'flex-1 overflow-y-auto pr-2 pb-24 flex flex-col items-list-view list-mode';
         } else {
             gridBtn.classList.add('bg-indigo-100','text-indigo-600'); gridBtn.classList.remove('text-gray-500');
             listBtn.classList.remove('bg-indigo-100','text-indigo-600'); listBtn.classList.add('text-gray-500');
-            container.classList.remove('flex','flex-col','items-list-view');
-            container.classList.add('grid','grid-cols-1','md:grid-cols-2','lg:grid-cols-3');
+            container.className = 'flex-1 overflow-y-auto pr-2 pb-24 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 content-start';
         }
         if(tab==='search') handleSearch(); else filterOutItems();
     };
@@ -897,14 +923,9 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, addDoc, query, orderBy, limit, getDocs, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    const firebaseConfig = {
-        apiKey:"AIzaSyA3nqaASe3YMSws9pSU4cUd4JVEOTaDSX8",authDomain:"stocky-ded11.firebaseapp.com",
-        projectId:"stocky-ded11",storageBucket:"stocky-ded11.firebasestorage.app",
-        messagingSenderId:"70344451921",appId:"1:70344451921:web:f56af7b00473dc16025570"
-    };
+    const firebaseConfig = { apiKey:"AIzaSyA3nqaASe3YMSws9pSU4cUd4JVEOTaDSX8",authDomain:"stocky-ded11.firebaseapp.com",projectId:"stocky-ded11",storageBucket:"stocky-ded11.firebasestorage.app",messagingSenderId:"70344451921",appId:"1:70344451921:web:f56af7b00473dc16025570" };
     const app=initializeApp(firebaseConfig);
-    const db=getFirestore(app);
-    const auth=getAuth(app);
+    const db=getFirestore(app); const auth=getAuth(app);
     const rawAppId=typeof __app_id!=='undefined'?__app_id:'stocky-app-id';
     const appId=rawAppId.replace(/[^a-zA-Z0-9-]/g,'-');
     const getPublicPath=(c)=>`artifacts/${appId}/public/data/${c}`;
@@ -918,9 +939,8 @@
             else await signInAnonymously(auth);
             if(window.initializeAppLogic) window.initializeAppLogic();
         }catch(e){
-            const loader=document.getElementById('loader');
-            if(loader) loader.remove();
-            document.body.innerHTML+=`<div class="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4 pointer-events-auto"><div class="bg-white rounded-2xl p-6 max-w-sm w-full"><h3 class="text-lg font-bold text-red-500 mb-2">Auth Error</h3><p class="text-sm text-gray-600 mb-4">Enable Anonymous Auth in Firebase Console</p><button onclick="location.reload()" class="w-full bg-slate-800 text-white py-2 rounded-lg text-sm">Retry</button></div></div>`;
+            const loader=document.getElementById('loader'); if(loader) loader.remove();
+            document.body.innerHTML+=`<div class="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4 pointer-events-auto"><div class="bg-white rounded-2xl p-6 max-w-sm w-full"><h3 class="text-lg font-bold text-red-500 mb-2">Auth Error</h3><p class="text-sm text-gray-600 mb-4">Enable Anonymous Auth in Firebase</p><button onclick="location.reload()" class="w-full bg-slate-800 text-white py-2 rounded-lg text-sm">Retry</button></div></div>`;
         }
     }
     initAuth();
@@ -930,37 +950,26 @@
     <script>
     let db,collection,doc,setDoc,addDoc,deleteDoc,onSnapshot,firestorePath,auth,query,orderBy,limit,getDocs,startAfter;
     let locations=[],inventory=[],itemHistory=[],selectedOutItem=null;
-    window.currentReportData=[];
-    window.currentLogPage=0; window.logCursors=[]; window.currentLogs=[];
+    window.currentReportData=[]; window.currentLogPage=0; window.logCursors=[]; window.currentLogs=[];
 
-    let clientInfo="Unknown Device";
-    const ua=navigator.userAgent;
-    let os="PC";
-    if(/android/i.test(ua)) os="Android";
-    else if(/ipad|iphone|ipod/i.test(ua)) os="iOS";
-    else if(/mac/i.test(ua)) os="Mac";
-    else if(/win/i.test(ua)) os="Windows";
+    let clientInfo="Unknown Device"; const ua=navigator.userAgent; let os="PC";
+    if(/android/i.test(ua)) os="Android"; else if(/ipad|iphone|ipod/i.test(ua)) os="iOS"; else if(/mac/i.test(ua)) os="Mac"; else if(/win/i.test(ua)) os="Windows";
     fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>clientInfo=`${os} (IP:${d.ip})`).catch(()=>clientInfo=`${os}`);
 
     // ===== THREE.JS GLOBALS =====
     let scene,camera,renderer,controls,raycaster,mouse;
-    let warehouseGroup=new THREE.Group();
-    let previewGroup=new THREE.Group();
-    let itemMeshes={};
-    let highlightBox=null;
+    let warehouseGroup=new THREE.Group(); let previewGroup=new THREE.Group();
+    let itemMeshes={}; let highlightBox=null;
 
     // Easter egg state
-    let easterEggShown=false;
-    let moonScene,moonRenderer,moonCamera,ufoMesh;
-    const MAX_ZOOM_DIST=100000; // Increased distance for Easter Egg significantly
+    let easterEggShown=false; let moonScene,moonRenderer,moonCamera,ufoMesh;
+    const MAX_ZOOM_DIST=300000; // Super Far
 
     function showToast(msg,type='success'){
         const c=document.getElementById('toast-container');
-        const el=document.createElement('div');
-        el.className=`toast${type==='error'?' error':''}`;
+        const el=document.createElement('div'); el.className=`toast${type==='error'?' error':''}`;
         el.innerHTML=`<span style="font-weight:700;color:var(--text)">${msg}</span>`;
-        c.appendChild(el);
-        setTimeout(()=>el.remove(),3000);
+        c.appendChild(el); setTimeout(()=>el.remove(),3000);
     }
 
     window.showConfirm=function(title,msg,onOk){
@@ -1012,7 +1021,6 @@
             if(tabId==='config'){
                 mainOverlay.classList.add('hidden');
                 mainModal.style.borderColor='var(--border)';
-                // Maintain absolute classes for right panel
                 mainModal.classList.add('top-3','right-3','bottom-3','w-11/12','md:w-[24rem]');
                 mainModal.classList.remove('inset-2','md:inset-4','lg:inset-y-6','lg:inset-x-8');
             } else {
@@ -1023,15 +1031,12 @@
                 mainModal.classList.add('inset-2','md:inset-4','lg:inset-y-6','lg:inset-x-8');
             }
             
-            // Trigger animation
             setTimeout(() => { mainModal.classList.add('modal-show'); }, 10);
-
             document.querySelectorAll('.tab-content').forEach(el=>el.classList.add('hidden'));
             const tabEl=document.getElementById(`tab-${tabId}`);
             if(tabEl){ tabEl.classList.remove('hidden'); tabEl.classList.add('flex'); }
 
-            if(tabId==='config') updatePreview();
-            else while(previewGroup.children.length>0) previewGroup.remove(previewGroup.children[0]);
+            if(tabId==='config') updatePreview(); else while(previewGroup.children.length>0) previewGroup.remove(previewGroup.children[0]);
             if(tabId==='search') handleSearch();
             if(tabId==='out') filterOutItems();
             if(tabId==='logs') loadLogsPage(0);
@@ -1061,9 +1066,7 @@
             if(pageIndex===0||window.logCursors.length===0){
                 q=query(collection(db,firestorePath('logs')),orderBy('timestamp','desc'),limit(20));
                 window.logCursors=[];
-            } else {
-                q=query(collection(db,firestorePath('logs')),orderBy('timestamp','desc'),startAfter(window.logCursors[pageIndex-1]),limit(20));
-            }
+            } else { q=query(collection(db,firestorePath('logs')),orderBy('timestamp','desc'),startAfter(window.logCursors[pageIndex-1]),limit(20)); }
             const snap=await getDocs(q);
             window.currentLogs=[];
             if(!snap.empty){
@@ -1077,12 +1080,8 @@
     };
 
     function renderLogsList(){
-        const cont=document.getElementById('logs-container');
-        cont.innerHTML='';
-        if(window.currentLogs.length===0&&window.currentLogPage===0){
-            cont.innerHTML=`<div class="text-center py-10 text-sm" style="color:var(--text-muted)">${t('logEmpty')}</div>`;
-            return;
-        }
+        const cont=document.getElementById('logs-container'); cont.innerHTML='';
+        if(window.currentLogs.length===0&&window.currentLogPage===0){ cont.innerHTML=`<div class="text-center py-10 text-sm" style="color:var(--text-muted)">${t('logEmpty')}</div>`; return; }
         window.currentLogs.forEach(log=>{
             const date=new Date(log.timestamp).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'});
             let color='text-gray-500',bg='',icon='';
@@ -1090,7 +1089,7 @@
             if(log.action==='OUT'){color='text-orange-500';bg='bg-orange-100';icon='-';}
             if(log.action==='CONFIG'){color='text-slate-600';bg='bg-slate-100';icon='⚙';}
             cont.innerHTML+=`
-            <div class="p-4 border rounded-xl text-sm hover:shadow-sm transition-shadow card" style="background:var(--card-bg);border-color:var(--border)">
+            <div class="p-4 border rounded-xl text-sm shadow-sm hover:shadow transition-shadow card">
                 <div class="flex justify-between items-center mb-2">
                     <span class="font-bold ${color} ${bg} px-2.5 py-1 rounded-lg tracking-wider text-xs">${icon} ${log.action}</span>
                     <span class="text-xs" style="color:var(--text-muted)">${date}</span>
@@ -1107,8 +1106,7 @@
             btnPrev.classList.toggle('opacity-50',window.currentLogPage===0);
             const hasNext=window.currentLogs.length===20;
             const btnNext=document.getElementById('btn-next-log');
-            btnNext.disabled=!hasNext;
-            btnNext.classList.toggle('opacity-50',!hasNext);
+            btnNext.disabled=!hasNext; btnNext.classList.toggle('opacity-50',!hasNext);
             document.getElementById('log-page-info').innerText=`${t('lblPage')} ${window.currentLogPage+1}`;
         }
     }
@@ -1116,18 +1114,17 @@
     // ===== THREE.JS INIT =====
     function initThreeJS(){
         const container=document.getElementById('canvas-container');
-        scene=new THREE.Scene();
-        window.scene=scene;
+        scene=new THREE.Scene(); window.scene=scene;
         const isDark=document.documentElement.classList.contains('dark');
         const sceneBg=isDark?0x0a1628:0xf8fafc;
         scene.background=new THREE.Color(sceneBg);
         
-        // Increase Far limit to support new Easter Egg distance
-        camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,10,250000);
+        // Very Far for Easter Egg
+        camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,10,600000);
         camera.position.set(2000,2000,2000);
         camera.lookAt(0,0,0);
         
-        scene.fog=new THREE.Fog(sceneBg,1000,150000);
+        scene.fog=new THREE.Fog(sceneBg,1000,300000);
 
         renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
         renderer.setSize(window.innerWidth,window.innerHeight);
@@ -1136,10 +1133,9 @@
         container.appendChild(renderer.domElement);
 
         controls=new THREE.OrbitControls(camera,renderer.domElement);
-        controls.enableDamping=true;
-        controls.dampingFactor=0.05;
+        controls.enableDamping=true; controls.dampingFactor=0.05;
         controls.maxPolarAngle=Math.PI/2-0.02;
-        controls.maxDistance=MAX_ZOOM_DIST; 
+        controls.maxDistance=MAX_ZOOM_DIST + 50000; 
 
         controls.addEventListener('start',()=>{
             const m=document.getElementById('main-modal');
@@ -1147,7 +1143,7 @@
         });
         controls.addEventListener('end',()=>{ document.getElementById('main-modal').style.opacity=''; });
 
-        // Check for Easter egg distance
+        // Easter egg threshold
         controls.addEventListener('change',()=>{
             const dist=camera.position.distanceTo(controls.target);
             if(dist>=MAX_ZOOM_DIST*0.98&&!easterEggShown){
@@ -1161,15 +1157,13 @@
         dl.shadow.mapSize.width=2048; dl.shadow.mapSize.height=2048;
         dl.shadow.camera.near=100; dl.shadow.camera.far=15000;
         const sd=3000;
-        dl.shadow.camera.left=-sd; dl.shadow.camera.right=sd;
-        dl.shadow.camera.top=sd; dl.shadow.camera.bottom=-sd;
+        dl.shadow.camera.left=-sd; dl.shadow.camera.right=sd; dl.shadow.camera.top=sd; dl.shadow.camera.bottom=-sd;
         scene.add(dl);
 
-        const floorGeo=new THREE.PlaneGeometry(300000,300000); // Expanded floor
+        const floorGeo=new THREE.PlaneGeometry(300000,300000); 
         const floorMat=new THREE.MeshStandardMaterial({color:isDark?0x0f172a:0xffffff,roughness:0.9});
         const floor=new THREE.Mesh(floorGeo,floorMat);
-        floor.rotation.x=-Math.PI/2; floor.receiveShadow=true;
-        scene.add(floor);
+        floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
         const grid=new THREE.GridHelper(300000,600,0x10b981,isDark?0x1e3a5f:0xe2e8f0);
         grid.position.y=0.5; scene.add(grid);
 
@@ -1177,52 +1171,64 @@
             new THREE.BoxGeometry(100,100,100),
             new THREE.MeshBasicMaterial({color:0xffcc00,wireframe:true,transparent:true,opacity:0.9,depthTest:false})
         );
-        highlightBox.visible=false;
-        scene.add(highlightBox);
-        scene.add(warehouseGroup);
-        scene.add(previewGroup);
+        highlightBox.visible=false; scene.add(highlightBox);
+        scene.add(warehouseGroup); scene.add(previewGroup);
 
-        raycaster=new THREE.Raycaster();
-        mouse=new THREE.Vector2();
-        
-        // Touch events handling
+        raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
         renderer.domElement.addEventListener('pointerdown',onPointerDown);
         renderer.domElement.addEventListener('touchstart',(e)=>{
-            if(e.touches.length>1) return;
-            e.clientX=e.touches[0].clientX; e.clientY=e.touches[0].clientY;
-            onPointerDown(e);
+            if(e.touches.length>1) return; e.clientX=e.touches[0].clientX; e.clientY=e.touches[0].clientY; onPointerDown(e);
         },{passive:false});
-
-        renderer.domElement.addEventListener('pointerdown',()=>{
-            const m=document.getElementById('main-modal');
-            if(m.classList.contains('modal-show')&&!document.getElementById('tab-config').classList.contains('hidden')) m.style.opacity='0.15';
-        });
+        renderer.domElement.addEventListener('pointerdown',()=>{ const m=document.getElementById('main-modal'); if(m.classList.contains('modal-show')&&!document.getElementById('tab-config').classList.contains('hidden')) m.style.opacity='0.15'; });
         renderer.domElement.addEventListener('pointerup',()=>{ document.getElementById('main-modal').style.opacity=''; });
         renderer.domElement.addEventListener('pointerleave',()=>{ document.getElementById('main-modal').style.opacity=''; });
-
-        window.addEventListener('resize',()=>{
-            camera.aspect=window.innerWidth/window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth,window.innerHeight);
-        });
-
+        window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
         animate();
     }
 
-    // ===== EASTER EGG =====
+    // ===== EASTER EGG (Cinematic) =====
     function showEasterEgg(){
         easterEggShown=true;
-        const egg=document.getElementById('easter-egg');
-        egg.classList.add('show');
-        initMoonScene();
+        const tl = document.getElementById('transition-layer');
+        tl.style.backgroundColor = '#ffffff'; // White Cloud Flash
+        tl.style.opacity = '1';
+        
+        setTimeout(() => {
+            tl.style.backgroundColor = '#020B18'; // Dark Space
+            setTimeout(() => {
+                tl.style.opacity = '0'; // Reveal Moon
+                document.getElementById('easter-egg').classList.add('show');
+                initMoonScene();
+                startTypewriter();
+            }, 1000);
+        }, 1500);
     }
+    
     function hideEasterEgg(){
-        const egg=document.getElementById('easter-egg');
-        egg.classList.remove('show');
+        document.getElementById('easter-egg').classList.remove('show');
         easterEggShown=false;
         resetCamera();
     }
     document.getElementById('btn-back-earth').addEventListener('click',hideEasterEgg);
+
+    function startTypewriter() {
+        const titleEl = document.getElementById('ee-title');
+        const descEl = document.getElementById('ee-desc');
+        const btn = document.getElementById('btn-back-earth');
+        const titleTxt = t('eeTitle'); const descTxt = t('eeDesc');
+        
+        titleEl.innerHTML = ''; descEl.innerHTML = ''; btn.style.display = 'none';
+        let i = 0, j = 0;
+        function typeT() {
+            if(i < titleTxt.length) { titleEl.innerHTML += titleTxt.charAt(i); i++; setTimeout(typeT, 60); }
+            else { setTimeout(typeD, 500); }
+        }
+        function typeD() {
+            if(j < descTxt.length) { descEl.innerHTML += descTxt.charAt(j); j++; setTimeout(typeD, 40); }
+            else { btn.style.display = 'inline-block'; }
+        }
+        typeT();
+    }
 
     function initMoonScene(){
         const canvas=document.getElementById('moon-canvas');
@@ -1230,61 +1236,46 @@
             moonRenderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
             moonCamera=new THREE.PerspectiveCamera(60,canvas.offsetWidth/canvas.offsetHeight,1,5000);
             moonCamera.position.set(0,0,600);
-            const mScene=new THREE.Scene();
-            moonScene=mScene;
+            const mScene=new THREE.Scene(); moonScene=mScene;
 
-            const starGeo=new THREE.BufferGeometry();
-            const starVerts=[];
-            for(let i=0;i<2000;i++){
-                starVerts.push((Math.random()-0.5)*4000,(Math.random()-0.5)*4000,(Math.random()-0.5)*4000);
-            }
+            const starGeo=new THREE.BufferGeometry(); const starVerts=[];
+            for(let i=0;i<3000;i++){ starVerts.push((Math.random()-0.5)*4000,(Math.random()-0.5)*4000,(Math.random()-0.5)*4000); }
             starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starVerts,3));
-            mScene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xffffff,size:1.5})));
+            mScene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xffffff,size:2})));
 
             const moonGeo=new THREE.SphereGeometry(150,32,32);
             const moonMat=new THREE.MeshStandardMaterial({color:0xc8c8c8,roughness:0.9,metalness:0.0});
             const moon=new THREE.Mesh(moonGeo,moonMat);
-            moon.position.set(0,-80,0);
-            mScene.add(moon);
+            moon.position.set(0,-80,0); mScene.add(moon);
             mScene.add(new THREE.AmbientLight(0x334466,0.5));
             const sunLight=new THREE.DirectionalLight(0xffffff,0.8);
-            sunLight.position.set(300,200,100);
-            mScene.add(sunLight);
+            sunLight.position.set(300,200,100); mScene.add(sunLight);
 
             const ufoGroup=new THREE.Group();
-            const bodyGeo=new THREE.SphereGeometry(30,16,8);
-            bodyGeo.scale(1,0.4,1);
+            const bodyGeo=new THREE.SphereGeometry(30,16,8); bodyGeo.scale(1,0.4,1);
             const bodyMat=new THREE.MeshStandardMaterial({color:0x888888,metalness:0.8,roughness:0.2});
             ufoGroup.add(new THREE.Mesh(bodyGeo,bodyMat));
             const domeGeo=new THREE.SphereGeometry(18,16,8,0,Math.PI*2,0,Math.PI/2);
             const domeMat=new THREE.MeshStandardMaterial({color:0x88ddff,transparent:true,opacity:0.7,metalness:0.3});
-            const dome=new THREE.Mesh(domeGeo,domeMat);
-            dome.position.y=8; ufoGroup.add(dome);
+            const dome=new THREE.Mesh(domeGeo,domeMat); dome.position.y=8; ufoGroup.add(dome);
             for(let i=0;i<8;i++){
                 const lGeo=new THREE.SphereGeometry(3,8,8);
                 const lMat=new THREE.MeshStandardMaterial({color:i%2===0?0x00ff88:0xff8800,emissive:i%2===0?0x00ff88:0xff8800,emissiveIntensity:1});
                 const light=new THREE.Mesh(lGeo,lMat);
-                light.position.set(Math.cos(i*Math.PI/4)*32,0,Math.sin(i*Math.PI/4)*32);
-                ufoGroup.add(light);
+                light.position.set(Math.cos(i*Math.PI/4)*32,0,Math.sin(i*Math.PI/4)*32); ufoGroup.add(light);
             }
-            ufoGroup.position.set(-400,120,0);
-            mScene.add(ufoGroup);
-            ufoMesh=ufoGroup;
+            ufoGroup.position.set(-400,120,0); mScene.add(ufoGroup); ufoMesh=ufoGroup;
 
             let frame=0;
             function moonAnimate(){
                 if(!document.getElementById('easter-egg').classList.contains('show')) return;
-                requestAnimationFrame(moonAnimate);
-                frame++;
+                requestAnimationFrame(moonAnimate); frame++;
                 const w=canvas.clientWidth, h=canvas.clientHeight;
                 if(moonRenderer.domElement.width!==w||moonRenderer.domElement.height!==h){
-                    moonRenderer.setSize(w,h,false);
-                    moonCamera.aspect=w/h; moonCamera.updateProjectionMatrix();
+                    moonRenderer.setSize(w,h,false); moonCamera.aspect=w/h; moonCamera.updateProjectionMatrix();
                 }
                 moon.rotation.y+=0.002;
-                ufoGroup.position.x+=1.2;
-                ufoGroup.position.y=120+Math.sin(frame*0.03)*30;
-                ufoGroup.rotation.y+=0.02;
+                ufoGroup.position.x+=1.2; ufoGroup.position.y=120+Math.sin(frame*0.03)*30; ufoGroup.rotation.y+=0.02;
                 if(ufoGroup.position.x>500) ufoGroup.position.x=-500;
                 moonRenderer.render(mScene,moonCamera);
             }
@@ -1293,8 +1284,7 @@
     }
 
     window.resetCamera=function(){
-        let targetCenter=new THREE.Vector3(0,0,0);
-        let targetPos=new THREE.Vector3(2000,2000,2000);
+        let targetCenter=new THREE.Vector3(0,0,0); let targetPos=new THREE.Vector3(2000,2000,2000);
         if(warehouseGroup.children.length>0){
             const box=new THREE.Box3().setFromObject(warehouseGroup);
             if(!box.isEmpty()){
@@ -1308,14 +1298,10 @@
                 targetPos.copy(targetCenter).add(offset);
             }
         }
-        let tStep=0;
-        const startPos=camera.position.clone();
-        const startTar=controls.target.clone();
+        let tStep=0; const startPos=camera.position.clone(); const startTar=controls.target.clone();
         const anim=setInterval(()=>{
-            tStep+=0.05;
-            if(tStep>=1){ clearInterval(anim); tStep=1; }
-            camera.position.lerpVectors(startPos,targetPos,tStep);
-            controls.target.lerpVectors(startTar,targetCenter,tStep);
+            tStep+=0.05; if(tStep>=1){ clearInterval(anim); tStep=1; }
+            camera.position.lerpVectors(startPos,targetPos,tStep); controls.target.lerpVectors(startTar,targetCenter,tStep);
         },16);
     };
 
@@ -1327,18 +1313,13 @@
     }
 
     function createTextSprite(message,size=100){
-        const canvas=document.createElement('canvas');
-        canvas.width=512; canvas.height=128;
-        const ctx=canvas.getContext('2d');
-        ctx.font="Bold 72px 'Sarabun', sans-serif";
+        const canvas=document.createElement('canvas'); canvas.width=512; canvas.height=128;
+        const ctx=canvas.getContext('2d'); ctx.font="Bold 72px 'Sarabun', sans-serif";
         ctx.fillStyle=document.documentElement.classList.contains('dark')?"#e2e8f0":"#1e293b";
-        ctx.textAlign="center"; ctx.textBaseline="middle";
-        ctx.fillText(message,256,64);
+        ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(message,256,64);
         const tex=new THREE.CanvasTexture(canvas);
         const mat=new THREE.SpriteMaterial({map:tex,depthTest:false});
-        const sprite=new THREE.Sprite(mat);
-        sprite.scale.set(size*4,size*1,1);
-        return sprite;
+        const sprite=new THREE.Sprite(mat); sprite.scale.set(size*4,size*1,1); return sprite;
     }
 
     function rebuild3DWarehouse(){
@@ -1348,30 +1329,22 @@
         const legMat=new THREE.MeshStandardMaterial({color:0x475569,metalness:0.6});
         locations.forEach(loc=>{
             const rot=parseInt(loc.rot)||0;
-            const dispW=rot===90?parseFloat(loc.d):parseFloat(loc.w);
-            const dispD=rot===90?parseFloat(loc.w):parseFloat(loc.d);
-            const h=parseFloat(loc.h)||150;
-            const levels=parseInt(loc.levels)||1;
-            const x=parseFloat(loc.x), z=parseFloat(loc.z);
-            const legT=5, shelfT=2;
-            let totalH=(levels-1)*h+shelfT;
-            if(levels===1) totalH=shelfT;
+            const dispW=rot===90?parseFloat(loc.d):parseFloat(loc.w); const dispD=rot===90?parseFloat(loc.w):parseFloat(loc.d);
+            const h=parseFloat(loc.h)||150; const levels=parseInt(loc.levels)||1;
+            const x=parseFloat(loc.x), z=parseFloat(loc.z); const legT=5, shelfT=2;
+            let totalH=(levels-1)*h+shelfT; if(levels===1) totalH=shelfT;
             if(levels>1){
                 const legGeo=new THREE.BoxGeometry(legT,totalH,legT);
                 [[x-dispW/2+legT/2,z-dispD/2+legT/2],[x+dispW/2-legT/2,z-dispD/2+legT/2],[x-dispW/2+legT/2,z+dispD/2-legT/2],[x+dispW/2-legT/2,z+dispD/2-legT/2]].forEach(pos=>{
-                    const leg=new THREE.Mesh(legGeo,legMat);
-                    leg.position.set(pos[0],totalH/2,pos[1]); leg.castShadow=true;
-                    warehouseGroup.add(leg);
+                    const leg=new THREE.Mesh(legGeo,legMat); leg.position.set(pos[0],totalH/2,pos[1]); leg.castShadow=true; warehouseGroup.add(leg);
                 });
             }
             const label=createTextSprite(loc.id,(rot===90?dispD:dispW)/4);
-            label.position.set(x,totalH+(levels>1?50:30),z);
-            warehouseGroup.add(label);
+            label.position.set(x,totalH+(levels>1?50:30),z); warehouseGroup.add(label);
             for(let l=0;l<levels;l++){
                 const baseY=l*h;
                 const shelf=new THREE.Mesh(new THREE.BoxGeometry(dispW,shelfT,dispD),rackMat);
-                shelf.position.set(x,baseY+shelfT/2,z); shelf.receiveShadow=true; shelf.castShadow=true;
-                warehouseGroup.add(shelf);
+                shelf.position.set(x,baseY+shelfT/2,z); shelf.receiveShadow=true; shelf.castShadow=true; warehouseGroup.add(shelf);
                 if(levels>1){ const ll=createTextSprite(`L${l+1}`,20); ll.position.set(x,baseY+20,z+dispD/2+5); warehouseGroup.add(ll); }
                 const slotId=`${loc.id}L${l+1}`;
                 const itemsInSlot=inventory.filter(i=>i.locationId===slotId);
@@ -1385,10 +1358,7 @@
                         const box=new THREE.Mesh(new THREE.BoxGeometry(iW,iH,iD),mat);
                         if(rot===90) box.rotation.y=Math.PI/2;
                         box.position.set(x,stackY+iH/2,z); box.castShadow=true; box.receiveShadow=true;
-                        box.userData={type:'item',data:item};
-                        warehouseGroup.add(box);
-                        itemMeshes[item.id]=box;
-                        stackY+=iH;
+                        box.userData={type:'item',data:item}; warehouseGroup.add(box); itemMeshes[item.id]=box; stackY+=iH;
                     });
                 }
             }
@@ -1396,18 +1366,14 @@
     }
 
     window.initializeAppLogic=function(){
-        db=window.db; collection=window.collection; doc=window.doc;
-        setDoc=window.setDoc; addDoc=window.addDoc; deleteDoc=window.deleteDoc;
-        onSnapshot=window.onSnapshot; firestorePath=window.firestorePath;
-        auth=window.auth; query=window.query; orderBy=window.orderBy; limit=window.limit;
-        getDocs=window.getDocs; startAfter=window.startAfter;
+        db=window.db; collection=window.collection; doc=window.doc; setDoc=window.setDoc; addDoc=window.addDoc; deleteDoc=window.deleteDoc;
+        onSnapshot=window.onSnapshot; firestorePath=window.firestorePath; auth=window.auth; query=window.query; orderBy=window.orderBy; limit=window.limit; getDocs=window.getDocs; startAfter=window.startAfter;
         if(!auth||!auth.currentUser) return;
         initThreeJS();
         onSnapshot(collection(db,firestorePath('locations')),(snap)=>{
             locations=[]; snap.forEach(d=>locations.push({id:d.id,...d.data()}));
             updateSelects(); updateConfigList(); rebuild3DWarehouse();
-            const loader=document.getElementById('loader');
-            if(loader){ loader.style.opacity='0'; setTimeout(()=>loader.remove(),500); }
+            const loader=document.getElementById('loader'); if(loader){ loader.style.opacity='0'; setTimeout(()=>loader.remove(),500); }
             setTimeout(resetCamera,500);
         });
         onSnapshot(collection(db,firestorePath('inventory')),(snap)=>{
@@ -1416,28 +1382,20 @@
             if(!document.getElementById('tab-search').classList.contains('hidden')) handleSearch();
             if(!document.getElementById('tab-out').classList.contains('hidden')) filterOutItems();
         });
-        onSnapshot(collection(db,firestorePath('itemHistory')),(snap)=>{
-            itemHistory=[]; snap.forEach(d=>itemHistory.push({id:d.id,...d.data()}));
-        });
-        const now=new Date();
-        now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
-        document.getElementById('out-datetime').value=now.toISOString().slice(0,16);
+        onSnapshot(collection(db,firestorePath('itemHistory')),(snap)=>{ itemHistory=[]; snap.forEach(d=>itemHistory.push({id:d.id,...d.data()})); });
+        const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset()); document.getElementById('out-datetime').value=now.toISOString().slice(0,16);
         openTab('home');
     };
 
     function onPointerDown(event){
         if(!document.getElementById('main-modal').classList.contains('hidden')&&document.getElementById('tab-config').classList.contains('hidden')) return;
         const rect=renderer.domElement.getBoundingClientRect();
-        mouse.x=((event.clientX-rect.left)/rect.width)*2-1;
-        mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
+        mouse.x=((event.clientX-rect.left)/rect.width)*2-1; mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
         raycaster.setFromCamera(mouse,camera);
         const hits=raycaster.intersectObjects(warehouseGroup.children,false);
         if(hits.length>0){
             const hit=hits[0].object;
-            if(hit.userData&&hit.userData.type==='item'){
-                highlightLocation(hit.userData.data.locationId,hit.userData.data.id);
-                showItemDetails(hit.userData.data);
-            }
+            if(hit.userData&&hit.userData.type==='item'){ highlightLocation(hit.userData.data.locationId,hit.userData.data.id); showItemDetails(hit.userData.data); }
         } else closeItemModal();
     }
 
@@ -1449,70 +1407,81 @@
         document.getElementById('modal-date').innerText=new Date(item.timestamp).toLocaleString('th-TH');
         document.getElementById('btn-view-map').onclick=()=>{ openTab('home'); highlightLocation(item.locationId,item.id); closeItemModal(); };
         document.getElementById('btn-modal-out').onclick=()=>{
-            closeItemModal(); openTab('out');
-            document.getElementById('out-search').value=item.name;
-            filterOutItems();
-            setTimeout(()=>{
-                const outList=document.getElementById('out-items-list').children;
-                for(let i=0;i<outList.length;i++) if(outList[i].innerText.includes(item.name)){ outList[i].click(); break; }
-            },100);
+            closeItemModal(); openTab('out'); document.getElementById('out-search').value=item.name; filterOutItems();
+            setTimeout(()=>{ const outList=document.getElementById('out-items-list').children; for(let i=0;i<outList.length;i++) if(outList[i].innerText.includes(item.name)){ outList[i].click(); break; } },100);
         };
         document.getElementById('item-modal').classList.add('show');
     }
 
     window.closeItemModal=function(){ document.getElementById('item-modal').classList.remove('show'); };
 
+    // --- SORTING (FIFO logic applied) ---
     window.handleSearch=function(){
         const q=document.getElementById('searchInput').value.toLowerCase().trim();
-        const res=document.getElementById('search-results');
-        res.innerHTML='';
+        const res=document.getElementById('search-results'); res.innerHTML='';
         let results=[...inventory];
         if(q) results=results.filter(i=>i.name.toLowerCase().includes(q));
-        results.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'}));
+        
+        // FIFO sort: Name asc, then Timestamp asc (oldest first)
+        results.sort((a,b)=>{
+            const nameCmp = a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'});
+            if(nameCmp!==0) return nameCmp;
+            return a.timestamp - b.timestamp;
+        });
+
         if(results.length===0) return res.innerHTML=`<div class="text-center py-8 text-sm col-span-full w-full" style="color:#ef4444">${t('notFound')}</div>`;
+
+        const seenNames = new Set();
 
         results.forEach(item=>{
             const isLow=item.qty<LOW_STOCK_THRESHOLD;
             const lowBadge=isLow?`<span class="low-stock-badge">${t('lowStockAlert')}</span>`:'';
-            const div=document.createElement('div');
-            div.className='p-4 border rounded-2xl shadow-sm hover:border-primary cursor-pointer hover:shadow-md transition-all card';
-            div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
+            
+            // Mark the oldest item of each name
+            const isOldest = !seenNames.has(item.name);
+            seenNames.add(item.name);
+            const oldestBadge = isOldest ? `<span class="fifo-badge">⭐ ${t('fifoBadge')}</span>` : '';
 
+            const div=document.createElement('div');
+            
             if(viewModes.search==='list'){
+                // TRUE LIST VIEW (Clean rows)
+                div.className='group cursor-pointer transition-colors';
                 div.innerHTML=`
-                <div class="flex-1 min-w-0 pr-2">
-                    <div class="font-bold text-base md:text-sm mb-1.5 flex items-center gap-2 flex-wrap truncate" style="color:var(--text)">${item.name} ${lowBadge}</div>
-                    <div class="flex items-center gap-2 flex-wrap text-sm md:text-xs" style="color:var(--text-muted)">
-                        <span class="font-bold px-2.5 py-1 rounded-lg" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</span>
+                <div class="flex-1 min-w-0 pr-4 flex flex-col justify-center">
+                    <div class="font-bold text-base md:text-sm flex items-center flex-wrap" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
+                    <div class="flex items-center gap-2 flex-wrap text-sm md:text-xs mt-1" style="color:var(--text-muted)">
+                        <span><b style="color:var(--text)">${formatLocation(item.locationId)}</b></span>
+                        <span class="text-gray-300">|</span>
                         <span>${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 shrink-0 mt-3 sm:mt-0">
+                <div class="flex items-center gap-2 shrink-0">
                     <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg whitespace-nowrap border border-green-100">${item.qty} ${t('pcsText')}</div>
-                    <button class="btn-eye p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    </button>
-                    <button class="btn-out p-2.5 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
-                    </button>
-                </div>`;
-            } else {
-                div.classList.add('flex-col','justify-between');
-                div.innerHTML=`
-                <div class="w-full">
-                    <div class="font-bold text-base md:text-sm mb-2 flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge}</div>
-                    <div class="text-sm md:text-xs mb-3" style="color:var(--text-muted)">${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</div>
-                    <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block mb-3" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
-                </div>
-                <div class="flex items-center justify-between w-full border-t pt-3 mt-auto" style="border-color:var(--border)">
-                    <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg">${item.qty} ${t('pcsText')}</div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <button class="btn-eye p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                         </button>
                         <button class="btn-out p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
                         </button>
+                    </div>
+                </div>`;
+            } else {
+                // CARD VIEW
+                div.className='p-4 border rounded-2xl shadow-sm hover:border-primary cursor-pointer hover:shadow-md transition-all card flex-col justify-between';
+                div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
+                div.innerHTML=`
+                <div class="w-full">
+                    <div class="font-bold text-base md:text-sm mb-2 flex items-center gap-1.5 flex-wrap" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
+                    <div class="text-sm md:text-xs mb-3" style="color:var(--text-muted)">${t('sizeText')}: ${item.w}x${item.d}x${item.h} cm</div>
+                    <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block mb-3" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
+                </div>
+                <div class="flex items-center justify-between w-full border-t pt-3 mt-auto" style="border-color:var(--border)">
+                    <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg">${item.qty} ${t('pcsText')}</div>
+                    <div class="flex gap-2">
+                        <button class="btn-eye p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
+                        <button class="btn-out p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg></button>
                     </div>
                 </div>`;
             }
@@ -1527,10 +1496,8 @@
         let mesh=itemId?itemMeshes[itemId]:null;
         if(!mesh) for(let k in itemMeshes) if(itemMeshes[k].userData.data.locationId===slotId){ mesh=itemMeshes[k]; break; }
         if(mesh){
-            const pos=new THREE.Vector3(); mesh.getWorldPosition(pos);
-            const item=mesh.userData.data;
-            highlightBox.geometry=new THREE.BoxGeometry((item.w||50)*1.1,(item.h||50)*1.1,(item.d||50)*1.1);
-            highlightBox.position.copy(pos); highlightBox.visible=true;
+            const pos=new THREE.Vector3(); mesh.getWorldPosition(pos); const item=mesh.userData.data;
+            highlightBox.geometry=new THREE.BoxGeometry((item.w||50)*1.1,(item.h||50)*1.1,(item.d||50)*1.1); highlightBox.position.copy(pos); highlightBox.visible=true;
             const targetPos=new THREE.Vector3(pos.x+400,pos.y+300,pos.z+500);
             let tStep=0; const startPos=camera.position.clone(); const startTar=controls.target.clone();
             const anim=setInterval(()=>{ tStep+=0.05; if(tStep>=1){ clearInterval(anim); tStep=1; } camera.position.lerpVectors(startPos,targetPos,tStep); controls.target.lerpVectors(startTar,pos,tStep); },16);
@@ -1538,49 +1505,24 @@
     }
 
     function updateSelects(){
-        const selIn=document.getElementById('in-location');
-        const selRep=document.getElementById('rep-loc-filter');
-        selIn.innerHTML=`<option value="">${t('selectDash')}</option>`;
-        selRep.innerHTML=`<option value="">-- ${t('selectDash')} --</option>`;
+        const selIn=document.getElementById('in-location'); const selRep=document.getElementById('rep-loc-filter');
+        selIn.innerHTML=`<option value="">${t('selectDash')}</option>`; selRep.innerHTML=`<option value="">-- ${t('selectDash')} --</option>`;
         [...locations].sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true,sensitivity:'base'})).forEach(loc=>{
-            for(let l=1;l<=(loc.levels||1);l++){
-                const id=`${loc.id}L${l}`;
-                const fmt=formatLocation(id);
-                selIn.innerHTML+=`<option value="${id}">${fmt}</option>`;
-                selRep.innerHTML+=`<option value="${id}">${fmt}</option>`;
-            }
+            for(let l=1;l<=(loc.levels||1);l++){ const id=`${loc.id}L${l}`; const fmt=formatLocation(id); selIn.innerHTML+=`<option value="${id}">${fmt}</option>`; selRep.innerHTML+=`<option value="${id}">${fmt}</option>`; }
         });
     }
 
     function updateConfigList(){
-        const list=document.getElementById('locations-list');
-        list.innerHTML='';
-        const groups={};
+        const list=document.getElementById('locations-list'); list.innerHTML=''; const groups={};
         locations.forEach(loc=>{ const m=loc.id.match(/^([a-zA-Z]+)(\d*)$/); const p=m?m[1]:'Other'; if(!groups[p]) groups[p]=[]; groups[p].push(loc); });
         Object.keys(groups).sort().forEach(prefix=>{
             const grpLocs=groups[prefix].sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}));
-            const gDiv=document.createElement('div');
-            gDiv.className='border rounded-xl overflow-hidden mb-3';
-            gDiv.style.borderColor='var(--border)'; gDiv.style.background='var(--card-bg)';
-            const hdr=document.createElement('div');
-            hdr.className='flex justify-between items-center p-4 cursor-pointer select-none border-b';
-            hdr.style.background='var(--hover-bg)'; hdr.style.borderColor='var(--border)';
-            hdr.innerHTML=`
-            <div class="font-bold text-sm" style="color:var(--text)">${t('lblRow')} ${prefix} <span class="text-xs ml-2" style="color:var(--text-muted)">(${grpLocs.length} ${t('lblSlot')})</span></div>
-            <div class="flex items-center gap-3">
-                <button onclick="event.stopPropagation();deleteLocationGroup('${prefix}')" class="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">${t('delRow')}</button>
-                <svg class="w-5 h-5 transition-transform group-arrow" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </div>`;
-            const cont=document.createElement('div');
-            cont.className='hidden flex-col divide-y'; cont.style.borderColor='var(--border)';
-            grpLocs.forEach(loc=>{
-                cont.innerHTML+=`
-                <div class="flex justify-between items-center p-3 pl-6 text-sm md:text-xs" style="color:var(--text)">
-                    <div><strong>${t('lblSlot')} ${loc.id}</strong> <span style="color:var(--text-muted)">${loc.rot==90?'(90°)':''}</span>
-                    <span class="block mt-1" style="color:var(--text-muted)">X:${loc.x},Y:${loc.z} | ${loc.w}x${loc.d}x${loc.h}cm | ${t('lblLevel')}:${loc.levels}</span></div>
-                    <button onclick="deleteLocation('${loc.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition-colors">${t('delBtn')}</button>
-                </div>`;
-            });
+            const gDiv=document.createElement('div'); gDiv.className='border rounded-xl overflow-hidden mb-3'; gDiv.style.borderColor='var(--border)'; gDiv.style.background='var(--card-bg)';
+            const hdr=document.createElement('div'); hdr.className='flex justify-between items-center p-4 cursor-pointer select-none border-b'; hdr.style.background='var(--hover-bg)'; hdr.style.borderColor='var(--border)';
+            hdr.innerHTML=`<div class="font-bold text-sm" style="color:var(--text)">${t('lblRow')} ${prefix} <span class="text-xs ml-2" style="color:var(--text-muted)">(${grpLocs.length} ${t('lblSlot')})</span></div>
+            <div class="flex items-center gap-3"><button onclick="event.stopPropagation();deleteLocationGroup('${prefix}')" class="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">${t('delRow')}</button><svg class="w-5 h-5 transition-transform group-arrow" style="color:var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></div>`;
+            const cont=document.createElement('div'); cont.className='hidden flex-col divide-y'; cont.style.borderColor='var(--border)';
+            grpLocs.forEach(loc=>{ cont.innerHTML+=`<div class="flex justify-between items-center p-3 pl-6 text-sm md:text-xs" style="color:var(--text)"><div><strong>${t('lblSlot')} ${loc.id}</strong> <span style="color:var(--text-muted)">${loc.rot==90?'(90°)':''}</span><span class="block mt-1" style="color:var(--text-muted)">X:${loc.x},Y:${loc.z} | ${loc.w}x${loc.d}x${loc.h}cm | ${t('lblLevel')}:${loc.levels}</span></div><button onclick="deleteLocation('${loc.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition-colors">${t('delBtn')}</button></div>`; });
             hdr.onclick=()=>{ const isHidden=cont.classList.contains('hidden'); cont.classList.toggle('hidden',!isHidden); cont.classList.toggle('flex',isHidden); hdr.querySelector('.group-arrow').classList.toggle('rotate-180',isHidden); };
             gDiv.appendChild(hdr); gDiv.appendChild(cont); list.appendChild(gDiv);
         });
@@ -1588,93 +1530,56 @@
 
     window.handleAddLocation=async function(e){
         e.preventDefault();
-        const prefix=document.getElementById('loc-prefix').value.trim();
-        const slots=parseInt(document.getElementById('loc-slots').value);
-        const order=document.getElementById('loc-order').value;
-        const axis=document.getElementById('loc-axis').value;
-        const rot=document.getElementById('loc-rot').value;
-        const startX=parseFloat(document.getElementById('loc-x').value);
-        const startZ=parseFloat(document.getElementById('loc-z').value);
-        const w=parseFloat(document.getElementById('loc-w').value);
-        const d=parseFloat(document.getElementById('loc-d').value);
-        const h=parseFloat(document.getElementById('loc-h').value);
-        const levels=parseInt(document.getElementById('loc-levels').value);
+        const prefix=document.getElementById('loc-prefix').value.trim(); const slots=parseInt(document.getElementById('loc-slots').value);
+        const order=document.getElementById('loc-order').value; const axis=document.getElementById('loc-axis').value; const rot=document.getElementById('loc-rot').value;
+        const startX=parseFloat(document.getElementById('loc-x').value); const startZ=parseFloat(document.getElementById('loc-z').value);
+        const w=parseFloat(document.getElementById('loc-w').value); const d=parseFloat(document.getElementById('loc-d').value); const h=parseFloat(document.getElementById('loc-h').value); const levels=parseInt(document.getElementById('loc-levels').value);
         const dispW=rot==='90'?d:w, dispD=rot==='90'?w:d;
         try{
             const promises=[];
             for(let i=0;i<slots;i++){
-                const slotNum=order==='asc'?(i+1):(slots-i);
-                const id=slots===1?prefix:`${prefix}${slotNum}`;
-                let cx=startX, cz=startZ;
-                if(axis==='x') cx=startX+(i*dispW); else cz=startZ-(i*dispD);
+                const slotNum=order==='asc'?(i+1):(slots-i); const id=slots===1?prefix:`${prefix}${slotNum}`;
+                let cx=startX, cz=startZ; if(axis==='x') cx=startX+(i*dispW); else cz=startZ-(i*dispD);
                 promises.push(setDoc(doc(db,firestorePath('locations'),id),{x:cx,z:cz,w,d,h,levels,rot:parseInt(rot)}));
             }
-            await Promise.all(promises);
-            writeLog('CONFIG',`[Layout] ${prefix} x${slots} (${w}x${d}x${h} Lvl:${levels} Rot:${rot}°)`);
-            showToast(t('toastSuccess'));
+            await Promise.all(promises); writeLog('CONFIG',`[Layout] ${prefix} x${slots} (${w}x${d}x${h} Lvl:${levels} Rot:${rot}°)`); showToast(t('toastSuccess'));
         }catch(e){ showToast(t('toastError'),'error'); }
     };
 
     window.updatePreview=function(){
         while(previewGroup.children.length>0) previewGroup.remove(previewGroup.children[0]);
         if(document.getElementById('tab-config').classList.contains('hidden')) return;
-        const slots=parseInt(document.getElementById('loc-slots').value)||1;
-        const axis=document.getElementById('loc-axis').value;
-        const rot=document.getElementById('loc-rot').value;
-        const startX=parseFloat(document.getElementById('loc-x').value)||0;
-        const startZ=parseFloat(document.getElementById('loc-z').value)||0;
-        const w=parseFloat(document.getElementById('loc-w').value)||200;
-        const d=parseFloat(document.getElementById('loc-d').value)||100;
-        const h=parseFloat(document.getElementById('loc-h').value)||150;
-        const levels=parseInt(document.getElementById('loc-levels').value)||1;
+        const slots=parseInt(document.getElementById('loc-slots').value)||1; const axis=document.getElementById('loc-axis').value; const rot=document.getElementById('loc-rot').value;
+        const startX=parseFloat(document.getElementById('loc-x').value)||0; const startZ=parseFloat(document.getElementById('loc-z').value)||0;
+        const w=parseFloat(document.getElementById('loc-w').value)||200; const d=parseFloat(document.getElementById('loc-d').value)||100; const h=parseFloat(document.getElementById('loc-h').value)||150; const levels=parseInt(document.getElementById('loc-levels').value)||1;
         const dispW=rot==='90'?d:w, dispD=rot==='90'?w:d;
-        const rMat=new THREE.MeshStandardMaterial({color:0x3b82f6,transparent:true,opacity:0.15,depthWrite:false});
-        const sMat=new THREE.MeshStandardMaterial({color:0x2563eb,transparent:true,opacity:0.4,depthWrite:false});
+        const rMat=new THREE.MeshStandardMaterial({color:0x3b82f6,transparent:true,opacity:0.15,depthWrite:false}); const sMat=new THREE.MeshStandardMaterial({color:0x2563eb,transparent:true,opacity:0.4,depthWrite:false});
         for(let i=0;i<slots;i++){
-            let cx=startX, cz=startZ;
-            if(axis==='x') cx=startX+(i*dispW); else cz=startZ-(i*dispD);
-            const tH=levels===1?5:(levels-1)*h+5;
-            const ghost=new THREE.Mesh(new THREE.BoxGeometry(dispW,tH,dispD),rMat);
-            ghost.position.set(cx,tH/2,cz); previewGroup.add(ghost);
-            for(let l=0;l<levels;l++){
-                const shelf=new THREE.Mesh(new THREE.BoxGeometry(dispW,5,dispD),sMat);
-                shelf.position.set(cx,(l*h)+2.5,cz); previewGroup.add(shelf);
-            }
+            let cx=startX, cz=startZ; if(axis==='x') cx=startX+(i*dispW); else cz=startZ-(i*dispD);
+            const tH=levels===1?5:(levels-1)*h+5; const ghost=new THREE.Mesh(new THREE.BoxGeometry(dispW,tH,dispD),rMat); ghost.position.set(cx,tH/2,cz); previewGroup.add(ghost);
+            for(let l=0;l<levels;l++){ const shelf=new THREE.Mesh(new THREE.BoxGeometry(dispW,5,dispD),sMat); shelf.position.set(cx,(l*h)+2.5,cz); previewGroup.add(shelf); }
         }
     };
 
-    window.deleteLocation=async function(id){
-        try{ await deleteDoc(doc(db,firestorePath('locations'),id)); writeLog('CONFIG',`Delete ${id}`); showToast(t('toastSuccess')); }
-        catch(e){ showToast(t('toastError'),'error'); }
-    };
+    window.deleteLocation=async function(id){ try{ await deleteDoc(doc(db,firestorePath('locations'),id)); writeLog('CONFIG',`Delete ${id}`); showToast(t('toastSuccess')); }catch(e){ showToast(t('toastError'),'error'); } };
     window.deleteLocationGroup=function(prefix){
         showConfirm(t('confDelRowTitle'),t('confDelRowMsg').replace('{0}',prefix),async()=>{
-            try{
-                const batch=locations.filter(l=>{ const m=l.id.match(/^([a-zA-Z]+)(\d*)$/); return m&&m[1]===prefix; });
-                await Promise.all(batch.map(l=>deleteDoc(doc(db,firestorePath('locations'),l.id))));
-                writeLog('CONFIG',`Delete Row ${prefix}`); showToast(t('toastSuccess'));
-            }catch(e){ showToast(t('toastError'),'error'); }
+            try{ const batch=locations.filter(l=>{ const m=l.id.match(/^([a-zA-Z]+)(\d*)$/); return m&&m[1]===prefix; }); await Promise.all(batch.map(l=>deleteDoc(doc(db,firestorePath('locations'),l.id)))); writeLog('CONFIG',`Delete Row ${prefix}`); showToast(t('toastSuccess')); }catch(e){ showToast(t('toastError'),'error'); }
         });
     };
 
     let acTimeout;
     window.showAutocomplete=function(inputId,listId){
-        clearTimeout(acTimeout);
-        const input=document.getElementById(inputId);
-        const val=input.value.trim().toLowerCase();
-        const list=document.getElementById(listId);
+        clearTimeout(acTimeout); const input=document.getElementById(inputId); const val=input.value.trim().toLowerCase(); const list=document.getElementById(listId);
         if(val.length<1) return list.style.display='none';
         acTimeout=setTimeout(()=>{
-            const matches=itemHistory.filter(i=>i.name.toLowerCase().includes(val)).slice(0,5);
-            list.innerHTML='';
+            const matches=itemHistory.filter(i=>i.name.toLowerCase().includes(val)).slice(0,5); list.innerHTML='';
             if(matches.length>0){
                 matches.forEach(m=>{
-                    const div=document.createElement('div');
-                    div.className='autocomplete-item text-base md:text-sm'; div.innerText=m.name;
+                    const div=document.createElement('div'); div.className='autocomplete-item text-base md:text-sm'; div.innerText=m.name;
                     div.onclick=()=>{ input.value=m.name; if(m.w) document.getElementById('in-w').value=m.w; if(m.d) document.getElementById('in-d').value=m.d; if(m.h) document.getElementById('in-h').value=m.h; list.style.display='none'; };
                     list.appendChild(div);
-                });
-                list.style.display='block';
+                }); list.style.display='block';
             } else list.style.display='none';
         },300);
     };
@@ -1687,40 +1592,52 @@
             const existing=inventory.find(i=>i.name===data.name&&i.locationId===data.locationId);
             if(existing) await setDoc(doc(db,firestorePath('inventory'),existing.id),{qty:existing.qty+data.qty,timestamp:Date.now()},{merge:true});
             else await addDoc(collection(db,firestorePath('inventory')),data);
-            const hid=data.name.replace(/[\/\\]/g,'_');
-            await setDoc(doc(db,firestorePath('itemHistory'),hid),{name:data.name,w:data.w,d:data.d,h:data.h});
-            writeLog('IN',`[IN] ${data.name} (+${data.qty}) -> ${formatLocation(data.locationId)}`);
-            showToast(t('toastSuccess'));
-            document.getElementById('form-in').reset();
+            const hid=data.name.replace(/[\/\\]/g,'_'); await setDoc(doc(db,firestorePath('itemHistory'),hid),{name:data.name,w:data.w,d:data.d,h:data.h});
+            writeLog('IN',`[IN] ${data.name} (+${data.qty}) -> ${formatLocation(data.locationId)}`); showToast(t('toastSuccess')); document.getElementById('form-in').reset();
         }catch(e){ showToast(t('toastError'),'error'); }
     };
 
     window.filterOutItems=function(){
         const q=document.getElementById('out-search').value.toLowerCase();
-        const list=document.getElementById('out-items-list');
-        list.innerHTML='';
+        const list=document.getElementById('out-items-list'); list.innerHTML='';
         let filtered=[...inventory];
         if(q) filtered=filtered.filter(i=>i.name.toLowerCase().includes(q));
-        filtered.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+        
+        // FIFO sort: Name asc, then Timestamp asc
+        filtered.sort((a,b)=>{
+            const nameCmp = a.name.localeCompare(b.name,undefined,{numeric:true});
+            if(nameCmp!==0) return nameCmp;
+            return a.timestamp - b.timestamp;
+        });
+
         if(filtered.length===0){ list.innerHTML=`<div class="text-center py-8 text-sm col-span-full w-full" style="color:#ef4444">${t('notFound')}</div>`; return; }
+
+        const seenNames = new Set();
+
         filtered.forEach(item=>{
             const isLow=item.qty<LOW_STOCK_THRESHOLD;
             const lowBadge=isLow?`<span class="low-stock-badge">${t('lowStockAlert')}</span>`:'';
+            const isOldest = !seenNames.has(item.name);
+            seenNames.add(item.name);
+            const oldestBadge = isOldest ? `<span class="fifo-badge">⭐ ${t('fifoBadge')}</span>` : '';
+
             const div=document.createElement('div');
-            div.className='p-4 border rounded-2xl shadow-sm hover:border-orange-300 cursor-pointer transition-all card';
-            div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
+            
             if(viewModes.out==='list'){
+                div.className='group cursor-pointer transition-colors';
                 div.innerHTML=`
                 <div class="flex-1 min-w-0 pr-2">
-                    <div class="font-bold text-base md:text-sm mb-1.5 flex items-center gap-2 flex-wrap truncate" style="color:var(--text)">${item.name} ${lowBadge}</div>
+                    <div class="font-bold text-base md:text-sm mb-1.5 flex items-center gap-2 flex-wrap truncate" style="color:var(--text)">${item.name} ${lowBadge} ${oldestBadge}</div>
                     <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
                 </div>
                 <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg whitespace-nowrap border border-green-100 mt-2 sm:mt-0 ml-auto shrink-0">${item.qty} ${t('pcsText')}</div>`;
             } else {
-                div.classList.add('flex-col','justify-between');
+                div.className='p-4 border rounded-2xl shadow-sm hover:border-orange-300 cursor-pointer transition-all card flex-col justify-between';
+                div.style.background='var(--card-bg)'; div.style.borderColor='var(--border)';
                 div.innerHTML=`
                 <div class="w-full text-center">
                     <div class="font-bold text-base md:text-sm mb-2 flex items-center justify-center gap-1.5 flex-wrap truncate" style="color:var(--text)">${item.name} ${lowBadge}</div>
+                    ${oldestBadge ? `<div class="mb-2">${oldestBadge}</div>` : ''}
                     <div class="text-sm md:text-xs font-bold px-2.5 py-1 rounded-lg inline-block mb-3" style="background:var(--hover-bg);color:var(--text)">${formatLocation(item.locationId)}</div>
                     <div class="text-base md:text-sm font-bold text-primary px-3 py-1.5 bg-green-50 rounded-lg border border-green-100">${item.qty} ${t('pcsText')}</div>
                 </div>`;
@@ -1731,39 +1648,26 @@
     };
 
     window.handleStockOut=async function(e){
-        e.preventDefault();
-        if(!selectedOutItem) return;
-        const outQty=parseInt(document.getElementById('out-qty').value);
-        const who=document.getElementById('out-who').value.trim();
-        const dt=document.getElementById('out-datetime').value;
+        e.preventDefault(); if(!selectedOutItem) return;
+        const outQty=parseInt(document.getElementById('out-qty').value); const who=document.getElementById('out-who').value.trim(); const dt=document.getElementById('out-datetime').value;
         if(outQty>selectedOutItem.qty) return showToast(t('toastNoStock'),'error');
         try{
             const newQty=selectedOutItem.qty-outQty;
             if(newQty===0) await deleteDoc(doc(db,firestorePath('inventory'),selectedOutItem.id));
             else await setDoc(doc(db,firestorePath('inventory'),selectedOutItem.id),{qty:newQty},{merge:true});
             writeLog('OUT',`[OUT] ${selectedOutItem.name} (-${outQty}) <- ${formatLocation(selectedOutItem.locationId)} (By:${who} @ ${new Date(dt).toLocaleString('th-TH')})`);
-            showToast(t('toastSuccess'));
-            document.getElementById('out-action-area').classList.add('hidden');
-            document.getElementById('out-search').value='';
+            showToast(t('toastSuccess')); document.getElementById('out-action-area').classList.add('hidden'); document.getElementById('out-search').value='';
             selectedOutItem=null; filterOutItems();
         }catch(e){ showToast(t('toastError'),'error'); }
     };
 
-    window.toggleReportFilters=function(){
-        const type=document.getElementById('rep-type').value;
-        document.querySelector('.loc-filter').classList.toggle('hidden',type!=='INV');
-    };
+    window.toggleReportFilters=function(){ document.querySelector('.loc-filter').classList.toggle('hidden',document.getElementById('rep-type').value!=='INV'); };
 
     window.generateReport=async function(){
-        const type=document.getElementById('rep-type').value;
-        const sv=document.getElementById('rep-start').value;
-        const ev=document.getElementById('rep-end').value;
-        const locFilter=document.getElementById('rep-loc-filter').value;
+        const type=document.getElementById('rep-type').value; const sv=document.getElementById('rep-start').value; const ev=document.getElementById('rep-end').value; const locFilter=document.getElementById('rep-loc-filter').value;
         if(!sv||!ev) return showToast(t('toastDateReq'),'error');
-        const sTs=new Date(sv).setHours(0,0,0,0);
-        const eTs=new Date(ev).setHours(23,59,59,999);
-        const tbody=document.getElementById('rep-tbody');
-        const thead=document.getElementById('rep-thead');
+        const sTs=new Date(sv).setHours(0,0,0,0); const eTs=new Date(ev).setHours(23,59,59,999);
+        const tbody=document.getElementById('rep-tbody'); const thead=document.getElementById('rep-thead');
         tbody.innerHTML=`<tr><td colspan="5" class="text-center py-8 text-sm" style="color:var(--text-muted)">${t('loading')}</td></tr>`;
         let data=[];
         try{
@@ -1771,29 +1675,15 @@
                 const summaryMap={};
                 inventory.forEach(i=>{
                     if(!summaryMap[i.name]) summaryMap[i.name]={totalQty:0,locations:[],size:`${i.w}x${i.d}x${i.h} cm`,timestamp:i.timestamp};
-                    summaryMap[i.name].totalQty+=i.qty;
-                    summaryMap[i.name].locations.push(`${formatLocation(i.locationId)} (${i.qty})`);
+                    summaryMap[i.name].totalQty+=i.qty; summaryMap[i.name].locations.push(`${formatLocation(i.locationId)} (${i.qty})`);
                     if(i.timestamp>summaryMap[i.name].timestamp) summaryMap[i.name].timestamp=i.timestamp;
                 });
-                data=Object.keys(summaryMap).map(name=>{
-                    let o={};
-                    o[t('colName')]=name; o[t('colQty')]=summaryMap[name].totalQty;
-                    o[t('colSlot')]=summaryMap[name].locations.join(', ');
-                    o[t('colSize')]=summaryMap[name].size;
-                    o[t('colDate')]=new Date(summaryMap[name].timestamp).toLocaleString('th-TH');
-                    return o;
-                });
+                data=Object.keys(summaryMap).map(name=>{ let o={}; o[t('colName')]=name; o[t('colQty')]=summaryMap[name].totalQty; o[t('colSlot')]=summaryMap[name].locations.join(', '); o[t('colSize')]=summaryMap[name].size; o[t('colDate')]=new Date(summaryMap[name].timestamp).toLocaleString('th-TH'); return o; });
             } else if(type==='INV'){
-                data=inventory.filter(i=>(i.timestamp>=sTs&&i.timestamp<=eTs)&&(locFilter===''||i.locationId===locFilter))
-                .sort((a,b)=>b.timestamp-a.timestamp)
-                .map(i=>{ let o={}; o[t('colDate')]=new Date(i.timestamp).toLocaleString('th-TH'); o[t('colName')]=i.name; o[t('colQty')]=i.qty; o[t('colSlot')]=formatLocation(i.locationId); o[t('colSize')]=`${i.w}x${i.d}x${i.h} cm`; return o; });
+                data=inventory.filter(i=>(i.timestamp>=sTs&&i.timestamp<=eTs)&&(locFilter===''||i.locationId===locFilter)).sort((a,b)=>b.timestamp-a.timestamp).map(i=>{ let o={}; o[t('colDate')]=new Date(i.timestamp).toLocaleString('th-TH'); o[t('colName')]=i.name; o[t('colQty')]=i.qty; o[t('colSlot')]=formatLocation(i.locationId); o[t('colSize')]=`${i.w}x${i.d}x${i.h} cm`; return o; });
             } else {
-                const snap=await window.getDocs(collection(db,firestorePath('logs')));
-                let allLogs=[];
-                snap.forEach(d=>allLogs.push(d.data()));
-                data=allLogs.filter(l=>l.action===type&&l.timestamp>=sTs&&l.timestamp<=eTs)
-                .sort((a,b)=>b.timestamp-a.timestamp)
-                .map(l=>{ let o={}; o[t('colLogDate')]=new Date(l.timestamp).toLocaleString('th-TH'); o[t('colDetails')]=l.details; o[t('colUser')]=l.user; return o; });
+                const snap=await window.getDocs(collection(db,firestorePath('logs'))); let allLogs=[]; snap.forEach(d=>allLogs.push(d.data()));
+                data=allLogs.filter(l=>l.action===type&&l.timestamp>=sTs&&l.timestamp<=eTs).sort((a,b)=>b.timestamp-a.timestamp).map(l=>{ let o={}; o[t('colLogDate')]=new Date(l.timestamp).toLocaleString('th-TH'); o[t('colDetails')]=l.details; o[t('colUser')]=l.user; return o; });
             }
             window.currentReportData=data;
             if(data.length===0){ thead.innerHTML=''; tbody.innerHTML=`<tr><td colspan="5" class="text-center py-8 text-sm text-red-500 font-bold">${t('repEmpty')}</td></tr>`; return; }
@@ -1805,30 +1695,18 @@
 
     window.exportCSV=function(){
         if(!window.currentReportData||window.currentReportData.length===0) return showToast(t('toastNoExport'),'error');
-        let csv="\uFEFF";
-        const headers=Object.keys(window.currentReportData[0]);
-        csv+=headers.join(",")+"\n";
+        let csv="\uFEFF"; const headers=Object.keys(window.currentReportData[0]); csv+=headers.join(",")+"\n";
         window.currentReportData.forEach(row=>{ csv+=headers.map(h=>`"${String(row[h]).replace(/"/g,'""')}"`).join(",")+"\n"; });
-        const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-        const link=document.createElement("a");
-        link.href=URL.createObjectURL(blob);
-        link.download=`Stocky_${document.getElementById('rep-type').value}_${new Date().toISOString().slice(0,10)}.csv`;
+        const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download=`Stocky_${document.getElementById('rep-type').value}_${new Date().toISOString().slice(0,10)}.csv`;
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 
     window.printPDF=function(){
         if(!window.currentReportData||window.currentReportData.length===0) return showToast(t('toastNoExport'),'error');
-        const pa=document.getElementById('print-area');
-        const sel=document.getElementById('rep-type');
-        const typeText=sel.options[sel.selectedIndex].text;
-        let html=`<h2>${typeText}</h2>`;
-        if(sel.value!=='SUM') html+=`<p class="print-date">${document.getElementById('rep-start').value} - ${document.getElementById('rep-end').value}</p>`;
-        html+=`<table><thead><tr>`;
-        const headers=Object.keys(window.currentReportData[0]);
-        headers.forEach(h=>html+=`<th>${h}</th>`);
-        html+=`</tr></thead><tbody>`;
-        window.currentReportData.forEach(row=>{ html+=`<tr>`; headers.forEach(h=>html+=`<td>${row[h]}</td>`); html+=`</tr>`; });
-        html+=`</tbody></table>`;
+        const pa=document.getElementById('print-area'); const sel=document.getElementById('rep-type'); const typeText=sel.options[sel.selectedIndex].text;
+        let html=`<h2>${typeText}</h2>`; if(sel.value!=='SUM') html+=`<p class="print-date">${document.getElementById('rep-start').value} - ${document.getElementById('rep-end').value}</p>`;
+        html+=`<table><thead><tr>`; const headers=Object.keys(window.currentReportData[0]); headers.forEach(h=>html+=`<th>${h}</th>`); html+=`</tr></thead><tbody>`;
+        window.currentReportData.forEach(row=>{ html+=`<tr>`; headers.forEach(h=>html+=`<td>${row[h]}</td>`); html+=`</tr>`; }); html+=`</tbody></table>`;
         pa.innerHTML=html; window.print();
     };
     </script>
