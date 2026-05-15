@@ -39,6 +39,9 @@
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; }
         .pointer-events-auto { pointer-events: auto; }
         
+        /* Smooth Scrolling */
+        .overflow-y-auto { -webkit-overflow-scrolling: touch; }
+        
         ::-webkit-scrollbar { width: 6px; height: 6px;}
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -86,6 +89,22 @@
             h2 { font-size: 24px; font-weight: bold; margin-bottom: 5px; text-align: center; }
             p.print-date { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px; }
         }
+        
+        /* View Toggle Utilities */
+        .grid-view-btn.active { background-color: #e0e7ff; color: #4f46e5; border-color: #c7d2fe; }
+        
+        /* List View Styles for Items */
+        .items-list-view > div {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+        }
+        .items-list-view .item-details { display: flex; flex-direction: row; align-items: center; gap: 16px; flex-wrap: wrap; }
+        @media (max-width: 640px) {
+            .items-list-view > div { flex-direction: column; align-items: flex-start; gap: 12px; }
+        }
     </style>
 </head>
 <body>
@@ -109,14 +128,18 @@
         <div id="overlay" class="fixed inset-0 bg-black/20 hidden pointer-events-auto z-40 md:hidden" onclick="toggleSidebar()"></div>
 
         <aside id="sidebar" class="w-72 bg-white/95 backdrop-blur-md border-r border-gray-200 shadow-xl flex flex-col pointer-events-auto z-50 h-full">
-            <div class="p-6 flex items-center justify-between border-b border-gray-100">
-                <div class="flex items-center gap-3">
-                    <svg class="w-8 h-8 text-primary" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round">
-                        <rect x="15" y="30" width="70" height="60" rx="4"/><path d="M15 45 L50 60 L85 45 M50 60 L50 90 M25 30 L50 15 L75 30"/>
-                    </svg>
-                    <h1 class="text-xl font-bold text-slate-800 tracking-wide">Stocky</h1>
-                </div>
-                <button onclick="toggleSidebar()" class="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
+            <div class="p-6 flex flex-col items-center justify-center border-b border-gray-100 relative">
+                <!-- New Warehouse Concept Logo -->
+                <svg class="w-12 h-12 text-primary mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 22V8a2 2 0 012-2h12a2 2 0 012 2v14"></path>
+                    <path d="M12 22V12"></path>
+                    <path d="M4 12h16"></path>
+                    <path d="M4 17h16"></path>
+                    <polygon points="12 2 20 6 20 10 12 14 4 10 4 6 12 2"></polygon>
+                    <polyline points="4 6 12 10 20 6"></polyline>
+                </svg>
+                <h1 class="text-2xl font-black text-slate-800 tracking-[0.2em]">STOCKY</h1>
+                <button onclick="toggleSidebar()" class="md:hidden absolute top-4 right-4 p-2 text-gray-400 hover:bg-gray-100 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -147,7 +170,7 @@
                 </button>
                 <!-- Reports Menu -->
                 <button onclick="openTab('reports')" class="tab-btn w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 rounded-xl hover:bg-purple-50 hover:text-purple-600 transition-all" data-tab="reports">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V10M12 20V4M6 20V14"></path></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     <span class="font-medium" data-i18n="menuReports">รายงาน</span>
                 </button>
                 <!-- Logs Menu -->
@@ -182,53 +205,62 @@
             <!-- Reset Camera & Config Group -->
             <div class="absolute bottom-6 right-6 md:right-8 z-20 flex items-center justify-end group pointer-events-none">
                 <!-- Config Button (Shows on hover of the group) -->
-                <button onclick="openTab('config')" title="จัดการผังคลังสินค้า" class="pointer-events-auto bg-white/90 backdrop-blur p-3 rounded-full shadow-lg text-slate-600 hover:text-primary hover:bg-white transition-all duration-300 opacity-0 translate-x-8 group-hover:opacity-100 group-hover:translate-x-0 mr-3">
+                <button onclick="openTab('config')" title="จัดการผังคลังสินค้า" class="pointer-events-auto bg-white/90 backdrop-blur p-3 rounded-full shadow-lg text-slate-600 hover:text-primary hover:bg-white transition-all duration-300 opacity-0 translate-x-8 group-hover:opacity-100 group-hover:translate-x-0 mr-3 border border-gray-100">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </button>
 
                 <!-- Home Button -->
-                <button onclick="resetCamera()" title="กลับจุดศูนย์กลาง" class="pointer-events-auto bg-white/90 backdrop-blur p-4 rounded-full shadow-lg text-slate-600 hover:text-primary hover:bg-white transition-all relative z-10 border border-gray-100">
+                <button onclick="resetCamera()" title="กลับมุมมองเริ่มต้น" class="pointer-events-auto bg-white/90 backdrop-blur p-4 rounded-full shadow-lg text-slate-600 hover:text-primary hover:bg-white transition-all relative z-10 border border-gray-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 </button>
             </div>
 
-            <!-- Absolute Modal Overlay & Container (Bound to <main>) -->
+            <!-- Absolute Modal Overlay & Container -->
             <div id="main-overlay" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] modal-hidden transition-opacity duration-300" onclick="openTab('home')"></div>
             
-            <!-- Cleaned up Modal border/shadow -->
-            <div id="main-modal" class="absolute inset-2 md:inset-4 z-[60] bg-white rounded-2xl flex flex-col modal-hidden pointer-events-none transition-all duration-300 overflow-hidden">
+            <div id="main-modal" class="absolute inset-2 md:inset-4 z-[60] bg-white rounded-2xl flex flex-col modal-hidden pointer-events-none transition-all duration-300 overflow-hidden shadow-2xl">
                 
                 <!-- Modal Header / Close Button -->
-                <div class="flex justify-end p-3 border-b border-gray-100 pointer-events-auto shrink-0 bg-white">
+                <div class="flex justify-end p-2 md:p-3 border-b border-gray-100 pointer-events-auto shrink-0 bg-white">
                     <button onclick="openTab('home')" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
 
-                <!-- Modal Content Area (Full width, flexible) -->
+                <!-- Modal Content Area -->
                 <div id="action-panel" class="p-4 md:p-6 flex-1 w-full pointer-events-auto bg-white flex flex-col overflow-hidden">
                     
                     <!-- Tab: Search -->
                     <div id="tab-search" class="tab-content hidden flex-col h-full w-full">
-                        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
-                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            <span data-i18n="searchTitle">สต็อกทั้งหมด / ค้นหา</span>
-                        </h2>
-                        <input type="text" id="searchInput" data-i18n-ph="searchPlaceholder" placeholder="พิมพ์ชื่อสินค้า..." class="w-full max-w-md px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent mb-6 text-lg shrink-0" oninput="handleSearch()">
+                        <div class="flex justify-between items-center mb-6 shrink-0">
+                            <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                <span data-i18n="searchTitle">สต็อกทั้งหมด / ค้นหา</span>
+                            </h2>
+                            <!-- View Toggles -->
+                            <div class="flex bg-gray-100 p-1 rounded-lg">
+                                <button onclick="setViewMode('search', 'list')" id="view-search-list" class="grid-view-btn p-2 rounded-md active transition-colors" title="List View">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                                </button>
+                                <button onclick="setViewMode('search', 'grid')" id="view-search-grid" class="grid-view-btn p-2 rounded-md text-gray-500 hover:text-gray-700 transition-colors" title="Grid View">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <input type="text" id="searchInput" data-i18n-ph="searchPlaceholder" placeholder="พิมพ์ชื่อสินค้า..." class="w-full max-w-md px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent mb-6 text-lg shrink-0 shadow-sm" oninput="handleSearch()">
                         
-                        <!-- List Layout Container -->
-                        <div id="search-results" class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start">
+                        <div id="search-results" class="flex-1 overflow-y-auto pr-2 flex flex-col gap-3 content-start items-list-view">
                             <!-- Populated dynamically -->
                         </div>
                     </div>
 
                     <!-- Tab: In -->
-                    <div id="tab-in" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2">
+                    <div id="tab-in" class="tab-content hidden relative max-w-4xl mx-auto w-full">
                         <h2 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3 shrink-0">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 3v14M8 13l4 4 4-4"></path></svg>
                             <span data-i18n="inTitle">รับสินค้าเข้า</span>
                         </h2>
-                        <form id="form-in" onsubmit="handleStockIn(event)" class="space-y-6 max-w-5xl">
+                        <form id="form-in" onsubmit="handleStockIn(event)" class="space-y-6 overflow-y-auto pr-2 pb-10 max-h-[75vh]">
                             <div class="relative">
                                 <label class="block font-medium text-gray-700 mb-2" data-i18n="inItemName">ชื่อสินค้า</label>
                                 <input type="text" id="in-name" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary text-lg" autocomplete="off" oninput="showAutocomplete('in-name', 'in-autocomplete')">
@@ -249,32 +281,44 @@
                                 </div>
                                 <div>
                                     <label class="block font-medium text-gray-700 mb-2" data-i18n="inSelectSlot">เลือกช่องเก็บ</label>
-                                    <select id="in-location" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary text-lg">
+                                    <select id="in-location" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary text-lg bg-white">
                                         <option value="" data-i18n="selectDash">-- เลือก --</option>
                                     </select>
                                 </div>
                             </div>
-                            <button type="submit" class="w-full md:w-auto px-8 bg-primary hover:bg-primaryHover text-white font-bold py-4 rounded-xl transition-colors mt-6 text-lg shadow-md" data-i18n="inBtn">บันทึกรับเข้า</button>
+                            <button type="submit" class="w-full md:w-auto px-10 bg-primary hover:bg-primaryHover text-white font-bold py-4 rounded-xl transition-colors mt-6 text-lg shadow-md" data-i18n="inBtn">บันทึกรับเข้า</button>
                         </form>
                     </div>
 
                     <!-- Tab: Out -->
                     <div id="tab-out" class="tab-content hidden flex-col h-full w-full">
-                        <h2 class="text-2xl font-bold text-orange-500 mb-6 flex items-center gap-3 shrink-0">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
-                            <span data-i18n="outTitle">เบิกสินค้าออก</span>
-                        </h2>
+                        <div class="flex justify-between items-center mb-6 shrink-0">
+                            <h2 class="text-2xl font-bold text-orange-500 flex items-center gap-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                                <span data-i18n="outTitle">เบิกสินค้าออก</span>
+                            </h2>
+                            <!-- View Toggles -->
+                            <div class="flex bg-gray-100 p-1 rounded-lg">
+                                <button onclick="setViewMode('out', 'list')" id="view-out-list" class="grid-view-btn p-2 rounded-md active transition-colors" title="List View">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                                </button>
+                                <button onclick="setViewMode('out', 'grid')" id="view-out-grid" class="grid-view-btn p-2 rounded-md text-gray-500 hover:text-gray-700 transition-colors" title="Grid View">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
                         <form id="form-out" onsubmit="handleStockOut(event)" class="flex flex-col h-full overflow-hidden">
                             <div class="relative shrink-0 mb-4 max-w-md">
                                 <label class="block font-medium text-gray-700 mb-2" data-i18n="outSearch">ค้นหาสินค้าที่จะเบิก</label>
-                                <input type="text" id="out-search" data-i18n-ph="searchPlaceholder" placeholder="พิมพ์ชื่อสินค้า..." class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-lg" oninput="filterOutItems()">
+                                <input type="text" id="out-search" data-i18n-ph="searchPlaceholder" placeholder="พิมพ์ชื่อสินค้า..." class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-lg shadow-sm" oninput="filterOutItems()">
                             </div>
                             
-                            <!-- Items populate here (Grid View) -->
-                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-2 bg-gray-50/50 rounded-2xl p-2 min-h-[20vh] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start border border-gray-100">
+                            <!-- Items populate here (Grid or List View) -->
+                            <div id="out-items-list" class="flex-1 overflow-y-auto pr-2 flex flex-col gap-3 content-start items-list-view pb-4">
                             </div>
 
-                            <div id="out-action-area" class="hidden mt-4 pt-6 border-t border-gray-200 space-y-5 shrink-0 bg-white">
+                            <div id="out-action-area" class="hidden mt-4 pt-6 border-t border-gray-200 space-y-5 shrink-0 bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] pb-4">
                                 <div class="text-lg text-gray-600"><span data-i18n="outFrom">เบิกจาก:</span> <span id="out-selected-label" class="font-bold text-slate-800 text-xl block md:inline mt-1 md:mt-0 bg-orange-100 px-3 py-1 rounded-lg"></span></div>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl">
@@ -299,56 +343,63 @@
                     </div>
 
                     <!-- Tab: Logs -->
-                    <div id="tab-logs" class="tab-content hidden flex-col h-full w-full">
+                    <div id="tab-logs" class="tab-content hidden flex-col h-full w-full max-w-6xl mx-auto">
                         <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
                             <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span data-i18n="logTitle">ประวัติการทำงานล่าสุด</span>
                         </h2>
                         <!-- List Layout Container -->
-                        <div id="logs-container" class="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start">
+                        <div id="logs-container" class="flex-1 overflow-y-auto pr-2 flex flex-col gap-3 content-start">
                             <div class="text-center text-gray-400 py-8 col-span-full" data-i18n="loading">กำลังโหลด...</div>
                         </div>
                         <!-- Pagination -->
-                        <div id="log-pagination" class="hidden flex justify-between items-center mt-4 pt-4 border-t border-gray-100 shrink-0">
-                            <button id="btn-prev-log" onclick="loadLogsPage(window.currentLogPage - 1)" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnPrev">ก่อนหน้า</button>
-                            <span id="log-page-info" class="text-base font-bold text-slate-600">หน้า 1</span>
-                            <button id="btn-next-log" onclick="loadLogsPage(window.currentLogPage + 1)" class="px-5 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnNext">ถัดไป</button>
+                        <div id="log-pagination" class="hidden flex justify-between items-center mt-4 pt-4 border-t border-gray-100 shrink-0 bg-white pb-2">
+                            <button id="btn-prev-log" onclick="loadLogsPage(window.currentLogPage - 1)" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnPrev">ก่อนหน้า</button>
+                            <span id="log-page-info" class="text-lg font-bold text-slate-600">หน้า 1</span>
+                            <button id="btn-next-log" onclick="loadLogsPage(window.currentLogPage + 1)" class="px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnNext">ถัดไป</button>
                         </div>
                     </div>
 
                     <!-- Tab: Reports -->
-                    <div id="tab-reports" class="tab-content hidden flex-col h-full w-full">
+                    <div id="tab-reports" class="tab-content hidden flex-col h-full w-full max-w-6xl mx-auto">
                         <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
                             <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 20V10M12 20V4M6 20V14"></path></svg>
                             <span data-i18n="repTitle">ส่งออกรายงาน (Reports)</span>
                         </h2>
                         
-                        <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200 mb-6 shrink-0 max-w-6xl">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-6 shrink-0">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-5 items-end">
                                 <div class="md:col-span-2">
                                     <label class="block font-medium text-gray-700 mb-2" data-i18n="repType">ประเภทรายงาน</label>
-                                    <select id="rep-type" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-white">
-                                        <option value="INV" data-i18n="repOpt1">1. รายงานสินค้าคงคลัง (Inventory)</option>
-                                        <option value="IN" data-i18n="repOpt2">2. รายงานการรับสินค้าเข้า (Stock In)</option>
-                                        <option value="OUT" data-i18n="repOpt3">3. รายงานการเบิกสินค้าออก (Stock Out)</option>
+                                    <select id="rep-type" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-lg" onchange="toggleReportFilters()">
+                                        <option value="SUM" data-i18n="repOptSum">1. รายงานสรุปยอดรวมสินค้า (Summary)</option>
+                                        <option value="INV" data-i18n="repOpt1">2. รายงานแจกแจงตามช่อง (Detailed Inventory)</option>
+                                        <option value="IN" data-i18n="repOpt2">3. รายงานการรับสินค้าเข้า (Stock In)</option>
+                                        <option value="OUT" data-i18n="repOpt3">4. รายงานการเบิกสินค้าออก (Stock Out)</option>
                                     </select>
                                 </div>
-                                <div>
+                                <div class="date-filter">
                                     <label class="block font-medium text-gray-700 mb-2" data-i18n="repStart">ตั้งแต่วันที่</label>
-                                    <input type="date" id="rep-start" required class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-white">
+                                    <input type="date" id="rep-start" required class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-lg">
                                 </div>
-                                <div>
+                                <div class="date-filter">
                                     <label class="block font-medium text-gray-700 mb-2" data-i18n="repEnd">ถึงวันที่</label>
-                                    <input type="date" id="rep-end" required class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-white">
+                                    <input type="date" id="rep-end" required class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-lg">
+                                </div>
+                                <div class="loc-filter hidden md:col-span-2">
+                                    <label class="block font-medium text-gray-700 mb-2" data-i18n="repFilterLoc">กรองเฉพาะช่อง/ชั้น (เว้นว่างเพื่อดูทั้งหมด)</label>
+                                    <select id="rep-loc-filter" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-lg">
+                                        <option value="">-- ทั้งหมด --</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="mt-5 flex flex-wrap gap-3">
-                                <button onclick="generateReport()" class="flex-1 md:flex-none px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-colors shadow-sm text-lg" data-i18n="repBtnGen">ดึงข้อมูลรายงาน</button>
-                                <button onclick="exportCSV()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition-colors shadow-sm text-lg">
+                            <div class="mt-6 flex flex-wrap gap-4">
+                                <button onclick="generateReport()" class="flex-1 md:flex-none px-8 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-colors shadow-sm text-lg" data-i18n="repBtnGen">ดึงข้อมูลรายงาน</button>
+                                <button onclick="exportCSV()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3.5 rounded-xl font-bold transition-colors shadow-sm text-lg">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
                                     <span data-i18n="repExcel">Excel (CSV)</span>
                                 </button>
-                                <button onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-bold transition-colors shadow-sm text-lg">
+                                <button onclick="printPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-6 py-3.5 rounded-xl font-bold transition-colors shadow-sm text-lg">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     <span data-i18n="repPdf">พิมพ์ / PDF</span>
                                 </button>
@@ -356,12 +407,12 @@
                         </div>
                         
                         <div class="flex-1 overflow-auto border border-gray-200 rounded-xl relative min-h-[300px]">
-                            <table class="w-full text-sm text-left whitespace-nowrap">
-                                <thead id="rep-thead" class="sticky top-0 bg-slate-100 border-b z-10 text-slate-700 uppercase">
+                            <table class="w-full text-base text-left whitespace-nowrap">
+                                <thead id="rep-thead" class="sticky top-0 bg-slate-100 border-b z-10 text-slate-700 uppercase text-sm">
                                     <!-- Headers generated dynamically -->
                                 </thead>
                                 <tbody id="rep-tbody">
-                                    <tr><td class="text-center py-10 text-gray-400 text-base" colspan="100%" data-i18n="repWait">คลิก "ดึงข้อมูลรายงาน" เพื่อแสดงผล</td></tr>
+                                    <tr><td class="text-center py-12 text-gray-400 text-lg" colspan="100%" data-i18n="repWait">คลิก "ดึงข้อมูลรายงาน" เพื่อแสดงผล</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -374,7 +425,7 @@
                             <span data-i18n="helpTitle">คู่มือการใช้งานระบบ</span>
                         </h2>
                         
-                        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 space-y-8 max-w-5xl">
+                        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 space-y-8 max-w-5xl mx-auto w-full">
                             
                             <!-- 3D Controls -->
                             <section>
@@ -413,25 +464,29 @@
                                 <ul class="space-y-4 text-lg text-slate-700">
                                     <li class="flex items-start gap-3">
                                         <div class="mt-1 text-primary">●</div>
-                                        <div><strong class="text-slate-800" data-i18n="helpSys1">เช็คสต็อก (Search):</strong> <span data-i18n="helpSys1Desc">ดูรายการสินค้าทั้งหมด คลิกที่สินค้าเพื่อดูรายละเอียดและตำแหน่งใน 3D</span></div>
+                                        <div><strong class="text-slate-800" data-i18n="helpSys1">เช็คสต็อก (Search):</strong> <span data-i18n="helpSys1Desc">ดูรายการสินค้าทั้งหมด สามารถสลับมุมมอง Grid/List ได้ คลิกที่สินค้าเพื่อดูรายละเอียดและตำแหน่งใน 3D</span></div>
                                     </li>
                                     <li class="flex items-start gap-3">
                                         <div class="mt-1 text-primary">●</div>
-                                        <div><strong class="text-slate-800" data-i18n="helpSys2">รับเข้า / เบิกออก (In/Out):</strong> <span data-i18n="helpSys2Desc">บันทึกข้อมูลการเอาสินค้าเข้าและออกจากชั้นวาง ระบบจะคำนวณและวาด 3D อัตโนมัติ</span></div>
+                                        <div><strong class="text-slate-800" data-i18n="helpSys2">รับเข้า / เบิกออก (In/Out):</strong> <span data-i18n="helpSys2Desc">บันทึกข้อมูลการเอาสินค้าเข้าและออกจากชั้นวาง ระบบจะคำนวณและวาด 1 กล่องต่อ 1 รายการแพ็กเกจรับเข้าอัตโนมัติ</span></div>
                                     </li>
                                     <li class="flex items-start gap-3">
                                         <div class="mt-1 text-primary">●</div>
-                                        <div><strong class="text-slate-800" data-i18n="helpSys3">รายงานและประวัติ (Reports & Logs):</strong> <span data-i18n="helpSys3Desc">ดูประวัติการทำรายการย้อนหลัง และสามารถส่งออกข้อมูลเป็น Excel หรือ PDF ได้</span></div>
+                                        <div><strong class="text-slate-800" data-i18n="helpSys3">รายงานและประวัติ (Reports & Logs):</strong> <span data-i18n="helpSys3Desc">สามารถดูรายงานสรุปยอดรวม (Summary) สินค้าที่อยู่หลายช่องได้ หรือดูประวัติการทำรายการย้อนหลัง ส่งออก Excel/PDF</span></div>
                                     </li>
                                     <li class="flex items-start gap-3">
                                         <div class="mt-1 text-primary">●</div>
-                                        <div><strong class="text-slate-800" data-i18n="helpSys4">จัดการผังคลังสินค้า (Layout Config):</strong> <span data-i18n="helpSys4Desc">ตั้งค่ามิติ ขนาด และจำนวนชั้นวาง (ไอคอน ⚙️ ซ่อนอยู่ข้างปุ่ม Home มุมขวาล่าง)</span></div>
+                                        <div><strong class="text-slate-800" data-i18n="helpSys4">จัดการผังคลังสินค้า (Layout Config):</strong> <span data-i18n="helpSys4Desc">ตั้งค่ามิติ ขนาด และจำนวนชั้นวาง (ไอคอน ⚙️ ซ่อนอยู่ข้างปุ่ม Home มุมขวาล่าง เลื่อนเมาส์ไปชี้เพื่อแสดง)</span></div>
                                     </li>
                                 </ul>
                             </section>
 
-                            <div class="border-t border-gray-200 pt-6 text-center text-gray-500 text-sm font-medium" data-i18n="helpDev">
-                                ผู้พัฒนา AArm -- version 1.0.0 -- 15/05/2026
+                            <div class="border-t border-gray-200 pt-6 text-center">
+                                <div class="text-gray-500 text-sm font-medium mb-2" data-i18n="helpDev">ผู้พัฒนา AArm -- version 1.0.0 -- 15/05/2026</div>
+                                <a href="mailto:velken_arm_@hotmail.com" class="inline-flex items-center gap-2 text-primary hover:text-primaryHover font-bold transition-colors bg-green-50 px-4 py-2 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    Contact Developer
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -445,7 +500,7 @@
                         
                         <div class="bg-gray-50 border border-gray-200 rounded-2xl p-8 max-w-2xl">
                             <label class="block font-bold text-gray-800 mb-4 text-lg" data-i18n="setLang">เลือกภาษา (Language)</label>
-                            <select id="lang-select" class="w-full px-4 py-4 border border-gray-300 rounded-xl bg-white text-lg focus:ring-2 focus:ring-slate-500 shadow-sm" onchange="setLanguage(this.value)">
+                            <select id="lang-select" class="w-full px-4 py-4 border border-gray-300 rounded-xl bg-white text-lg focus:ring-2 focus:ring-slate-500 shadow-sm cursor-pointer" onchange="setLanguage(this.value)">
                                 <option value="th">🇹🇭 ภาษาไทย</option>
                                 <option value="en">🇬🇧 English</option>
                                 <option value="ja">🇯🇵 日本語</option>
@@ -458,37 +513,37 @@
                     <div id="tab-config" class="tab-content hidden flex-col h-full w-full overflow-y-auto pr-2">
                         <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 shrink-0">
                             <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span data-i18n="cfgTitle">ตั้งค่ามิติชั้นวาง (หน่วย: เซนติเมตร)</span>
+                            <span data-i18n="cfgTitle">ตั้งค่ามิติชั้นวาง (ซม.)</span>
                         </h2>
                         
-                        <form id="form-config" onsubmit="handleAddLocation(event)" oninput="updatePreview()" onchange="updatePreview()" class="space-y-4 shrink-0">
+                        <form id="form-config" onsubmit="handleAddLocation(event)" oninput="updatePreview()" onchange="updatePreview()" class="space-y-5 shrink-0">
                             <div>
                                 <label class="block font-medium text-gray-700 mb-1" data-i18n="cfgPrefix">อักษรนำหน้าแถว (Prefix เช่น B)</label>
-                                <input type="text" id="loc-prefix" required data-i18n-ph="cfgPrefixPh" placeholder="เช่น B" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-slate-500">
+                                <input type="text" id="loc-prefix" required data-i18n-ph="cfgPrefixPh" placeholder="เช่น B" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-slate-500">
                             </div>
                             
-                            <div class="grid grid-cols-2 gap-4 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                            <div class="grid grid-cols-2 gap-4 p-5 bg-blue-50/50 rounded-2xl border border-blue-100">
                                 <div class="col-span-2 font-bold text-blue-800 text-sm uppercase tracking-wider" data-i18n="cfgBatch">การสร้างช่องแบบกลุ่มต่อเนื่อง</div>
                                 <div>
-                                    <label class="block font-medium text-gray-700 mb-1 text-sm" data-i18n="cfgSlots">จำนวนช่อง</label>
+                                    <label class="block font-medium text-gray-700 mb-2 text-sm" data-i18n="cfgSlots">จำนวนช่อง</label>
                                     <input type="number" id="loc-slots" required value="1" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                 </div>
                                 <div>
-                                    <label class="block font-medium text-gray-700 mb-1 text-sm" data-i18n="cfgOrder">ทิศทางการเรียง</label>
+                                    <label class="block font-medium text-gray-700 mb-2 text-sm" data-i18n="cfgOrder">ทิศทางการเรียง</label>
                                     <select id="loc-order" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                         <option value="asc">1 -> N</option>
                                         <option value="desc">N -> 1</option>
                                     </select>
                                 </div>
                                 <div class="col-span-2">
-                                    <label class="block font-medium text-gray-700 mb-1 text-sm" data-i18n="cfgDir">ทิศทางการต่อช่องใน 3D</label>
+                                    <label class="block font-medium text-gray-700 mb-2 text-sm" data-i18n="cfgDir">ทิศทางการต่อช่องใน 3D</label>
                                     <select id="loc-axis" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                         <option value="x" data-i18n="cfgDirX">ตามแกน X (ซ้าย-ขวา)</option>
                                         <option value="y" data-i18n="cfgDirZ">ตามแกน Y (ลึกเข้า-ออก)</option>
                                     </select>
                                 </div>
-                                <div class="col-span-2 border-t border-blue-200 pt-2 mt-1">
-                                    <label class="block font-medium text-gray-700 mb-1 text-sm" data-i18n="cfgRot">การหันหน้าชั้นวาง (Rotation)</label>
+                                <div class="col-span-2 border-t border-blue-200 pt-3 mt-1">
+                                    <label class="block font-medium text-gray-700 mb-2 text-sm" data-i18n="cfgRot">การหันหน้าชั้นวาง (Rotation)</label>
                                     <select id="loc-rot" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                         <option value="0" data-i18n="cfgRot0">หันหน้าออกตามปกติ (0 องศา)</option>
                                         <option value="90" data-i18n="cfgRot90">หันด้านข้าง (90 องศา)</option>
@@ -498,33 +553,33 @@
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block font-medium text-gray-700 mb-1" data-i18n="cfgX">พิกัด X (แนวนอน)</label>
+                                    <label class="block font-medium text-gray-700 mb-2" data-i18n="cfgX">พิกัด X (แนวนอน)</label>
                                     <input type="number" id="loc-x" required placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                 </div>
                                 <div>
-                                    <label class="block font-medium text-gray-700 mb-1" data-i18n="cfgZ">พิกัด Y (แนวลึก)</label>
+                                    <label class="block font-medium text-gray-700 mb-2" data-i18n="cfgZ">พิกัด Y (แนวลึก)</label>
                                     <input type="number" id="loc-z" required placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                 </div>
                             </div>
 
-                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                                <p class="font-bold text-slate-700 mb-3" data-i18n="cfgSize">ขนาดของชั้นวางต่อ 1 ช่อง (ซม.)</p>
+                            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                                <p class="font-bold text-slate-700 mb-4" data-i18n="cfgSize">ขนาดของชั้นวางต่อ 1 ช่อง (ซม.)</p>
                                 <div class="grid grid-cols-3 gap-3">
                                     <div><label class="text-xs text-gray-600 block mb-1" data-i18n="width">กว้าง</label><input type="number" id="loc-w" required value="200" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></div>
                                     <div><label class="text-xs text-gray-600 block mb-1" data-i18n="depth">ลึก</label><input type="number" id="loc-d" required value="100" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></div>
                                     <div><label class="text-xs text-gray-600 block mb-1" data-i18n="heightPerLvl">สูง/ชั้น</label><input type="number" id="loc-h" required value="150" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"></div>
                                 </div>
-                                <div class="mt-4">
-                                    <label class="text-sm text-gray-600 block mb-1" data-i18n="cfgLevels">จำนวนชั้นทั้งหมด (แนวตั้ง)</label>
+                                <div class="mt-5">
+                                    <label class="text-sm text-gray-600 block mb-2" data-i18n="cfgLevels">จำนวนชั้นทั้งหมด (แนวตั้ง)</label>
                                     <input type="number" id="loc-levels" min="1" max="10" value="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                 </div>
                             </div>
-                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl transition-colors mt-2 shadow-sm text-lg" data-i18n="cfgBtn">บันทึกผังคลังสินค้า</button>
+                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-xl transition-colors mt-2 shadow-sm text-lg" data-i18n="cfgBtn">บันทึกผังคลังสินค้า</button>
                         </form>
 
-                        <div class="mt-6 border-t border-gray-200 pt-6 shrink-0">
-                            <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n="cfgList">รายการชั้นวางปัจจุบัน</h3>
-                            <div id="locations-list" class="space-y-2 pb-10"></div>
+                        <div class="mt-8 border-t border-gray-200 pt-6 shrink-0">
+                            <h3 class="text-xl font-bold text-gray-800 mb-5" data-i18n="cfgList">รายการชั้นวางปัจจุบัน</h3>
+                            <div id="locations-list" class="space-y-3 pb-10"></div>
                         </div>
                     </div>
 
@@ -538,43 +593,43 @@
 
     <!-- Confirm Modal -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-[100] pointer-events-auto transition-opacity">
-        <div class="bg-white p-6 rounded-3xl w-80 md:w-96 shadow-2xl">
-            <h3 class="text-xl font-bold mb-2 text-slate-800" id="confirm-title">ยืนยัน</h3>
-            <p class="text-slate-600 mb-6 leading-relaxed" id="confirm-msg">...</p>
-            <div class="flex gap-3">
-                <button id="confirm-cancel" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition-colors">ยกเลิก</button>
-                <button id="confirm-ok" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors shadow-sm">ยืนยัน</button>
+        <div class="bg-white p-6 md:p-8 rounded-3xl w-11/12 md:w-96 shadow-2xl">
+            <h3 class="text-2xl font-bold mb-3 text-slate-800" id="confirm-title">ยืนยัน</h3>
+            <p class="text-slate-600 mb-8 leading-relaxed text-lg" id="confirm-msg">...</p>
+            <div class="flex gap-4">
+                <button id="confirm-cancel" class="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition-colors text-lg">ยกเลิก</button>
+                <button id="confirm-ok" class="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors shadow-md text-lg">ยืนยัน</button>
             </div>
         </div>
     </div>
 
     <!-- Item Details Modal -->
     <div id="item-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm items-center justify-center pointer-events-auto z-[80]">
-        <div class="bg-white rounded-3xl p-6 w-80 md:w-[400px] shadow-2xl relative transform transition-all scale-100 border border-gray-100">
-            <button onclick="closeItemModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-colors">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-11/12 md:w-[450px] shadow-2xl relative transform transition-all scale-100 border border-gray-100">
+            <button onclick="closeItemModal()" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-xl transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <div class="flex items-center gap-4 mb-5 border-b border-gray-100 pb-5">
-                <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center text-primary shrink-0 shadow-inner">
+            <div class="flex items-center gap-5 mb-6 border-b border-gray-100 pb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center text-primary shrink-0 shadow-inner">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                 </div>
-                <div>
-                    <h3 id="modal-name" class="font-bold text-xl text-slate-800 leading-tight">Name</h3>
+                <div class="flex-1 overflow-hidden">
+                    <h3 id="modal-name" class="font-bold text-2xl text-slate-800 leading-tight truncate">Name</h3>
                 </div>
             </div>
-            <div class="space-y-3 text-base text-slate-600">
-                <div class="flex justify-between items-center border-b border-gray-50 pb-2"><span class="text-gray-500" data-i18n="mdlLoc">ตำแหน่ง:</span> <span id="modal-loc" class="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg"></span></div>
-                <div class="flex justify-between items-center border-b border-gray-50 pb-2"><span class="text-gray-500" data-i18n="mdlQty">จำนวนคงเหลือ:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-3 py-1 rounded-lg text-lg"></span></div>
-                <div class="flex justify-between items-center border-b border-gray-50 pb-2"><span class="text-gray-500" data-i18n="mdlSize">ขนาด (กxลxส):</span> <span id="modal-size" class="font-medium text-slate-800"></span></div>
-                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlUpdate">อัปเดตล่าสุด:</span> <span id="modal-date" class="text-sm font-medium text-slate-700"></span></div>
+            <div class="space-y-4 text-lg text-slate-600">
+                <div class="flex justify-between items-center border-b border-gray-50 pb-3"><span class="text-gray-500" data-i18n="mdlLoc">ตำแหน่ง:</span> <span id="modal-loc" class="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg"></span></div>
+                <div class="flex justify-between items-center border-b border-gray-50 pb-3"><span class="text-gray-500" data-i18n="mdlQty">จำนวนคงเหลือ:</span> <span id="modal-qty" class="font-bold text-primary bg-green-50 px-3 py-1 rounded-lg text-xl"></span></div>
+                <div class="flex justify-between items-center border-b border-gray-50 pb-3"><span class="text-gray-500" data-i18n="mdlSize">ขนาด (กxลxส):</span> <span id="modal-size" class="font-medium text-slate-800"></span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-500" data-i18n="mdlUpdate">อัปเดตล่าสุด:</span> <span id="modal-date" class="text-base font-medium text-slate-700"></span></div>
             </div>
-            <div class="mt-6 flex flex-col gap-3">
-                <button id="btn-view-map" class="w-full bg-blue-50 text-blue-600 font-bold py-3.5 rounded-xl hover:bg-blue-100 transition-colors text-lg flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            <div class="mt-8 flex flex-col gap-3">
+                <button id="btn-view-map" class="w-full bg-blue-50 text-blue-600 font-bold py-4 rounded-xl hover:bg-blue-100 transition-colors text-lg flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     <span data-i18n="btnViewMap">ดูตำแหน่งบน 3D</span>
                 </button>
-                <button onclick="closeItemModal(); openTab('out'); document.getElementById('out-search').value=document.getElementById('modal-name').innerText; filterOutItems(); setTimeout(() => { const outList = document.getElementById('out-items-list').children; for(let i=0; i<outList.length; i++) { if(outList[i].innerText.includes(document.getElementById('modal-name').innerText)) { outList[i].click(); break; } } }, 100);" class="w-full bg-orange-100 text-orange-600 font-bold py-3.5 rounded-xl hover:bg-orange-200 transition-colors text-lg flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                <button onclick="closeItemModal(); openTab('out'); document.getElementById('out-search').value=document.getElementById('modal-name').innerText; filterOutItems(); setTimeout(() => { const outList = document.getElementById('out-items-list').children; for(let i=0; i<outList.length; i++) { if(outList[i].innerText.includes(document.getElementById('modal-name').innerText)) { outList[i].click(); break; } } }, 100);" class="w-full bg-orange-100 text-orange-600 font-bold py-4 rounded-xl hover:bg-orange-200 transition-colors text-lg flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
                     <span data-i18n="mdlBtnOut">นำไปเบิกออก</span>
                 </button>
             </div>
@@ -583,14 +638,14 @@
 
     <div id="toast-container"></div>
 
-    <!-- Credit Watermark (Clickable Mailto) -->
-    <a href="mailto:velken_arm_@hotmail.com" class="fixed bottom-4 left-4 z-[990] pointer-events-auto bg-white/70 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-gray-200/50 flex items-center gap-1.5 transition-all opacity-70 hover:opacity-100 cursor-pointer">
+    <!-- Credit Watermark -->
+    <div class="fixed bottom-4 left-4 z-[990] pointer-events-none bg-white/40 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-gray-200/30 flex items-center gap-1.5 transition-all opacity-40">
         <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="16 18 22 12 16 6"></polyline>
             <polyline points="8 6 2 12 8 18"></polyline>
         </svg>
         <span class="text-[10px] font-bold text-slate-700 tracking-wider">Developed By AArm 2026</span>
-    </a>
+    </div>
 
     <!-- Localization Dictionary -->
     <script>
@@ -633,10 +688,12 @@
                 logBy: "บันทึกโดย",
                 repTitle: "ส่งออกรายงาน (Reports)",
                 repType: "ประเภทรายงาน",
-                repOpt1: "1. รายงานสินค้าคงคลัง (Inventory)",
-                repOpt2: "2. รายงานการรับสินค้าเข้า (Stock In)",
-                repOpt3: "3. รายงานการเบิกสินค้าออก (Stock Out)",
+                repOptSum: "1. รายงานสรุปยอดรวมสินค้า (Summary)",
+                repOpt1: "2. รายงานแจกแจงตามช่อง (Detailed Inventory)",
+                repOpt2: "3. รายงานการรับสินค้าเข้า (Stock In)",
+                repOpt3: "4. รายงานการเบิกสินค้าออก (Stock Out)",
                 repStart: "ตั้งแต่วันที่", repEnd: "ถึงวันที่",
+                repFilterLoc: "กรองเฉพาะช่อง/ชั้น (เว้นว่างเพื่อดูทั้งหมด)",
                 repBtnGen: "ดึงข้อมูลรายงาน",
                 repExcel: "Excel (CSV)", repPdf: "พิมพ์ / PDF",
                 repWait: "คลิก ดึงข้อมูลรายงาน เพื่อแสดงผล",
@@ -653,15 +710,15 @@
                 helpTouchDesc: "ใช้นิ้วเดียวลากเพื่อหมุนกล้อง และใช้สองนิ้วลากเพื่อเลื่อน หรือกางนิ้วเพื่อซูม",
                 helpSysHeader: "2. การจัดการคลังสินค้าและระบบ",
                 helpSys1: "เช็คสต็อก (Search):",
-                helpSys1Desc: "ดูรายการสินค้าทั้งหมด คลิกที่สินค้าเพื่อดูรายละเอียดและตำแหน่งใน 3D",
+                helpSys1Desc: "ดูรายการสินค้าทั้งหมด สามารถสลับมุมมอง Grid/List ได้ คลิกที่สินค้าเพื่อดูรายละเอียดและตำแหน่งใน 3D",
                 helpSys2: "รับเข้า / เบิกออก (In/Out):",
-                helpSys2Desc: "บันทึกข้อมูลการเอาสินค้าเข้าและออกจากชั้นวาง ระบบจะคำนวณและวาด 3D อัตโนมัติ",
+                helpSys2Desc: "บันทึกข้อมูลการเอาสินค้าเข้าและออกจากชั้นวาง ระบบจะคำนวณและวาด 1 กล่องต่อ 1 รายการแพ็กเกจรับเข้าอัตโนมัติ",
                 helpSys3: "รายงานและประวัติ (Reports & Logs):",
-                helpSys3Desc: "ดูประวัติการทำรายการย้อนหลัง และสามารถส่งออกข้อมูลเป็น Excel หรือ PDF ได้",
+                helpSys3Desc: "สามารถดูรายงานสรุปยอดรวม (Summary) สินค้าที่อยู่หลายช่องได้ หรือดูประวัติการทำรายการย้อนหลัง ส่งออก Excel/PDF",
                 helpSys4: "จัดการผังคลังสินค้า (Layout Config):",
-                helpSys4Desc: "ตั้งค่ามิติ ขนาด และจำนวนชั้นวาง (ไอคอน ⚙️ ซ่อนอยู่ข้างปุ่ม Home มุมขวาล่าง)",
+                helpSys4Desc: "ตั้งค่ามิติ ขนาด และจำนวนชั้นวาง (ไอคอน ⚙️ ซ่อนอยู่ข้างปุ่ม Home มุมขวาล่าง เลื่อนเมาส์ไปชี้เพื่อแสดง)",
                 helpDev: "ผู้พัฒนา AArm -- version 1.0.0 -- 15/05/2026",
-                cfgTitle: "ตั้งค่ามิติชั้นวาง (หน่วย: เซนติเมตร)",
+                cfgTitle: "ตั้งค่ามิติชั้นวาง (ซม.)",
                 cfgPrefix: "อักษรนำหน้าแถว (Prefix เช่น B)",
                 cfgPrefixPh: "เช่น B",
                 cfgBatch: "การสร้างช่องแบบกลุ่มต่อเนื่อง",
@@ -700,7 +757,7 @@
                 toastNoStock: "จำนวนไม่พอให้เบิก",
                 toastDateReq: "กรุณาเลือกวันที่เริ่มต้นและสิ้นสุด",
                 toastNoExport: "ยังไม่มีข้อมูลสำหรับส่งออก",
-                colDate: "วันที่อัปเดตล่าสุด", colName: "ชื่อสินค้า", colQty: "จำนวนคงเหลือ", colSlot: "ช่องเก็บ", colSize: "ขนาด (กxลxส)",
+                colDate: "วันที่อัปเดตล่าสุด", colName: "ชื่อสินค้า", colQty: "จำนวนรวม", colSlot: "ช่องเก็บที่พบ", colSize: "ขนาด (กxลxส)",
                 colLogDate: "วันและเวลาที่ทำรายการ", colDetails: "รายละเอียด", colUser: "ผู้ทำรายการ / อุปกรณ์",
                 lblSlot: "ช่อง", lblLevel: "ชั้น",
                 lblPage: "หน้า",
@@ -745,10 +802,12 @@
                 logBy: "Logged by",
                 repTitle: "Export Reports",
                 repType: "Report Type",
-                repOpt1: "1. Inventory Report",
-                repOpt2: "2. Stock In Report",
-                repOpt3: "3. Stock Out Report",
+                repOptSum: "1. Summary by Item Name",
+                repOpt1: "2. Detailed Inventory by Slot",
+                repOpt2: "3. Stock In Report",
+                repOpt3: "4. Stock Out Report",
                 repStart: "From Date", repEnd: "To Date",
+                repFilterLoc: "Filter by Slot/Level (Leave blank for all)",
                 repBtnGen: "Generate Report",
                 repExcel: "Excel (CSV)", repPdf: "Print / PDF",
                 repWait: "Click 'Generate Report' to view data",
@@ -765,11 +824,11 @@
                 helpTouchDesc: "Use 1 finger to rotate, 2 fingers to pan or pinch to zoom.",
                 helpSysHeader: "2. Warehouse Management",
                 helpSys1: "Check Stock (Search):",
-                helpSys1Desc: "View all items. Click an item to see details and locate it in 3D.",
+                helpSys1Desc: "View all items. Switch between List/Grid views. Click an item to locate it in 3D.",
                 helpSys2: "Stock In / Out:",
-                helpSys2Desc: "Record inventory movements. The 3D view will update automatically.",
+                helpSys2Desc: "Record inventory movements. The system auto-draws 1 box per package received.",
                 helpSys3: "Reports & Logs:",
-                helpSys3Desc: "View past operations and export data to Excel or PDF.",
+                helpSys3Desc: "Generate summary reports of items across multiple slots, view logs, and export to CSV/PDF.",
                 helpSys4: "Layout Config:",
                 helpSys4Desc: "Set rack dimensions. (The ⚙️ icon is hidden next to the Home button on the bottom right)",
                 helpDev: "Developer: AArm -- version 1.0.0 -- 15/05/2026",
@@ -812,7 +871,7 @@
                 toastNoStock: "Not enough quantity to take out",
                 toastDateReq: "Please select start and end dates",
                 toastNoExport: "No data to export",
-                colDate: "Last Update", colName: "Item Name", colQty: "Remaining", colSlot: "Slot", colSize: "Size (WxDxH)",
+                colDate: "Last Update", colName: "Item Name", colQty: "Total Qty", colSlot: "Locations Found", colSize: "Size (WxDxH)",
                 colLogDate: "Date & Time", colDetails: "Details", colUser: "User / Device",
                 lblSlot: "Slot", lblLevel: "Level",
                 lblPage: "Page",
@@ -857,10 +916,12 @@
                 logBy: "記録者",
                 repTitle: "レポート出力",
                 repType: "レポートの種類",
-                repOpt1: "1. 在庫レポート",
-                repOpt2: "2. 入庫レポート",
-                repOpt3: "3. 出庫レポート",
+                repOptSum: "1. 商品名別の合計 (Summary)",
+                repOpt1: "2. 場所別の詳細在庫 (Detailed Inventory)",
+                repOpt2: "3. 入庫レポート",
+                repOpt3: "4. 出庫レポート",
                 repStart: "開始日", repEnd: "終了日",
+                repFilterLoc: "場所で絞り込む (空白で全件)",
                 repBtnGen: "レポート作成",
                 repExcel: "Excel (CSV)", repPdf: "印刷 / PDF",
                 repWait: "「レポート作成」をクリックして表示",
@@ -877,11 +938,11 @@
                 helpTouchDesc: "1本指で回転、2本指で移動またはズームします。",
                 helpSysHeader: "2. 倉庫・在庫管理",
                 helpSys1: "在庫確認 (検索):",
-                helpSys1Desc: "全商品を表示します。商品をクリックすると詳細と3D上の位置を確認できます。",
+                helpSys1Desc: "全商品を表示します。リスト/グリッド表示を切り替え可能。クリックで3D位置を確認できます。",
                 helpSys2: "入庫 / 出庫:",
-                helpSys2Desc: "在庫の増減を記録します。3Dビューは自動的に更新されます。",
+                helpSys2Desc: "在庫の増減を記録します。システムは入荷1件につき1つの箱を自動描画します。",
                 helpSys3: "レポートと履歴:",
-                helpSys3Desc: "過去の操作履歴を確認し、ExcelやPDFに出力できます。",
+                helpSys3Desc: "複数場所に分散した商品の合計レポート作成、操作履歴の確認、CSV/PDF出力が可能です。",
                 helpSys4: "レイアウト設定:",
                 helpSys4Desc: "ラックの寸法を設定します。(⚙️アイコンは右下のホームボタンの横に隠れています)",
                 helpDev: "開発者: AArm -- バージョン 1.0.0 -- 2026/05/15",
@@ -924,7 +985,7 @@
                 toastNoStock: "出庫可能な数量が不足しています",
                 toastDateReq: "開始日と終了日を選択してください",
                 toastNoExport: "出力するデータがありません",
-                colDate: "最終更新", colName: "商品名", colQty: "残量", colSlot: "場所", colSize: "サイズ",
+                colDate: "最終更新", colName: "商品名", colQty: "合計数量", colSlot: "保管場所", colSize: "サイズ",
                 colLogDate: "日時", colDetails: "詳細", colUser: "ユーザー / 端末",
                 lblSlot: "枠", lblLevel: "段",
                 lblPage: "ページ",
@@ -934,6 +995,8 @@
         };
 
         let currentLang = localStorage.getItem('stocky_lang') || 'th';
+        // View modes configuration
+        let viewModes = { search: 'list', out: 'list' };
 
         function t(key) {
             return i18nData[currentLang][key] || key;
@@ -974,10 +1037,41 @@
                 document.getElementById('log-page-info').innerText = `${t('lblPage')} ${window.currentLogPage + 1}`;
             }
         };
+        
+        window.setViewMode = function(tab, mode) {
+            viewModes[tab] = mode;
+            const listBtn = document.getElementById(`view-${tab}-list`);
+            const gridBtn = document.getElementById(`view-${tab}-grid`);
+            const container = document.getElementById(`${tab === 'search' ? 'search-results' : 'out-items-list'}`);
+            
+            if (mode === 'list') {
+                listBtn.classList.add('bg-indigo-100', 'text-indigo-600');
+                listBtn.classList.remove('text-gray-500');
+                gridBtn.classList.remove('bg-indigo-100', 'text-indigo-600');
+                gridBtn.classList.add('text-gray-500');
+                
+                container.classList.remove('grid', 'grid-cols-1', 'md:grid-cols-2', 'lg:grid-cols-3');
+                container.classList.add('flex', 'flex-col', 'items-list-view');
+            } else {
+                gridBtn.classList.add('bg-indigo-100', 'text-indigo-600');
+                gridBtn.classList.remove('text-gray-500');
+                listBtn.classList.remove('bg-indigo-100', 'text-indigo-600');
+                listBtn.classList.add('text-gray-500');
+                
+                container.classList.remove('flex', 'flex-col', 'items-list-view');
+                container.classList.add('grid', 'grid-cols-1', 'md:grid-cols-2', 'lg:grid-cols-3');
+            }
+            
+            // Re-render to apply classes properly
+            if (tab === 'search') handleSearch();
+            else filterOutItems();
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('lang-select').value = currentLang;
             setLanguage(currentLang);
+            setViewMode('search', 'list');
+            setViewMode('out', 'list');
         });
     </script>
 
@@ -1086,7 +1180,7 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type === 'error' ? 'error' : ''}`;
-            toast.innerHTML = `<span class="text-sm font-medium text-gray-800">${message}</span>`;
+            toast.innerHTML = `<span class="text-base font-bold text-gray-800">${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
@@ -1160,7 +1254,7 @@
                 } else {
                     mainOverlay.classList.remove('hidden');
                     setTimeout(() => mainOverlay.classList.add('opacity-100'), 10);
-                    mainModal.className = `${baseClasses} inset-2 md:inset-4 modal-show`;
+                    mainModal.className = `${baseClasses} inset-2 md:inset-4 modal-show shadow-2xl`;
                 }
                 
                 document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -1195,7 +1289,7 @@
         // ฟังก์ชันโหลด Logs ตามเลขหน้า (0-indexed)
         window.loadLogsPage = async function(pageIndex) {
             const tbody = document.getElementById('logs-container');
-            tbody.innerHTML = `<div class="text-center text-gray-400 py-8 col-span-full text-base">${t('loading')}</div>`;
+            tbody.innerHTML = `<div class="text-center text-gray-400 py-8 col-span-full text-lg">${t('loading')}</div>`;
             document.getElementById('log-pagination').classList.add('hidden');
 
             try {
@@ -1234,7 +1328,7 @@
             container.innerHTML = '';
             
             if(window.currentLogs.length === 0 && window.currentLogPage === 0) {
-                container.innerHTML = `<div class="text-center text-gray-400 py-10 col-span-full text-lg">${t('logEmpty')}</div>`;
+                container.innerHTML = `<div class="text-center text-gray-400 py-12 col-span-full text-xl">${t('logEmpty')}</div>`;
                 return;
             }
 
@@ -1246,13 +1340,13 @@
                 if(log.action === 'CONFIG') { color = 'text-slate-600'; bg = 'bg-slate-100'; icon = '⚙'; }
 
                 container.innerHTML += `
-                    <div class="p-5 bg-white border border-gray-100 rounded-2xl shadow-sm text-sm hover:shadow-md transition-shadow">
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="font-bold ${color} ${bg} px-3 py-1.5 rounded-lg text-xs tracking-wider">${icon} ${log.action}</span>
+                    <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm text-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="font-bold ${color} ${bg} px-3 py-1.5 rounded-lg text-sm tracking-wider">${icon} ${log.action}</span>
                             <span class="text-sm text-gray-400 font-medium">${date}</span>
                         </div>
-                        <div class="text-slate-800 mt-2 text-base font-medium leading-relaxed">${log.details}</div>
-                        <div class="text-xs text-gray-400 mt-4 border-t border-gray-50 pt-3">${t('logBy')}: ${log.user}</div>
+                        <div class="text-slate-800 mt-2 text-lg font-medium leading-relaxed">${log.details}</div>
+                        <div class="text-sm text-gray-400 mt-5 border-t border-gray-50 pt-4">${t('logBy')}: ${log.user}</div>
                     </div>`;
             });
 
@@ -1615,27 +1709,52 @@
             
             results.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
 
-            if(results.length === 0) return resContainer.innerHTML = `<div class="text-center text-red-400 py-10 text-base col-span-full">${t('notFound')}</div>`;
+            if(results.length === 0) return resContainer.innerHTML = `<div class="text-center text-red-400 py-10 text-xl col-span-full w-full">${t('notFound')}</div>`;
 
             results.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-primary transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:shadow-md';
-                div.innerHTML = `
-                    <div class="flex-1">
-                        <div class="font-bold text-slate-800 text-xl mb-1">${item.name}</div>
-                        <div class="text-sm text-gray-500 mb-2">${t('sizeText')}: <span class="font-medium text-slate-700">${item.w}x${item.d}x${item.h} cm</span></div>
-                        <div class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg inline-block">${formatLocation(item.locationId)}</div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="text-lg font-bold text-primary px-4 py-2 bg-green-50 rounded-xl whitespace-nowrap border border-green-100">${item.qty} ${t('pcsText')}</div>
-                        <button class="btn-eye p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors shadow-sm" title="${t('btnViewMap')}">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                        </button>
-                        <button class="btn-out p-3 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-colors shadow-sm" title="${t('mdlBtnOut')}">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
-                        </button>
-                    </div>
-                `;
+                div.className = 'p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-primary transition-all cursor-pointer hover:shadow-md';
+                
+                if (viewModes.search === 'list') {
+                    div.innerHTML = `
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-slate-800 text-xl mb-1 truncate">${item.name}</div>
+                            <div class="item-details text-gray-500 text-sm">
+                                <span><span class="font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-lg mr-2">${formatLocation(item.locationId)}</span></span>
+                                <span>${t('sizeText')}: <span class="font-medium text-slate-700">${item.w}x${item.d}x${item.h} cm</span></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 shrink-0 mt-3 sm:mt-0">
+                            <div class="text-xl font-bold text-primary px-5 py-2 bg-green-50 rounded-xl whitespace-nowrap border border-green-100">${item.qty} ${t('pcsText')}</div>
+                            <button class="btn-eye p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors shadow-sm" title="${t('btnViewMap')}">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            </button>
+                            <button class="btn-out p-3 bg-orange-50 text-orange-600 rounded-xl hover:bg-orange-100 transition-colors shadow-sm" title="${t('mdlBtnOut')}">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    div.classList.add('flex-col', 'justify-between');
+                    div.innerHTML = `
+                        <div class="w-full">
+                            <div class="font-bold text-slate-800 text-xl mb-2 truncate" title="${item.name}">${item.name}</div>
+                            <div class="text-sm text-gray-500 mb-4">${t('sizeText')}: <span class="font-medium text-slate-700">${item.w}x${item.d}x${item.h} cm</span></div>
+                            <div class="text-sm font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg inline-block mb-4">${formatLocation(item.locationId)}</div>
+                        </div>
+                        <div class="flex items-center justify-between w-full border-t border-gray-50 pt-4 mt-auto">
+                            <div class="text-xl font-bold text-primary px-3 py-1 bg-green-50 rounded-lg whitespace-nowrap">${item.qty} ${t('pcsText')}</div>
+                            <div class="flex gap-2">
+                                <button class="btn-eye p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" title="${t('btnViewMap')}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                                <button class="btn-out p-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors" title="${t('mdlBtnOut')}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6M12 17V3M8 7l4-4 4 4"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
                 
                 div.onclick = (e) => {
                     if(e.target.closest('.btn-eye') || e.target.closest('.btn-out')) return;
@@ -1692,14 +1811,20 @@
         }
 
         function updateSelects() {
-            const select = document.getElementById('in-location');
-            select.innerHTML = `<option value="">${t('selectDash')}</option>`;
+            const selectIn = document.getElementById('in-location');
+            const selectRepFilter = document.getElementById('rep-loc-filter');
+            
+            selectIn.innerHTML = `<option value="">${t('selectDash')}</option>`;
+            selectRepFilter.innerHTML = `<option value="">-- ${t('selectDash')} --</option>`;
+            
             const sortedLocations = [...locations].sort((a, b) => a.id.localeCompare(b.id, undefined, {numeric: true, sensitivity: 'base'}));
             
             sortedLocations.forEach(loc => {
                 for(let l=1; l<=(loc.levels||1); l++) {
                     const exactId = `${loc.id}L${l}`;
-                    select.innerHTML += `<option value="${exactId}">${formatLocation(exactId)}</option>`;
+                    const formatted = formatLocation(exactId);
+                    selectIn.innerHTML += `<option value="${exactId}">${formatted}</option>`;
+                    selectRepFilter.innerHTML += `<option value="${exactId}">${formatted}</option>`;
                 }
             });
         }
@@ -1725,12 +1850,12 @@
                 groupDiv.className = 'border border-gray-200 rounded-xl overflow-hidden bg-white mb-3 shadow-sm';
                 
                 const header = document.createElement('div');
-                header.className = 'flex justify-between items-center bg-slate-50 p-3 cursor-pointer select-none border-b border-gray-100 hover:bg-slate-100 transition-colors';
+                header.className = 'flex justify-between items-center bg-slate-50 p-4 cursor-pointer select-none border-b border-gray-100 hover:bg-slate-100 transition-colors';
                 header.innerHTML = `
-                    <div class="font-bold text-slate-800 text-base">${t('lblRow')} ${prefix} <span class="text-xs text-gray-500 font-normal ml-2">(${grpLocs.length} ${t('lblSlot')})</span></div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="event.stopPropagation(); deleteLocationGroup('${prefix}')" class="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors">${t('delRow')}</button>
-                        <svg class="w-5 h-5 text-gray-400 transition-transform transform duration-200 group-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <div class="font-bold text-slate-800 text-lg">${t('lblRow')} ${prefix} <span class="text-sm text-gray-500 font-normal ml-3">(${grpLocs.length} ${t('lblSlot')})</span></div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="event.stopPropagation(); deleteLocationGroup('${prefix}')" class="text-red-500 hover:bg-red-50 px-4 py-2 rounded-xl text-sm font-bold transition-colors">${t('delRow')}</button>
+                        <svg class="w-6 h-6 text-gray-400 transition-transform transform duration-200 group-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 `;
                 
@@ -1740,13 +1865,13 @@
                 grpLocs.forEach(loc => {
                     const rotText = loc.rot == 90 ? '(90°)' : '';
                     content.innerHTML += `
-                        <div class="flex justify-between items-center p-3 hover:bg-gray-50 transition-colors">
+                        <div class="flex justify-between items-center p-4 hover:bg-gray-50 transition-colors pl-8">
                             <div>
-                                <strong class="text-slate-700 text-sm">${t('lblSlot')} ${loc.id} ${rotText}</strong> 
-                                <span class="text-xs text-gray-500 block mt-0.5">X:${loc.x}, Y:${loc.z} | ${loc.w}x${loc.d}x${loc.h}cm | ${t('lblLevel')}: ${loc.levels}</span>
+                                <strong class="text-slate-700 text-base">${t('lblSlot')} ${loc.id} ${rotText}</strong> 
+                                <span class="text-sm text-gray-500 block mt-1">X:${loc.x}, Y:${loc.z} | ${loc.w}x${loc.d}x${loc.h}cm | ${t('lblLevel')}: ${loc.levels}</span>
                             </div>
-                            <button onclick="deleteLocation('${loc.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg text-xs font-bold transition-colors" title="${t('delBtn')}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <button onclick="deleteLocation('${loc.id}')" class="text-red-400 hover:bg-red-50 p-2.5 rounded-xl text-xs font-bold transition-colors" title="${t('delBtn')}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </div>`;
                 });
@@ -1880,7 +2005,7 @@
                 if(matches.length > 0) {
                     matches.forEach(m => {
                         const div = document.createElement('div');
-                        div.className = 'autocomplete-item text-base text-gray-700 py-2';
+                        div.className = 'autocomplete-item text-lg text-gray-700 py-3 border-b border-gray-50 last:border-0';
                         div.innerText = m.name;
                         div.onclick = () => {
                             input.value = m.name;
@@ -1939,17 +2064,33 @@
             filtered.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
             
             if(filtered.length === 0) {
-                list.innerHTML = `<div class="text-center text-red-400 py-10 text-base col-span-full">${t('notFound')}</div>`;
+                list.innerHTML = `<div class="text-center text-red-400 py-10 text-xl col-span-full w-full">${t('notFound')}</div>`;
                 return;
             }
 
             filtered.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'p-4 border border-gray-200 rounded-xl bg-white cursor-pointer hover:border-orange-400 hover:shadow-sm flex justify-between items-center transition-all';
-                div.innerHTML = `
-                    <div><div class="font-bold text-slate-800 text-lg mb-1">${item.name}</div><div class="text-sm text-gray-500"><span class="font-medium bg-slate-100 px-2 py-1 rounded">${formatLocation(item.locationId)}</span></div></div>
-                    <div class="text-lg font-bold text-primary px-4 py-2 bg-green-50 rounded-xl">${item.qty} ${t('pcsText')}</div>
-                `;
+                div.className = 'p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-primary transition-all cursor-pointer hover:shadow-md';
+                
+                if (viewModes.out === 'list') {
+                    div.innerHTML = `
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-slate-800 text-xl mb-1 truncate">${item.name}</div>
+                            <div class="text-sm font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg inline-block">${formatLocation(item.locationId)}</div>
+                        </div>
+                        <div class="text-xl font-bold text-primary px-5 py-2 bg-green-50 rounded-xl whitespace-nowrap border border-green-100 mt-3 sm:mt-0 ml-auto">${item.qty} ${t('pcsText')}</div>
+                    `;
+                } else {
+                    div.classList.add('flex-col', 'justify-between');
+                    div.innerHTML = `
+                        <div class="w-full text-center">
+                            <div class="font-bold text-slate-800 text-xl mb-3 truncate" title="${item.name}">${item.name}</div>
+                            <div class="text-sm font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg inline-block mb-4">${formatLocation(item.locationId)}</div>
+                            <div class="text-xl font-bold text-primary px-4 py-2 bg-green-50 rounded-xl border border-green-100">${item.qty} ${t('pcsText')}</div>
+                        </div>
+                    `;
+                }
+
                 div.onclick = () => {
                     selectedOutItem = item;
                     document.getElementById('out-action-area').classList.remove('hidden');
@@ -1984,11 +2125,22 @@
             } catch(e) { showToast(t('toastError'), "error"); }
         }
 
+        window.toggleReportFilters = function() {
+            const type = document.getElementById('rep-type').value;
+            const locFilter = document.querySelector('.loc-filter');
+            if(type === 'INV') {
+                locFilter.classList.remove('hidden');
+            } else {
+                locFilter.classList.add('hidden');
+            }
+        }
+
         // --- Reports Functions ---
         window.generateReport = async function() {
             const type = document.getElementById('rep-type').value;
             const startVal = document.getElementById('rep-start').value;
             const endVal = document.getElementById('rep-end').value;
+            const locFilterVal = document.getElementById('rep-loc-filter').value;
             
             if(!startVal || !endVal) return showToast(t('toastDateReq'), "error");
             
@@ -1997,24 +2149,61 @@
             
             const tbody = document.getElementById('rep-tbody');
             const thead = document.getElementById('rep-thead');
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-500 font-medium">${t('loading')}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-gray-500 font-medium text-lg">${t('loading')}</td></tr>`;
             
             let data = [];
             
             try {
-                if(type === 'INV') {
-                    data = inventory.filter(i => i.timestamp >= startTs && i.timestamp <= endTs)
-                        .sort((a,b) => b.timestamp - a.timestamp)
-                        .map(i => {
-                            let obj = {};
-                            obj[t('colDate')] = new Date(i.timestamp).toLocaleString('th-TH');
-                            obj[t('colName')] = i.name;
-                            obj[t('colQty')] = i.qty;
-                            obj[t('colSlot')] = formatLocation(i.locationId);
-                            obj[t('colSize')] = `${i.w}x${i.d}x${i.h} cm`;
-                            return obj;
-                        });
+                if(type === 'SUM') {
+                    // Summary Report logic
+                    let summaryMap = {};
+                    inventory.forEach(i => {
+                        if(!summaryMap[i.name]) {
+                            summaryMap[i.name] = { totalQty: 0, locations: [], size: `${i.w}x${i.d}x${i.h} cm`, timestamp: i.timestamp };
+                        }
+                        summaryMap[i.name].totalQty += i.qty;
+                        summaryMap[i.name].locations.push(`${formatLocation(i.locationId)} (${i.qty})`);
+                        if(i.timestamp > summaryMap[i.name].timestamp) summaryMap[i.name].timestamp = i.timestamp;
+                    });
+
+                    data = Object.keys(summaryMap).map(name => {
+                        let obj = {};
+                        obj[t('colName')] = name;
+                        obj[t('colQty')] = summaryMap[name].totalQty;
+                        obj[t('colSlot')] = summaryMap[name].locations.join(', ');
+                        obj[t('colSize')] = summaryMap[name].size;
+                        obj[t('colDate')] = new Date(summaryMap[name].timestamp).toLocaleString('th-TH');
+                        return obj;
+                    });
+                    
+                    // Filter timestamp if needed for summary? Usually summary is current state. Let's filter by last update.
+                    data = data.filter(d => {
+                        const ts = new Date(d[t('colDate')].split(' ')[0].split('/').reverse().join('-')).getTime(); // rough parse
+                        // Actually, standardizing timestamp inside summaryMap is better for filtering
+                        return true; 
+                    });
+                    // For Summary, we usually want to see ALL current stock. Ignoring date filter for now as it causes confusion on summary.
+
+                } else if(type === 'INV') {
+                    // Detailed Inventory Report
+                    data = inventory.filter(i => {
+                        const timeMatch = i.timestamp >= startTs && i.timestamp <= endTs;
+                        const locMatch = locFilterVal === '' || i.locationId === locFilterVal;
+                        return timeMatch && locMatch;
+                    })
+                    .sort((a,b) => b.timestamp - a.timestamp)
+                    .map(i => {
+                        let obj = {};
+                        obj[t('colDate')] = new Date(i.timestamp).toLocaleString('th-TH');
+                        obj[t('colName')] = i.name;
+                        obj[t('colQty')] = i.qty;
+                        obj[t('colSlot')] = formatLocation(i.locationId);
+                        obj[t('colSize')] = `${i.w}x${i.d}x${i.h} cm`;
+                        return obj;
+                    });
+
                 } else {
+                    // IN / OUT Logs
                     const snap = await window.getDocs(collection(db, firestorePath('logs')));
                     let allLogs = [];
                     snap.forEach(doc => allLogs.push(doc.data()));
@@ -2036,16 +2225,16 @@
                 
                 if(data.length === 0) {
                     thead.innerHTML = '';
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-red-500 text-base font-medium">${t('repEmpty')}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-red-500 text-xl font-bold">${t('repEmpty')}</td></tr>`;
                     return;
                 }
                 
                 const headers = Object.keys(data[0]);
-                thead.innerHTML = '<tr>' + headers.map(h => `<th class="px-5 py-3 text-left font-bold border-r border-gray-200 last:border-r-0">${h}</th>`).join('') + '</tr>';
+                thead.innerHTML = '<tr>' + headers.map(h => `<th class="px-6 py-4 text-left font-bold border-r border-gray-200 last:border-r-0 whitespace-nowrap bg-slate-200">${h}</th>`).join('') + '</tr>';
                 
                 tbody.innerHTML = data.map(row => 
                     '<tr class="border-b border-gray-100 hover:bg-purple-50/50 transition-colors">' + 
-                    headers.map(h => `<td class="px-5 py-3 text-gray-800 border-r border-gray-100 last:border-r-0">${row[h]}</td>`).join('') + 
+                    headers.map(h => `<td class="px-6 py-4 text-gray-800 border-r border-gray-100 last:border-r-0 font-medium">${row[h]}</td>`).join('') + 
                     '</tr>'
                 ).join('');
                 
@@ -2091,7 +2280,9 @@
             const endVal = document.getElementById('rep-end').value;
             
             let html = `<h2>${typeText}</h2>`;
-            html += `<p class="print-date">From: ${startVal || '-'} To: ${endVal || '-'}</p>`;
+            if (sel.value !== 'SUM') {
+                html += `<p class="print-date">From: ${startVal || '-'} To: ${endVal || '-'}</p>`;
+            }
             
             html += `<table>`;
             const headers = Object.keys(window.currentReportData[0]);
