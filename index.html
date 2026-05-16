@@ -3060,30 +3060,5 @@
         }, 50);
     };
     </script>
-    <script>
-        // Anti-DevTools
-        (() => {
-            const devtools = { isOpen: false };
-            const threshold = 160;
-            const emitEvent = (isOpen) => { window.dispatchEvent(new CustomEvent("devtoolschange", { detail: { isOpen } })); };
-            const main = () => {
-                const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-                const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-                if (widthThreshold || heightThreshold) {
-                    if (!devtools.isOpen) { emitEvent(true); }
-                    devtools.isOpen = true;
-                } else {
-                    if (devtools.isOpen) { emitEvent(false); }
-                    devtools.isOpen = false;
-                }
-            };
-            setInterval(main, 500);
-            window.addEventListener("devtoolschange", event => {
-                if (event.detail.isOpen) {
-                    document.body.innerHTML = `<div style="position:fixed;inset:0;background:black;color:white;display:flex;align-items:center;justify-content:center;z-index:999999;font-size:2rem;text-align:center;">Developer Tools are not allowed.</div>`;
-                }
-            });
-        })();
-    </script>
 </body>
 </html>
