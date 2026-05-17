@@ -255,7 +255,7 @@
     <div id="canvas-container"></div>
 
     <div id="ui-layer">
-        <div id="tooltip-3d" class="hidden absolute z-[999] p-2 bg-black/70 text-white text-xs rounded-md pointer-events-none backdrop-blur-sm shadow-lg"></div>
+        <div id="tooltip-3d" class="hidden absolute z-[999] p-2 bg-black/70 text-white text-xs rounded-md pointer-events-none backdrop-blur-sm shadow-lg text-center whitespace-pre-line"></div>
         <div id="overlay" class="fixed inset-0 bg-black/40 hidden pointer-events-auto z-40 md:hidden backdrop-blur-sm transition-opacity" onclick="toggleSidebar()"></div>
 
         <aside id="sidebar" class="w-64 backdrop-blur-md border-r shadow-xl flex flex-col pointer-events-auto z-50 h-full" style="background:var(--sidebar-bg);border-color:var(--border)">
@@ -696,6 +696,16 @@
                                 </div>
                                 <p class="text-sm md:text-xs mt-4 text-center" style="color:var(--text-muted)" data-i18n="setFontDesc">ระบบจดจำการตั้งค่าสำหรับครั้งต่อไปอัตโนมัติ</p>
                             </div>
+
+                            <!-- Backup -->
+                            <div class="border rounded-2xl p-5" style="background:var(--hover-bg);border-color:var(--border)">
+                                <label class="block font-bold text-base md:text-sm mb-2" style="color:var(--text)" data-i18n="backupTitle">💾 Backup ข้อมูล</label>
+                                <p class="text-xs mb-4" style="color:var(--text-muted)" data-i18n="backupDesc">ดาวน์โหลดข้อมูลทั้งหมด (inventory, locations, logs) เป็นไฟล์ JSON เก็บไว้ในเครื่อง</p>
+                                <button onclick="openBackupWithPassword()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-colors shadow-md flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+                                    <span data-i18n="backupBtn">ดาวน์โหลด Backup</span>
+                                </button>
+                            </div>
                         </div>
                         </div>
                     </div>
@@ -923,6 +933,30 @@
         </form>
     </div>
 
+    <!-- Backup Password Modal -->
+    <div id="backup-pwd-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-[100] pointer-events-auto p-4">
+        <div class="p-6 md:p-8 rounded-3xl w-full max-w-sm border" style="background:var(--modal-bg);border-color:var(--border)">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base" style="color:var(--text)" data-i18n="backupPwdTitle">ยืนยันตัวตน</h3>
+                    <p class="text-xs" style="color:var(--text-muted)" data-i18n="backupPwdDesc">กรอกรหัสผ่านเพื่อ Backup ข้อมูล</p>
+                </div>
+                <button onclick="closeBackupPwdModal()" class="ml-auto text-gray-400 hover:text-red-500 p-2 rounded-xl transition-colors shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <input type="password" id="backup-pwd-input" placeholder="รหัสผ่าน" class="w-full px-4 py-3 border rounded-xl text-sm mb-3 input-style" style="background:var(--input-bg);border-color:var(--input-border);color:var(--text)" onkeydown="if(event.key==='Enter') checkBackupPassword()">
+            <div id="backup-pwd-error" class="text-red-500 text-xs mb-3 hidden" data-i18n="backupPwdErr">รหัสผ่านไม่ถูกต้อง</div>
+            <div class="flex gap-3">
+                <button onclick="closeBackupPwdModal()" class="flex-1 py-3 rounded-xl text-sm font-medium" style="background:var(--hover-bg);color:var(--text)">ยกเลิก</button>
+                <button onclick="checkBackupPassword()" id="btn-confirm-backup" class="flex-1 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
     <!-- To-Do Modal -->
     <div id="todo-modal" class="fixed inset-0 bg-black/20 hidden items-center justify-center z-[100] pointer-events-auto p-4">
         <div class="p-6 md:p-8 rounded-3xl w-full max-w-2xl border flex flex-col max-h-[80vh]" style="background:var(--modal-bg);border-color:var(--border)">
@@ -970,7 +1004,18 @@
             lblSlot:"ช่อง",lblLevel:"ชั้น",lblPage:"หน้า",btnPrev:"ก่อนหน้า",btnNext:"ถัดไป",
             lowStockAlert:"⚠ ใกล้หมด", fifoBadge:"แนะนำ (FIFO)",
             pwdTitle:"ยืนยันตัวตนผู้ดูแล",pwdDesc:"กรอกรหัสผ่านเพื่อเข้าจัดการผังคลังสินค้า",pwdPh:"รหัสผ่าน",pwdErr:"รหัสผ่านไม่ถูกต้อง",pwdForgot:"หากลืมรหัสผ่าน กรุณาติดต่อ ",pwdDev:"นักพัฒนา",
-            eeTitle:"🌙 ยินดีต้อนรับสู่ดวงจันทร์",eeDesc:"คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... เรามีคลังสินค้าบนอวกาศด้วยนะ!",eeBack:"🚀 กลับโลก"
+            eeTitle:"🌙 ยินดีต้อนรับสู่ดวงจันทร์",eeDesc:"คุณมีความพยายามสูงมากที่ซูมออกมาไกลขนาดนี้... เรามีคลังสินค้าบนอวกาศด้วยนะ!",eeBack:"🚀 กลับโลก",
+            offlineMsg:"ไม่มีการเชื่อมต่ออินเทอร์เน็ต — ข้อมูลจะไม่ถูกบันทึกจนกว่าจะเชื่อมต่อใหม่",
+            onlineMsg:"เชื่อมต่ออินเทอร์เน็ตแล้ว ✓",
+            backupTitle:"💾 Backup ข้อมูล",
+            backupDesc:"ดาวน์โหลดข้อมูลทั้งหมด (inventory, locations, logs) เป็นไฟล์ JSON เก็บไว้ในเครื่อง",
+            backupBtn:"ดาวน์โหลด Backup",
+            backupPwdTitle:"ยืนยันตัวตน",
+            backupPwdDesc:"กรอกรหัสผ่านเพื่อ Backup ข้อมูล",
+            backupPwdErr:"รหัสผ่านไม่ถูกต้อง",
+            backupSuccess:"Backup สำเร็จ!",
+            backupFail:"Backup ไม่สำเร็จ",
+            backupPreparing:"กำลังเตรียม Backup..."
         },
         en: {
             loading:"Loading...",menuOverview:"Overview",menuSearch:"Check Stock / Search",menuIn:"Stock In",menuOut:"Stock Out",menuLogs:"Logs",menuReports:"Reports",menuHelp:"User Manual",menuSettings:"Settings",
@@ -994,7 +1039,18 @@
             lblSlot:"Slot",lblLevel:"Lvl",lblPage:"Page",btnPrev:"Prev",btnNext:"Next",
             lowStockAlert:"⚠ Low", fifoBadge:"Oldest (FIFO)",
             pwdTitle:"Admin Login",pwdDesc:"Enter password to config warehouse",pwdPh:"Password",pwdErr:"Invalid password",pwdForgot:"Forgot password? Contact ",pwdDev:"Developer",
-            eeTitle:"🌙 Welcome to the Moon",eeDesc:"You zoomed out incredibly far... We have space warehouses too!",eeBack:"🚀 Back to Earth"
+            eeTitle:"🌙 Welcome to the Moon",eeDesc:"You zoomed out incredibly far... We have space warehouses too!",eeBack:"🚀 Back to Earth",
+            offlineMsg:"No internet connection — data will not be saved until reconnected.",
+            onlineMsg:"Internet connected ✓",
+            backupTitle:"💾 Backup Data",
+            backupDesc:"Download all data (inventory, locations, logs) as a JSON file to keep on your device.",
+            backupBtn:"Download Backup",
+            backupPwdTitle:"Authentication",
+            backupPwdDesc:"Enter password to backup data",
+            backupPwdErr:"Invalid password",
+            backupSuccess:"Backup successful!",
+            backupFail:"Backup failed",
+            backupPreparing:"Preparing backup..."
         },
         ja: {
             loading:"読み込み中...",menuOverview:"概要",menuSearch:"在庫確認・検索",menuIn:"入庫",menuOut:"出庫",menuLogs:"操作履歴",menuReports:"レポート",menuHelp:"マニュアル",menuSettings:"設定",
@@ -1018,7 +1074,18 @@
             lblSlot:"枠",lblLevel:"段",lblPage:"ページ",btnPrev:"前へ",btnNext:"次へ",
             lowStockAlert:"⚠ 残少", fifoBadge:"最古(FIFO)",
             pwdTitle:"管理者ログイン",pwdDesc:"パスワードを入力",pwdPh:"パスワード",pwdErr:"無効なパスワード",pwdForgot:"忘れた場合は連絡 ",pwdDev:"開発者",
-            eeTitle:"🌙 月へようこそ",eeDesc:"ここまでズームするとは... 宇宙倉庫もありますよ！",eeBack:"🚀 地球に戻る"
+            eeTitle:"🌙 月へようこそ",eeDesc:"ここまでズームするとは... 宇宙倉庫もありますよ！",eeBack:"🚀 地球に戻る",
+            offlineMsg:"インターネット接続なし — 再接続するまでデータは保存されません。",
+            onlineMsg:"インターネット接続完了 ✓",
+            backupTitle:"💾 データバックアップ",
+            backupDesc:"すべてのデータ（在庫、場所、ログ）をJSONファイルとしてダウンロードします。",
+            backupBtn:"バックアップをダウンロード",
+            backupPwdTitle:"認証",
+            backupPwdDesc:"バックアップするためにパスワードを入力してください",
+            backupPwdErr:"パスワードが違います",
+            backupSuccess:"バックアップ成功！",
+            backupFail:"バックアップ失敗",
+            backupPreparing:"バックアップ準備中..."
         }
     };
     let currentLang = localStorage.getItem('stocky_lang') || 'th';
@@ -1089,9 +1156,6 @@
     };
 
     /* ===== PASSWORD ===== */
-    const _pwdCodes = [65,100,109,105,110,64,50,48,50,54];
-    const _correctPwd = () => _pwdCodes.map(c=>String.fromCharCode(c)).join('');
-
     window.openConfigWithPassword = function(){
         if(sessionStorage.getItem('stocky_unlocked')==='1'){
             openTab('config');
@@ -1102,16 +1166,39 @@
         document.getElementById('pwd-modal').classList.add('show');
         setTimeout(()=>document.getElementById('pwd-input').focus(), 100);
     };
-    window.closePwdModal = function(){ document.getElementById('pwd-modal').classList.remove('show'); };
-    window.checkPassword = function(){
-        if(document.getElementById('pwd-input').value === _correctPwd()){
-            sessionStorage.setItem('stocky_unlocked','1');
-            document.getElementById('pwd-modal').classList.remove('show');
-            openTab('config');
-        } else {
+
+    window.closePwdModal = function(){ 
+        document.getElementById('pwd-modal').classList.remove('show'); 
+    };
+
+    window.checkPassword = async function(){
+        const btn = document.querySelector('#pwd-modal button[onclick="checkPassword()"]');
+        const inputVal = document.getElementById('pwd-input').value;
+        if(btn) btn.disabled = true;
+
+        try {
+            const docSnap = await window.getDocs(
+                window.collection(window.db, window.firestorePath('config'))
+            );
+            let correctPwd = null;
+            docSnap.forEach(d => { 
+                if(d.id === 'admin') correctPwd = d.data().password; 
+            });
+
+            if(correctPwd && inputVal === correctPwd){
+                sessionStorage.setItem('stocky_unlocked','1');
+                document.getElementById('pwd-modal').classList.remove('show');
+                openTab('config');
+            } else {
+                document.getElementById('pwd-error').classList.remove('hidden');
+                document.getElementById('pwd-input').value='';
+                document.getElementById('pwd-input').focus();
+            }
+        } catch(e) {
+            console.error(e);
             document.getElementById('pwd-error').classList.remove('hidden');
-            document.getElementById('pwd-input').value='';
-            document.getElementById('pwd-input').focus();
+        } finally {
+            if(btn) btn.disabled = false;
         }
     };
 
@@ -1164,6 +1251,92 @@
         const qtyInput = document.getElementById('out-modal-qty');
         qtyInput.value = qtyInput.max;
     };
+
+    // ===== BACKUP =====
+    window.openBackupWithPassword = function() {
+        document.getElementById('backup-pwd-input').value = '';
+        document.getElementById('backup-pwd-error').classList.add('hidden');
+        document.getElementById('backup-pwd-modal').classList.remove('hidden');
+        document.getElementById('backup-pwd-modal').classList.add('flex');
+        setTimeout(() => document.getElementById('backup-pwd-input').focus(), 100);
+    };
+
+    window.closeBackupPwdModal = function() {
+        document.getElementById('backup-pwd-modal').classList.add('hidden');
+        document.getElementById('backup-pwd-modal').classList.remove('flex');
+    };
+
+    window.checkBackupPassword = async function() {
+        const btn = document.getElementById('btn-confirm-backup');
+        const inputVal = document.getElementById('backup-pwd-input').value;
+        btn.disabled = true;
+
+        try {
+            const docSnap = await window.getDocs(
+                window.collection(window.db, window.firestorePath('config'))
+            );
+            let correctPwd = null;
+            docSnap.forEach(d => {
+                if(d.id === 'admin') correctPwd = d.data().password;
+            });
+
+            if(correctPwd && inputVal === correctPwd) {
+                closeBackupPwdModal();
+                await doBackup();
+            } else {
+                document.getElementById('backup-pwd-error').classList.remove('hidden');
+                document.getElementById('backup-pwd-input').value = '';
+                document.getElementById('backup-pwd-input').focus();
+            }
+        } catch(e) {
+            console.error(e);
+            document.getElementById('backup-pwd-error').classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+        }
+    };
+
+    async function doBackup() {
+         showToast(t('backupPreparing'));
+        try {
+            // ดึงข้อมูลทั้งหมด
+            const [invSnap, locSnap, logSnap] = await Promise.all([
+                getDocs(collection(db, firestorePath('inventory'))),
+                getDocs(collection(db, firestorePath('locations'))),
+                getDocs(collection(db, firestorePath('logs')))
+            ]);
+
+            const backupData = {
+                exportedAt: new Date().toISOString(),
+                version: '2.0.0',
+                inventory: [],
+                locations: [],
+                logs: []
+            };
+
+            invSnap.forEach(d => backupData.inventory.push({ id: d.id, ...d.data() }));
+            locSnap.forEach(d => backupData.locations.push({ id: d.id, ...d.data() }));
+            logSnap.forEach(d => backupData.logs.push({ id: d.id, ...d.data() }));
+
+            // ดาวน์โหลดเป็น JSON
+            const json = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const date = new Date().toISOString().slice(0, 10);
+            link.href = url;
+            link.download = `Stocky_Backup_${date}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast(`${t('backupSuccess')} (${backupData.inventory.length} ${t('pcsText')}, ${backupData.logs.length} logs)`);
+        } catch(e) {
+            console.error(e);
+            showToast(t('backupFail'), 'error');
+        }
+    }
 
     window.openTodoModal = function() {
         const modal = document.getElementById('todo-modal');
@@ -1549,6 +1722,47 @@
         document.getElementById('rep-start').value=fmt(firstDay);
         document.getElementById('rep-end').value=fmt(now);
     });
+
+    // ===== OFFLINE INDICATOR =====
+    const offlineBanner = document.createElement('div');
+    offlineBanner.id = 'offline-banner';
+    offlineBanner.style.cssText = `
+        position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+        background: #ef4444; color: white; text-align: center;
+        padding: 10px 16px; font-size: 14px; font-weight: bold;
+        transform: translateY(-100%); transition: transform 0.3s ease;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+    `;
+    offlineBanner.innerHTML = `
+        <svg style="width:20px;height:20px;shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01M8.464 15.536a5 5 0 010-7.072M5.636 18.364a9 9 0 010-12.728"/>
+        </svg>
+        <span id="offline-banner-text"></span>
+    `;
+    document.body.appendChild(offlineBanner);
+
+    function setOfflineMode(isOffline) {
+        offlineBanner.style.transform = isOffline ? 'translateY(0)' : 'translateY(-100%)';
+        document.getElementById('offline-banner-text').innerText = isOffline ? t('offlineMsg') : t('onlineMsg');
+        
+        const btnIn = document.getElementById('btn-submit-in');
+        const btnOut = document.getElementById('btn-submit-out-modal');
+        if(btnIn) btnIn.disabled = isOffline;
+        if(btnOut) btnOut.disabled = isOffline;
+
+        if(isOffline) {
+            showToast(t('offlineMsg'), 'error');
+        } else {
+            showToast(t('onlineMsg'));
+        }
+    }
+
+    window.addEventListener('offline', () => setOfflineMode(true));
+    window.addEventListener('online', () => setOfflineMode(false));
+
+    // เช็คตอนโหลดหน้าด้วย
+    if(!navigator.onLine) setOfflineMode(true);
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if(!document.getElementById('todo-modal').classList.contains('hidden')) closeTodoModal();
@@ -1926,10 +2140,12 @@
 
                     hoverTimer = setTimeout(() => {
                         if (hoveredObject === hitObject) {
-                            tooltipElement.innerText = hoveredObject.userData.data.name;
+                            // แสดงชื่อ + จำนวน + ตำแหน่ง
+                            const item = hoveredObject.userData.data;
+                            tooltipElement.innerText = `${item.name}\n${item.qty} ${t('pcsText')} | ${formatLocation(item.locationId)}`;
                             tooltipElement.classList.remove('hidden');
                         }
-                    }, 3000);
+                    }, 1000);
                 }
                 tooltipElement.style.left = `${event.clientX + 15}px`;
                 tooltipElement.style.top = `${event.clientY}px`;
@@ -2088,20 +2304,49 @@
         renderer.render(scene,camera);
     }
 
+    const textSpriteCache = {};
     function createTextSprite(message,size=100){
+        // ถ้าเคยสร้างแล้ว clone มาใช้เลย ไม่ต้องสร้างใหม่
+        if(textSpriteCache[message]) {
+            const cached = textSpriteCache[message].clone();
+            cached.scale.set(size*4,size*1,1);
+            return cached;
+        }
         const canvas=document.createElement('canvas'); canvas.width=512; canvas.height=128;
         const ctx=canvas.getContext('2d'); ctx.font="Bold 72px 'Sarabun', sans-serif";
         ctx.fillStyle=document.documentElement.classList.contains('dark')?"#e2e8f0":"#1e293b";
         ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(message,256,64);
         const tex=new THREE.CanvasTexture(canvas);
         const mat=new THREE.SpriteMaterial({map:tex,depthTest:false});
-        const sprite=new THREE.Sprite(mat); sprite.scale.set(size*4,size*1,1); return sprite;
+        const sprite=new THREE.Sprite(mat); sprite.scale.set(size*4,size*1,1);
+        textSpriteCache[message] = sprite;
+        return sprite;
+    }
+
+    function disposeObject(obj) {
+        if(obj.geometry) obj.geometry.dispose();
+        if(obj.material) {
+            if(obj.material.map) obj.material.map.dispose();
+            obj.material.dispose();
+        }
     }
 
     function rebuild3DWarehouse(){
+        // Dispose ของเก่าก่อนลบ เพื่อไม่ให้ memory รั่ว
+        warehouseGroup.traverse(obj => {
+            if(obj.isMesh) disposeObject(obj);
+        });
         while(warehouseGroup.children.length>0) warehouseGroup.remove(warehouseGroup.children[0]);
         itemMeshes={};
-        clickableMeshes=[]; 
+        clickableMeshes=[];
+        // ล้าง text sprite cache เมื่อ theme เปลี่ยน
+        if(Object.keys(textSpriteCache).length > 0) {
+            Object.values(textSpriteCache).forEach(s => {
+                if(s.material.map) s.material.map.dispose();
+                s.material.dispose();
+            });
+            Object.keys(textSpriteCache).forEach(k => delete textSpriteCache[k]);
+        }
         
         const isDark=document.documentElement.classList.contains('dark');
         
@@ -2110,6 +2355,20 @@
         const legColor = isDark ? 0x334155 : 0x94a3b8;
         const rackMat=new THREE.MeshStandardMaterial({color:rackColor, metalness:0.2, roughness:0.8});
         const legMat=new THREE.MeshStandardMaterial({color:legColor, metalness:0.3, roughness:0.8});
+
+        // Cache materials แทนสร้างใหม่ทุกครั้ง
+        const materialCache = {};
+        function getItemMaterial(name) {
+            if(materialCache[name]) return materialCache[name];
+            let hash=0; 
+            for(let i=0;i<name.length;i++) hash=name.charCodeAt(i)+((hash<<5)-hash);
+            const hue=(Math.abs(hash)*137.5)%360/360;
+            materialCache[name] = new THREE.MeshStandardMaterial({
+                color:new THREE.Color().setHSL(hue,0.85,0.45),
+                roughness:0.4
+            });
+            return materialCache[name];
+        }
         
         locations.forEach(loc=>{
             const rot=parseInt(loc.rot)||0;
@@ -2147,7 +2406,7 @@
                         let hash=0; for(let i=0;i<item.name.length;i++) hash=item.name.charCodeAt(i)+((hash<<5)-hash);
                         // [FIXED 2] กระจายสีให้แตกต่างกันชัดเจน แม้ชื่อสินค้าจะคล้ายกัน (ใช้ Golden Angle 137.5 องศา)
                         const hue=(Math.abs(hash)*137.5)%360/360;
-                        const mat=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(hue,0.85,0.45),roughness:0.4});
+                        const mat = getItemMaterial(item.name);
                         const box=new THREE.Mesh(new THREE.BoxGeometry(iW,iH,iD),mat);
                         if(rot===90) box.rotation.y=Math.PI/2;
                         box.position.set(x,stackY+iH/2,z); box.castShadow=true; box.receiveShadow=true;
@@ -2175,14 +2434,47 @@
             const loader=document.getElementById('loader'); if(loader){ loader.style.opacity='0'; setTimeout(()=>loader.remove(),500); }
             setTimeout(resetCamera,500);
         });
+        let rebuildTimer = null;
         onSnapshot(collection(db,firestorePath('inventory')),(snap)=>{
-            inventory=[]; snap.forEach(d=>inventory.push({id:d.id,...d.data()}));
-            rebuild3DWarehouse();
-            updateTodoNotifications();
-            if(!document.getElementById('tab-search').classList.contains('hidden')) handleSearch();
-            if(!document.getElementById('tab-out').classList.contains('hidden')) filterOutItems();
+            inventory=[]; 
+            snap.forEach(d=>inventory.push({id:d.id,...d.data()}));
+            
+            // Debounce rebuild ถ้าข้อมูลเปลี่ยนถี่ๆ รอให้นิ่งก่อน 300ms แล้วค่อย rebuild ครั้งเดียว
+            clearTimeout(rebuildTimer);
+            rebuildTimer = setTimeout(() => {
+                rebuild3DWarehouse();
+                updateTodoNotifications();
+                if(!document.getElementById('tab-search').classList.contains('hidden')) handleSearch();
+                if(!document.getElementById('tab-out').classList.contains('hidden')) filterOutItems();
+            }, 300);
         });
         onSnapshot(collection(db,firestorePath('itemHistory')),(snap)=>{ itemHistory=[]; snap.forEach(d=>itemHistory.push({id:d.id,...d.data()})); });
+        // ===== AUTO CLEANUP LOGS (เก่ากว่า 3 เดือน) =====
+        async function autoCleanupLogs() {
+            try {
+                const threeMonthsAgo = Date.now() - (90 * 24 * 60 * 60 * 1000);
+                const oldLogsSnap = await getDocs(
+                    query(
+                        collection(db, firestorePath('logs')),
+                        orderBy('timestamp', 'asc'),
+                        limit(500)
+                    )
+                );
+                const deletePromises = [];
+                oldLogsSnap.forEach(d => {
+                    if(d.data().timestamp < threeMonthsAgo) {
+                        deletePromises.push(deleteDoc(doc(db, firestorePath('logs'), d.id)));
+                    }
+                });
+                if(deletePromises.length > 0) {
+                    await Promise.all(deletePromises);
+                    console.log(`Auto cleanup: ลบ ${deletePromises.length} logs เก่ากว่า 3 เดือน`);
+                }
+            } catch(e) {
+                console.error('Auto cleanup error:', e);
+            }
+        }
+        autoCleanupLogs();
         openTab('home');
     };
 
